@@ -2,6 +2,7 @@ package top.chopper.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -31,9 +32,11 @@ public class SysDish {
     private Integer hot;
     @Schema(name="makeId",description="菜品制作教程id")
     private Integer makeId;
-    @JsonFormat()
     @Schema(name="createTime",description="创建时间")
     private LocalDateTime createTime;
     @Schema(name="updateTime",description="更新时间")
     private LocalDateTime updateTime;
+    @TableLogic(value = "0", delval = "2") // 逻辑删除字段
+    @Schema(name="isDelete",description="采用逻辑删除 0表示未删除 2表示删除")
+    private Integer isDelete;
 }
