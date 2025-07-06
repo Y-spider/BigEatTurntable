@@ -1,6 +1,9 @@
 package top.chopper.utils;
 
-import top.chopper.pojo.Test;
+import top.chopper.pojo.User;
+
+import java.io.BufferedWriter;
+import java.io.IOException;
 import java.lang.reflect.Field;
 import java.util.Arrays;
 import java.util.regex.Matcher;
@@ -15,7 +18,7 @@ import java.util.regex.Pattern;
 @SuppressWarnings("all")
 public class MyCastNameUtil {
     public static void main(String[] args) {
-        Class clazz = Test.class;
+        Class clazz = User.class;
         System.out.print("<sql id=\"allTableField\">");
         System.out.print(getNameStrOfTable(clazz));
         System.out.println("</sql>");
@@ -83,6 +86,26 @@ public class MyCastNameUtil {
             System.out.println("<if test=\""+substring+"!=null\">\n" +
                     "                "+tableF+"=#{"+substring+"},\n" +
                     "</if>");
+        }
+        return null;
+    }
+    public static String getUpdateDynamicStr(Class clazz, BufferedWriter bufferedWriter){
+        String nameStrOfPojo = getNameStrOfPojo(clazz);
+        String pojo = nameStrOfPojo.substring(1, nameStrOfPojo.length() - 1);
+        String nameStrOfTable = getNameStrOfTable(clazz);
+        String table = nameStrOfTable.substring(1, nameStrOfTable.length() - 1);
+        String[] splitTable = table.split(",");
+        String[] splitPojo = pojo.split(",");
+        for (int i = 0; i < splitTable.length; i++) {
+            String tableF = splitTable[i];
+            String substring = splitPojo[i].substring(2,splitPojo[i].length() - 1);
+            try {
+                bufferedWriter.write("<if test=\""+substring+"!=null\">\n" +
+                        "                "+tableF+"=#{"+substring+"},\n" +
+                        "</if>\n");
+            } catch ( IOException e ) {
+                throw new RuntimeException(e);
+            }
         }
         return null;
     }

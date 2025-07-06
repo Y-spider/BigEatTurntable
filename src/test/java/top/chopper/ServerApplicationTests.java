@@ -3,17 +3,19 @@ package top.chopper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import top.chopper.service.TestService;
-
-import java.util.List;
+import top.chopper.utils.MyGetCommentUtil;
 
 @SpringBootTest(classes = ServerApplication.class)
 class ServerApplicationTests {
     @Autowired
-    private TestService testService;
+    private MyGetCommentUtil myGetCommentUtil;
+
     @Test
-    void contextLoads() {
-        System.out.println(testService.myGetById(1));
+    void generateTableFiled(){
+//        myGetCommentUtil.generatePerfect("dish_type",true);
+        myGetCommentUtil.generatePerfect("sys_dish",true);
+//        myGetCommentUtil.generatePerfect("turntable",true);
     }
+
 
 }

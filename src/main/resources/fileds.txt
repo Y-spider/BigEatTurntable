@@ -1,0 +1,41 @@
+
+======dish_type表字段生成==========
+
+@Schema(name="id",description="主键id")
+private Integer id;
+@Schema(name="name",description="菜品分类名称(早餐 午餐 奶茶......)")
+private String name;
+======dish表字段生成==========
+
+======turntable表字段生成==========
+
+@Schema(name="id",description="转盘id")
+private Integer id;
+@Schema(name="content",description="转盘内容格式为 xxx,xxx,xxx,xxx 使用逗号分隔")
+private String content;
+@Schema(name="type",description="标识转盘类型 1为系统转盘 0为用户自定义转盘")
+private Integer type;
+@Schema(name="openid",description="当前转盘所属用户,为空则表示是系统转盘")
+private String openid;
+@Schema(name="title",description="转盘标题")
+private String title;
+@Schema(name="isDelete",description="采用逻辑删除 0表示未删除 2表示删除")
+private Integer isDelete;
+======sys_dish表字段生成==========
+
+@Schema(name="id",description="菜品id")
+private Integer id;
+@Schema(name="name",description="菜品名称")
+private String name;
+@Schema(name="typeId",description="菜品分类id")
+private Integer typeId;
+@Schema(name="isMake",description="是否有菜谱(制作过程)")
+private Boolean isMake;
+@Schema(name="hot",description="热度值")
+private Integer hot;
+@Schema(name="makeId",description="菜品制作教程id")
+private Integer makeId;
+@Schema(name="createTime",description="创建时间")
+private LocalDateTime createTime;
+@Schema(name="updateTime",description="更新时间")
+private LocalDateTime updateTime;

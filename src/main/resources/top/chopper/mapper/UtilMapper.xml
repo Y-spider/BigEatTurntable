@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.chopper.mapper.UtilMapper">
+    <!-- id是这条SQL语句的唯一标识 -->
+    <select id="getComment" resultType="top.chopper.pojo.UtilComment">
+    -- 获取指定表表字段的备注信息
+        SELECT column_name, column_comment,data_type
+        FROM information_schema.columns
+        WHERE table_name = #{tableName}
+          AND table_schema = 'eat_big_turntable';
+    </select>
+</mapper>

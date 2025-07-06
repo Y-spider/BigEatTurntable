@@ -1,4 +1,7 @@
 package top.chopper.config;
+import com.baomidou.mybatisplus.annotation.DbType;
+import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
+import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
@@ -43,6 +46,17 @@ public class WebConfig implements WebMvcConfigurer {
                         .contact(new Contact().name("chopper").email("3267585160@qq.com").url("https://www.baidu.com"))
                         //设置接口文档的许可证信息
                         .license(new License().name("Apache 2.0").url("http://springdoc.org")));
+    }
+
+    /**
+     * 添加Mybatis-plus的分页插件
+     */
+    @Bean
+    public MybatisPlusInterceptor mybatisPlusInterceptor() {
+        MybatisPlusInterceptor interceptor = new MybatisPlusInterceptor();
+        interceptor.addInnerInterceptor(new PaginationInnerInterceptor(DbType.MYSQL)); // 如果配置多个插件, 切记分页最后添加
+        // 如果有多数据源可以不配具体类型, 否则都建议配上具体的 DbType
+        return interceptor;
     }
 
 }
