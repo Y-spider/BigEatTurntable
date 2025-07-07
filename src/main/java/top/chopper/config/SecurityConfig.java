@@ -34,8 +34,7 @@ public class SecurityConfig {
         http
                 // 1. 显式配置权限规则：所有未明确放行的接口都需要认证
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/user/login/**", "/common/**", "/back/user/getCode", "/back/user/login",
-                                "/document/downloadFile","/pay/notify")
+                        .requestMatchers("/user/login/**", "/common/**", "/document/downloadFile","/pay/notify")
                         .permitAll() // 公开接口
                         .anyRequest() // 其他所有接口
                         .authenticated() // 必须认证

@@ -8,3 +8,8 @@ mybatis-plus 3.5.7框架
 redis 暂定是否使用(不使用)
 jdk 17
 p6spy 完整sql语句打印并且打印sql执行时间，方面找出慢查询。
+
+
+# 管理端
+账号: 17760580731
+密码:Yanwenguang123_
