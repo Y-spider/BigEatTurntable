@@ -16,4 +16,8 @@ public class SecurityUtil {
     public static String getUserName(){
         return SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
     }
+
+    public static String getUserRole(){
+        return SecurityContextHolder.getContext().getAuthentication().getAuthorities().toString();
+    }
 }
