@@ -1,0 +1,57 @@
+{
+	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
+		{
+			"path": "pages/index/index",
+			"style": {
+				"navigationBarTitleText": "今天吃什么?"
+			}
+		},
+		{
+			"path" : "pages/home/home",
+			"style" : 
+			{
+				"navigationBarTitleText" : "吃货大转盘",
+				"enablePullDownRefresh" : false
+			}
+		},
+		{
+			"path" : "pages/hot/hot",
+			"style" : 
+			{
+				"navigationBarTitleText" : "热门转盘",
+				"enablePullDownRefresh" : false
+			}
+		}
+	],
+	"tabBar": {
+		"color": "#bfbfbf",
+		"selectedColor": "#FFA500",
+		"list": [
+			{
+				"pagePath": "pages/index/index",
+				"text": "开饭",
+				"iconPath": "static/index.png",
+				"selectedIconPath": "static/index-active.png"
+			},
+			{
+				"pagePath": "pages/hot/hot",
+				"text": "热门转盘",
+				"iconPath": "static/hot.png",
+				"selectedIconPath": "static/hot-active.png"
+			},
+			{
+				"pagePath": "pages/home/home",
+				"text": "我的",
+				"iconPath": "static/home.png",
+				"selectedIconPath": "static/home-active.png"
+			}
+		]
+	},
+	"globalStyle": {
+		"navigationBarTextStyle": "black",
+		"navigationBarTitleText": "uni-app",
+		"navigationBarBackgroundColor": "#F8F8F8",
+		"backgroundColor": "#F8F8F8"
+	},
+	"uniIdRouter": {}
+}

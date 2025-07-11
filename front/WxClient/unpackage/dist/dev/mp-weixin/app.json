@@ -1,0 +1,39 @@
+{
+  "pages": [
+    "pages/index/index",
+    "pages/home/home",
+    "pages/hot/hot"
+  ],
+  "subPackages": [],
+  "window": {
+    "navigationBarTextStyle": "black",
+    "navigationBarTitleText": "uni-app",
+    "navigationBarBackgroundColor": "#F8F8F8",
+    "backgroundColor": "#F8F8F8"
+  },
+  "tabBar": {
+    "color": "#bfbfbf",
+    "selectedColor": "#FFA500",
+    "list": [
+      {
+        "pagePath": "pages/index/index",
+        "text": "开饭",
+        "iconPath": "static/index.png",
+        "selectedIconPath": "static/index-active.png"
+      },
+      {
+        "pagePath": "pages/hot/hot",
+        "text": "热门转盘",
+        "iconPath": "static/hot.png",
+        "selectedIconPath": "static/hot-active.png"
+      },
+      {
+        "pagePath": "pages/home/home",
+        "text": "我的",
+        "iconPath": "static/home.png",
+        "selectedIconPath": "static/home-active.png"
+      }
+    ]
+  },
+  "usingComponents": {}
+}
