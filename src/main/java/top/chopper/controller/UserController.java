@@ -11,6 +11,8 @@ import top.chopper.dto.AdminUserLoginDto;
 import top.chopper.pojo.R;
 import top.chopper.service.UserService;
 
+import java.util.HashMap;
+
 /*
    @Author:ROBOT
    @DateTime:2025/7/6 17:38
@@ -28,6 +30,12 @@ public class UserController {
     @PostMapping("/admin/login")
     public R adminLogin(@RequestBody AdminUserLoginDto adminUserLoginDto){
         return userService.adminLogin(adminUserLoginDto);
+    }
+
+    @Operation(description = "微信小程序用户登录",summary = "微信小程序用户登录")
+    @PostMapping("/client/login")
+    public R clientLogin(@RequestBody HashMap<String,String> params){
+        return R.SUCCESS( userService.wxClientLogin(params.get("code")));
     }
 
 }

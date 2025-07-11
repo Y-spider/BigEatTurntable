@@ -18,4 +18,7 @@ mybatis-plus:
 system:
   jwt:
     secretKey: "tony chopper"
-
+wexi:  # 微信小程序配置
+  appid: "wxfbf664952970b1bb"
+  secret: "9a8381b008724997047978c6b8966bf3"
+  grant_type: "authorization_code"

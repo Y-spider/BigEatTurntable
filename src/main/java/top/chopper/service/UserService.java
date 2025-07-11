@@ -13,4 +13,6 @@ import top.chopper.pojo.User;
    */
 public interface UserService extends IService<User> {
     R adminLogin(AdminUserLoginDto adminUserLoginDto);
+
+    String wxClientLogin(String code);
 }

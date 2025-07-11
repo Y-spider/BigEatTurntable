@@ -32,4 +32,6 @@ public class User {
     private LocalDateTime createTime;
     @Schema(name = "updateTime",description = "账号修改时间")
     private LocalDateTime updateTime;
+    @Schema(name = "name",description = "微信登录用户名称")
+    private String name;
 }
