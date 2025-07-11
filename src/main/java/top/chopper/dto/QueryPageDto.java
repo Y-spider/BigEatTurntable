@@ -23,8 +23,11 @@ public class QueryPageDto {
     }
 
     public QueryPageDto(){
+        // 默认分数数量为10
         this.limit = 10;
+        // 默认起始页为1
         this.page = 1;
+        // 默认query参数为空
         this.queryMap = new HashMap<String,Object>();
     }
 

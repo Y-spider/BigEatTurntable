@@ -7,7 +7,6 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
-
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -37,6 +36,12 @@ public class JWTUtil {
         return builder.sign(Algorithm.HMAC256(secretKet)); // 设置加密密钥，并且生成token字符串
     }
 
+    /**
+     * @param ClaimKey 键名称
+     * @param ClaimValue 键值
+     * @param secretKey 密钥
+     * @return
+     */
     public static String createJWT(String ClaimKey,String ClaimValue,String secretKey){
 //        Calendar instance = Calendar.getInstance();
 //        instance.add(Calendar.DAY_OF_WEEK,7); // 默认设置过期时间为7天，取消注释，不设置过期时间
@@ -47,14 +52,30 @@ public class JWTUtil {
     }
 
     /**
+     * @param claimMap 键值对map
+     * @param secretKey 密钥
+     * @return
+     */
+    public static String createJWT(HashMap<String,String> claimMap,String secretKey){
+//        Calendar instance = Calendar.getInstance();
+//        instance.add(Calendar.DAY_OF_WEEK,7); // 默认设置过期时间为7天，取消注释，不设置过期时间
+        JWTCreator.Builder builder = JWT.create();
+//        builder.withExpiresAt(instance.getTime());
+        for (String claimKey : claimMap.keySet()) {
+            builder.withClaim(claimKey,claimMap.get(claimKey)); // 存储信息，也就是加载在payload中的数据，可以设置多个
+        }
+        return builder.sign(Algorithm.HMAC256(secretKey)); // 设置加密密钥，并且生成token字符串
+    }
+
+    /**
      * @param token token字符串
-     * @param secretKet 密钥
+     * @param secretKey 密钥
      * @param  ClaimKey 数据键值对的key
      * @return 返回token中的数据返  如果id=ExpiresAt,返回过期时间
      */
-    public static String getDecodeJWTData(String token, String secretKet,String ClaimKey){
+    public static String getDecodeJWTData(String token, String secretKey,String ClaimKey){
         // 通过签名（密钥）生成验证对象
-        JWTVerifier build = JWT.require(Algorithm.HMAC256(secretKet)).build();
+        JWTVerifier build = JWT.require(Algorithm.HMAC256(secretKey)).build();
         try {
             DecodedJWT verify = build.verify(token);
             if("ExpiresAt".equals(ClaimKey)){
@@ -75,6 +96,4 @@ public class JWTUtil {
         }
 
     }
-
-
 }

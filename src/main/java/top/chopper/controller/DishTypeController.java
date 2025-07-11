@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
    */
 @RestController
 @RequestMapping("/dishType")
-@Tag(name = "菜单类型接口")
+@Tag(name = "菜品类型接口")
 public class DishTypeController {
    @Autowired
    private DishTypeService service;
