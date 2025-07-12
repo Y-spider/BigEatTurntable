@@ -1,1 +1,1 @@
-<view>我的页面</view>
+<view><cu-custom vue-id="1da55560-1" isBack="{{false}}" bind:__l="__l" vue-slots="{{['content']}}"><view slot="content">吃货大转盘</view></cu-custom>热门转盘<turntable vue-id="1da55560-2" bind:__l="__l"></turntable></view>

@@ -1,5 +1,6 @@
 package top.chopper.filter;
 
+import cn.hutool.json.JSONUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,9 +12,13 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
+import top.chopper.pojo.R;
+import top.chopper.pojo.RCode;
 import top.chopper.utils.JWTUtil;
 
 import java.io.IOException;
+import java.util.List;
+
 /*
    @Author:ROBOT
    @DateTime:2024/4/12 13:53
@@ -30,55 +35,46 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     @Autowired
     @Qualifier(value = "handlerExceptionResolver")
     private HandlerExceptionResolver resolver;
+    // 这里会在Security执行链之前执行(执行顺序优先级比较高)
+    private static final List<String> WHITE_LIST = List.of(
+            "/user/admin/login",
+            "/user/client/login",
+            "/doc.html",
+            "/swagger-ui.html",
+            "/swagger-ui/",
+            "/webjars/",
+            "/v2/",
+            "/v3/",
+            "/swagger-resources/"
+    );
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+        // 白名单直接放行
+        String servletPath = request.getServletPath();
+        if (WHITE_LIST.stream().anyMatch(servletPath::startsWith)) {
+            filterChain.doFilter(request, response);
+            return;
+        }
         //  获取token
         String token = request.getHeader("token");
         response.setCharacterEncoding("utf-8");
         if(token!=null && !token.isEmpty()){
             // 解析token，查看是移动端用户还是后台用户
-            String openid = JWTUtil.getDecodeJWTData(token, "tony chopper", "openid");
-            if(openid!=null){
-                // 表示是移动端用户登陆
-                // 建议从数据库中获取数据，在该系统中暂时不使用redis
-//                ClientUserDto clientUserDto = (ClientUserDto)redisTemplate.opsForValue().get("client_" + openid);
-                // 封装为UsernamePasswordAuthenticationToken 对象添加到SecurityContextHolder中
-//                if(clientUserDto!=null){
-//                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(clientUserDto.getOpenid(), "123456", clientUserDto.getAuthorities());
-//                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-//                    // 放行
-//                    filterChain.doFilter(request,response);
-//                }
-//                else{
-//                    // 表示在redis缓存中的用户存储的信息已经过期了
-////                    R<Object> expireR = new R<>();
-////                    expireR.setCode(RCode.EXPIRETOKEN);
-////                    expireR.setErrMsg("token已失效");
-////                    response.getWriter().write(JSON.toJSONString(expireR));
-//                }
-            }
-            else{
-                // 说明是后台用户登录
-                String key = JWTUtil.getDecodeJWTData(token, "tony chopper", "backUserToken");
-                // 从redis中获取存储的后台用户信息
-//                BackUserDto backUserDto = (BackUserDto)redisTemplate.opsForValue().get("back_" + key);
-//                if(backUserDto!=null){
-//                    UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(backUserDto.getAccount(), backUserDto.getPassword(), backUserDto.getAuthorities());
-//                    SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-//                    filterChain.doFilter(request,response);
-//                }
-//                else{
-//                    // 表示在redis缓存中的后台用户存储的信息已经过期了
-//                    R<Object> expireR = new R<>();
-//                    expireR.setCode(RCode.EXPIRETOKEN);
-//                    expireR.setErrMsg("token已失效");
-//                    response.getWriter().write(JSON.toJSONString(expireR));
-//                }
-            }
-        }else{
-            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken("chopper", "123456", null);
+            String role = JWTUtil.getDecodeJWTData(token, "tony chopper", "role");
+            String identity = JWTUtil.getDecodeJWTData(token, "tony chopper", "identity");
+            // 这里密码就存放的是角色信息
+            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(identity,role,null);
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
             filterChain.doFilter(request,response);
+        }
+        else{
+            R<Object> expireR = new R<>();
+            expireR.setCode(RCode.EXPIRETOKEN);
+            expireR.setErrMsg("无效令牌");
+            response.setHeader("Content-Type","application/json;charset=utf-8");
+            response.getWriter().write(JSONUtil.toJsonStr(expireR));
+            response.getWriter().flush();
+            response.getWriter().close();
         }
     }
 

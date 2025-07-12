@@ -3,7 +3,38 @@
 // 开发环境
 const BASE_URL = "http://127.0.0.1:16378/"
 
-export function httpOFPost(path, params = {}, loading = true) {
+// 检查是否登录，如果没有登录则进行登录
+function checkLogin(){
+	return new Promise((resolve, reject) => {
+		let token = uni.getStorageSync("token")
+		if(token){
+			return resolve(token);
+		}else{
+			uni.login({
+				success(res) {
+					 uni.request({
+						method:"POST",
+						url:BASE_URL + "user/client/login",
+						data:{"code":res.code},
+						success(res){
+							console.log("登录成功")
+							uni.setStorageSync("token",res.data.data)
+							return resolve()
+						},
+						fail(failMsg){
+							console.log(failMsg)
+							return reject(failMsg)
+						}
+					})
+				}
+			})
+		}
+	})
+	
+}
+
+export function httpOFPost(path, params = {}, loading = true,method) {
+	checkLogin().then(()=>{
 	if (false) {
 		uni.showLoading({
 			title: "加载中",	
@@ -17,7 +48,7 @@ export function httpOFPost(path, params = {}, loading = true) {
 				token: uni.getStorageSync("token") || ""
 			},
 			url: BASE_URL + path,
-			method:"POST",
+			method:method,
 			data: params,
 			async success(res) {
 				uni.hideLoading();
@@ -32,6 +63,15 @@ export function httpOFPost(path, params = {}, loading = true) {
 					});
 					reject(res.data)
 				}
+				else if(res.data?.code == -99){
+					uni.removeStorageSync("token")
+					uni.showToast({
+						icon: "error",
+						duration: 2000,
+						title: "令牌失效"
+					});
+					reject(res.data)
+				}
 
 			},
 			fail(err) {
@@ -42,10 +82,12 @@ export function httpOFPost(path, params = {}, loading = true) {
 			}
 		});
 	});
+	})
 };
 
 // 封装发送get请求
 export function httpOFGet(path,loading = true){
+	checkLogin()
 	// console.log('%c请求拦截：', ' background:orange',path);
 	if(false){
 		uni.showLoading({
@@ -72,7 +114,16 @@ export function httpOFGet(path,loading = true){
 						title:res.data.errMsg,
 						duration:2000
 					});
-				};
+				}
+				else if(res.data?.code == -99){
+					uni.removeStorageSync("token")
+					uni.showToast({
+						icon: "error",
+						duration: 2000,
+						title: "令牌失效"
+					});
+					reject(res.data)
+				}
 			},
 			fail(err){
 				uni.hideLoading();
@@ -121,9 +172,6 @@ export function httpOfGetWithNotToken(path,loading = false){
 				})
 				reject(err);
 			},
-			// complete(){
-				
-			// }
 		})
 	});
 } 

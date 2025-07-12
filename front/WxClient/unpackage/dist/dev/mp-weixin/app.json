@@ -2,14 +2,16 @@
   "pages": [
     "pages/index/index",
     "pages/home/home",
-    "pages/hot/hot"
+    "pages/hot/hot",
+    "pages/editWheel/index"
   ],
   "subPackages": [],
   "window": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "uni-app",
     "navigationBarBackgroundColor": "#F8F8F8",
-    "backgroundColor": "#F8F8F8"
+    "backgroundColor": "#F8F8F8",
+    "navigationStyle": "custom"
   },
   "tabBar": {
     "color": "#bfbfbf",
@@ -35,5 +37,7 @@
       }
     ]
   },
-  "usingComponents": {}
+  "usingComponents": {
+    "cu-custom": "/colorui/components/cu-custom"
+  }
 }

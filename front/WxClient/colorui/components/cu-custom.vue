@@ -65,5 +65,8 @@
 </script>
 
 <style>
-
+	.cu-custom{
+		background-color: #FFA500;
+		color: white;
+	}
 </style>

@@ -95,9 +95,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             userMapper.insert(user);
             Integer id = user.getId();
             HashMap<String, String> claimMap = new HashMap<>();
-            claimMap.put("identity",openid);
-            claimMap.put("role","client");
-            claimMap.put("createTime",LocalDateTime.now().toString());
+            claimMap.put("identity",openid); // 记录openid和account的
+            claimMap.put("role","client"); // 标记当前用户所属角色
+            claimMap.put("createTime",LocalDateTime.now().toString());// 记录jwt保存的时间
             String jwtToken = JWTUtil.createJWT(claimMap, secretKey);
             Token token = new Token();
             token.setCreateTime(LocalDateTime.now());

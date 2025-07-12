@@ -10,4 +10,6 @@ import top.chopper.pojo.TurnTable;
    @Description:
    */
 public interface TurnTableService extends IService<TurnTable> {
+    void updateTurnTable(TurnTable turnTable);
+
 }

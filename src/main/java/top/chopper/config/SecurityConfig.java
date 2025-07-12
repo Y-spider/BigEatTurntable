@@ -34,7 +34,18 @@ public class SecurityConfig {
         http
                 // 1. 显式配置权限规则：所有未明确放行的接口都需要认证
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/user/admin/login", "/common/**","/user/client/login")
+                        .requestMatchers(
+                                "/user/admin/login",
+                                "/user/client/login",
+                                // ↓↓↓ 追加 Swagger / Knife4j 相关路径 ↓↓↓
+                                "/v2/**",
+                                "/v3/**",
+                                "/swagger-resources/**",
+                                "/swagger-ui/**",
+                                "/swagger-ui.html",
+                                "/doc.html",          // 如果用 knife4j
+                                "/webjars/**"
+                        )
                         .permitAll() // 公开接口
                         .anyRequest() // 其他所有接口
                         .authenticated() // 必须认证

@@ -33,13 +33,17 @@ public class TurnTableController {
      * 获取当前用户的所有定义的转盘，一般都不会太多，所以这里就不采用分页的形式了
      * @return
      */
-    @Operation(description = "根据openid获取微信用户的随机转盘",summary = "根据openid获取微信用户的随机转盘")
+    @Operation(description = "根据openid获取微信用户的随机转盘的名称和id",summary = "根据openid获取微信用户的随机转盘的名称和id")
     @GetMapping("/list/user")
     public R listByOpenid(){
         String openid = SecurityUtil.getUserName();
-        LambdaQueryWrapper<TurnTable> queryWrapper = new LambdaQueryWrapper<TurnTable>().eq(TurnTable::getOpenid, openid);
+        LambdaQueryWrapper<TurnTable> queryWrapper = new LambdaQueryWrapper<TurnTable>()
+                .select(TurnTable::getId,TurnTable::getTitle)
+                .eq(TurnTable::getOpenid, openid);
         return R.SUCCESS(service.list(queryWrapper));
     }
+
+
 
     @Operation(description = "获取系统定义的所有转盘",summary = "获取系统定义的所有转盘")
     @GetMapping("/list/system")
@@ -73,10 +77,10 @@ public class TurnTableController {
     }
 
     @Operation(description = "修改轮盘信息根据轮盘id",summary = "修改轮盘信息根据轮盘id")
-    @PutMapping("/update/{id}")
+    @PutMapping("/update")
     public R handleUpdateTurntable(@RequestBody TurnTable turnTable){
-        turnTable.setUpdateTime(LocalDateTime.now());
-        return R.SUCCESS(service.updateById(turnTable));
+        service.updateTurnTable(turnTable);
+        return R.SUCCESS();
     }
 
     @Operation(description = "添加轮盘信息",summary = "添加轮盘信息")

@@ -21,6 +21,13 @@
 				"navigationBarTitleText" : "热门转盘",
 				"enablePullDownRefresh" : false
 			}
+		},
+		{
+			"path": "pages/editWheel/index",
+			"style": {
+				"navigationBarTitleText" : "修改",
+				"enablePullDownRefresh" : false
+			}
 		}
 	],
 	"tabBar": {
@@ -45,13 +52,15 @@
 				"iconPath": "static/home.png",
 				"selectedIconPath": "static/home-active.png"
 			}
+			
 		]
 	},
 	"globalStyle": {
 		"navigationBarTextStyle": "black",
 		"navigationBarTitleText": "uni-app",
 		"navigationBarBackgroundColor": "#F8F8F8",
-		"backgroundColor": "#F8F8F8"
+		"backgroundColor": "#F8F8F8",
+		"navigationStyle": "custom"
 	},
 	"uniIdRouter": {}
 }
