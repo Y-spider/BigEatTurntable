@@ -23,7 +23,7 @@ import java.time.LocalDateTime;
    @Description:
    */
 @RestController
-@RequestMapping("/truntable")
+@RequestMapping("/turntable")
 @Tag(name = "轮盘操作接口")
 public class TurnTableController {
     @Autowired
@@ -39,7 +39,8 @@ public class TurnTableController {
         String openid = SecurityUtil.getUserName();
         LambdaQueryWrapper<TurnTable> queryWrapper = new LambdaQueryWrapper<TurnTable>()
                 .select(TurnTable::getId,TurnTable::getTitle)
-                .eq(TurnTable::getOpenid, openid);
+                .eq(TurnTable::getOpenid, openid)
+                .orderByDesc(TurnTable::getUpdateTime);
         return R.SUCCESS(service.list(queryWrapper));
     }
 
@@ -50,6 +51,15 @@ public class TurnTableController {
     public R getById() {
         LambdaQueryWrapper<TurnTable> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(TurnTable::getType, TurnTableType.TURN_TABLE_TYPE_SYS);
+        return R.SUCCESS(service.list(queryWrapper));
+    }
+
+    @Operation(description = "获取全部热门转盘",summary = "获取全部热门转盘")
+    @GetMapping("/list/hot")
+    public R getHotTurntable(){
+        LambdaQueryWrapper<TurnTable> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(TurnTable::getType, TurnTableType.TURN_TABLE_TYPE_HOT)
+                .orderByDesc(TurnTable::getOrderNumber);
         return R.SUCCESS(service.list(queryWrapper));
     }
 

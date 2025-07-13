@@ -19,7 +19,7 @@ class ServerApplicationTests {
     @Test
     void generateTableFiled(){
 //        myGetCommentUtil.generatePerfect("dish_type",true);
-        myGetCommentUtil.generatePerfect("sys_dish",true);
+        myGetCommentUtil.generatePerfect("rotation_record",true);
 //        myGetCommentUtil.generatePerfect("turntable",true);
     }
 

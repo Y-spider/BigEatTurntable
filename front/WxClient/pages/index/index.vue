@@ -24,10 +24,10 @@
 		</view>
 		<!-- 转盘区域 -->
 		<view class="turntable-box">
-			<Turntable :prizeList="prizeList" style="margin: 50rpx;"></Turntable>
+			<Turntable :key="key_count" @routeDone="getRouteResult" :prizeList="prizeList" style="margin: 50rpx;"></Turntable>
 			<view class="fun-button" style="display: flex;justify-content: space-between; align-items: center;">
 				<view class="fun-but">
-					<button class="cu-btn bg-gradual-green shadow"> <text class="cuIcon-form" style="margin: 0 10rpx;"></text>菜谱</button>
+					<button v-if="true" class="cu-btn bg-gradual-green shadow"> <text class="cuIcon-form" style="margin: 0 10rpx;"></text>菜谱</button>
 				</view>
 				<view class="fun-but">
 					<button class="cu-btn bg-red shadow" @click="goEdit"> <text class="cuIcon-edit" style="margin: 0 10rpx;"></text> 编辑</button>
@@ -39,59 +39,59 @@
 			<view class="row-center" style="justify-content: space-around; width: 100vw;margin: 10rpx;">
 				<button 
 					class="cu-btn round shadow"
-					:class="selectedType === 'breakfast' ? 'bg-yellow' : 'bg-gray'"
-					@click="selectType('breakfast')"
+					:class="selectedType === 1 ? 'bg-yellow' : 'bg-gray'"
+					@click="selectType(1)"
 				>早餐<view class='cu-tag sm bg-red radius' style="margin: 0rpx 15rpx;">系统</view></button>
 				<button 
 					class="cu-btn round shadow"
-					:class="selectedType === 'lunch' ? 'bg-yellow' : 'bg-gray'"
-					@click="selectType('lunch')"
+					:class="selectedType === 2 ? 'bg-yellow' : 'bg-gray'"
+					@click="selectType(2)"
 				>午餐<view class='cu-tag sm bg-red radius' style="margin: 0rpx 15rpx;">系统</view></button>
 				<button 
 					class="cu-btn round shadow"
-					:class="selectedType === 'dinner' ? 'bg-yellow' : 'bg-gray'"
-					@click="selectType('dinner')"
+					:class="selectedType === 3 ? 'bg-yellow' : 'bg-gray'"
+					@click="selectType(3)"
 				>晚餐<view class='cu-tag sm bg-red radius' style="margin: 0rpx 15rpx;">系统</view></button>
 			</view>
 			<view class="row-center" style="width: 60vw;margin: 10rpx;gap: 20rpx;">
 				<button 
 					class="cu-btn round shadow"
-					:class="selectedType === 'midnight' ? 'bg-yellow' : 'bg-gray'"
-					@click="selectType('midnight')"
+					:class="selectedType === 4 ? 'bg-yellow' : 'bg-gray'"
+					@click="selectType(4)"
 				>宵夜<view class='cu-tag sm bg-red radius' style="margin: 0rpx 15rpx;">系统</view></button>
 				<button 
 					class="cu-btn round shadow"
-					:class="selectedType === 'diet' ? 'bg-yellow' : 'bg-gray'"
-					@click="selectType('diet')"
+					:class="selectedType === 5 ? 'bg-yellow' : 'bg-gray'"
+					@click="selectType(5)"
 				>减脂餐<view class='cu-tag sm bg-red radius' style="margin: 0rpx 15rpx;">系统</view></button>
 			</view>
 			<view class="row-center" style="width: 100vw;margin: 10rpx; justify-content: space-evenly;">
 				<button 
 					class="cu-btn round shadow"
-					:class="selectedType === 'random' ? 'bg-yellow' : 'bg-gray'"
-					@click="selectType('random')"
+					:class="selectedType === 6 ? 'bg-yellow' : 'bg-gray'"
+					@click="selectType(6)"
 				>随机吃点<view class='cu-tag sm bg-red radius' style="margin: 0rpx 15rpx;">系统</view></button>
 				<button 
 					class="cu-btn round shadow"
-					:class="selectedType === 'milkTea' ? 'bg-yellow' : 'bg-gray'"
-					@click="selectType('milkTea')"
+					:class="selectedType === 7 ? 'bg-yellow' : 'bg-gray'"
+					@click="selectType(7)"
 				>喝点奶茶<view class='cu-tag sm bg-red radius' style="margin: 0rpx 15rpx;">系统</view></button>
 			</view>
 		</view>
 		<!-- 自定义菜单区域 -->
 		<view class="custom-select-area">
-			<view class="custom-tip">
+			<view v-if="customTypes.length > 0" class="custom-tip">
 				自定义菜单
 			</view>
 			<view class="custom-btn-list">
 				<button
 					v-for="item in customTypes"
-					:key="item.value"
+					:key="item.id"
 					class="cu-btn round shadow custom-btn"
-					:class="selectedType === item.value ? 'bg-yellow' : 'bg-gray'"
-					@click="selectType(item.value)"
+					:class="selectedType === item.id ? 'bg-yellow' : 'bg-gray'"
+					@click="getTuratableDetail(item.id)"
 				>
-					{{ item.label }}
+					{{ item.title }}
 					<view class='cu-tag sm bg-orange radius' style="margin-left: 10rpx;">自定义</view>
 				</button>
 			</view>
@@ -100,6 +100,7 @@
 </template>
 
 <script>
+	import {getUserTurntableInfoAPI,getTurntableDetailAPI} from "@/apis/turntableApi.js"
 	import Turntable from "@/components/Turntable.vue"
 	export default {
 		components:{
@@ -107,52 +108,72 @@
 		},
 		data() {
 			return {
+				key_count:0,
+				isShowMaker:false,
+				selectedItem:null,
 				mode: 'random',
-				selectedType: 'breakfast', // 当前选中的固定类型，默认选中早餐菜单
+				selectedType: 1, // 当前选中的固定类型，默认选中早餐菜单
 				prizeList: [
-					{ fonts: [{ text: '炒饭', top: '10%' }], background: '#e9e8fe' },
-					{ fonts: [{ text: '炒面', top: '10%' }], background: '#b8c5f2' },
-					{ fonts: [{ text: '胡萝卜', top: '10%' }], background: '#e9e8fe' },
-					{ fonts: [{ text: '不见得', top: '10%' }], background: '#b8c5f2' },
-					{ fonts: [{ text: '哈哈哈哈', top: '10%' }], background: '#e9e8fe' },
-					{ fonts: [{ text: '真好', top: '10%' }], background: '#b8c5f2' }
+					// { fonts: [{ text: '炒饭', top: '10%' }], background: '#e9e8fe',range:1 },
 				],
 				customTypes: [
-					{ label: '早餐', value: 'custom1' },
-					{ label: '午餐', value: 'custom2' },
-					{ label: '晚餐', value: 'custom1' },
-					{ label: '夜宵', value: 'custom2' }
+					// {title:"xxx",id:1}
 				]
 			}
 		},
 		methods: {
+			getRouteResult(data){
+				this.selectedItem = data
+				if(this.selectedItem.isMake){
+					this.isShowMaker = true
+				}else{
+					this.isShowMaker = false
+				}
+				uni.setStorageSync("routing",false)
+			},
+			async getTuratableDetail(id){
+				this.selectedType = id
+				let res = await getTurntableDetailAPI(id)
+				this.prizeList = JSON.parse(res.data.content)
+				this.key_count++
+			},
+			async init(){
+				uni.setStorageSync("routing",false)
+				let res = await getUserTurntableInfoAPI()
+				this.customTypes = res.data.splice(0,6) // 只展示前6个
+			},
 			goEdit() {
+				let isSystem = false
+				if(this.selectedType >=1 && this.selectedType <= 7){
+					isSystem = true
+				}
 				uni.setStorageSync('editPrizeList', this.prizeList)
-				uni.navigateTo({ url: `/pages/editWheel/index?turntableName=早餐` })
+				uni.navigateTo({ url: `/pages/editWheel/index?turntableName=早餐&id=${this.selectedType}&isSystem=${isSystem}`
+				})
 			},
 			selectType(type) {
 				this.selectedType = type;
 				// 根据不同类型执行不同函数
 				switch(type) {
-					case 'breakfast':
+					case 1:
 						this.handleBreakfast();
 						break;
-					case 'lunch':
+					case 2:
 						this.handleLunch();
 						break;
-					case 'dinner':
+					case 3:
 						this.handleDinner();
 						break;
-					case 'midnight':
+					case 4:
 						this.handleMidnight();
 						break;
-					case 'diet':
+					case 5:
 						this.handleDiet();
 						break;
-					case 'random':
+					case 6:
 						this.handleRandom();
 						break;
-					case 'milkTea':
+					case 7:
 						this.handleMilkTea();
 						break;
 				}
@@ -161,33 +182,62 @@
 			handleBreakfast() {
 				console.log('选择了早餐菜单');
 				// 这里可以添加你的逻辑，比如跳转页面、显示数据等
+				this.getTuratableDetail(1)
 			},
 			// 午餐菜单处理函数
 			handleLunch() {
 				console.log('选择了午餐菜单');
+				this.getTuratableDetail(2)
 			},
 			// 晚餐菜单处理函数
 			handleDinner() {
 				console.log('选择了晚餐菜单');
+				this.getTuratableDetail(3)
 			},
 			// 宵夜加餐处理函数
 			handleMidnight() {
 				console.log('选择了宵夜加餐');
+				this.getTuratableDetail(4)
 			},
 			// 减脂菜谱处理函数
 			handleDiet() {
 				console.log('选择了减脂菜谱');
+				this.getTuratableDetail(5)
 			},
 			// 随机吃处理函数
 			handleRandom() {
 				console.log('选择了随机吃');
+				this.getTuratableDetail(6)
 			},
 			// 喝点奶茶处理函数
 			handleMilkTea() {
 				console.log('选择了喝点奶茶');
+				this.getTuratableDetail(7)
+			}
+		},
+		watch: {
+			prizeList: {
+				handler(newVal, oldVal) {
+					// 当奖品数据变化时，强制更新转盘
+					this.$nextTick(() => {
+						console.log('奖品数据已更新:', newVal)
+						// 强制重新渲染转盘组件
+						this.$forceUpdate()
+					})
+				},
+				deep: true
+			},
+			selectedType: {
+				handler(newVal, oldVal) {
+					// 当选中类型变化时，确保数据更新
+					this.$nextTick(() => {
+						console.log('选中类型已更新:', newVal)
+					})
+				}
 			}
 		},
 		onShow() {
+			this.init()
 			const list = uni.getStorageSync('editPrizeList')
 			if (list && Array.isArray(list)) {
 				this.prizeList = list

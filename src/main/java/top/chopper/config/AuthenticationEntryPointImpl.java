@@ -1,5 +1,6 @@
 package top.chopper.config;
 
+import cn.hutool.json.JSONUtil;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -29,7 +30,7 @@ public class AuthenticationEntryPointImpl implements AuthenticationEntryPoint {
 //        String jsonString = JSON.toJSONString(result);
         response.setContentType("application/json;charset=utf-8");
         log.warn("处理用户认证失败==>{}",authException.toString());
-        response.getWriter().write(result.toString());
+        response.getWriter().write(JSONUtil.toJsonStr(result));
         try {
             response.getWriter().close();
         }catch ( Exception ignored ){

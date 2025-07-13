@@ -33,14 +33,17 @@ public class TurnTableServiceImpl extends ServiceImpl<TurnTableMapper, TurnTable
     @Transactional
     public void updateTurnTable(TurnTable turnTable) {
         TurnTable oldTurntable = mapper.selectById(turnTable.getId());
-        if (oldTurntable.getType().equals(TurnTableType.TURN_TABLE_TYPE_SYS)) {
+        if (oldTurntable.getType().equals(TurnTableType.TURN_TABLE_TYPE_SYS) || oldTurntable.getType().equals(TurnTableType.TURN_TABLE_TYPE_HOT)) {
             // 情况1 新建用户自定义转盘
-           oldTurntable.setCreateTime(LocalDateTime.now());
+            oldTurntable.setCreateTime(LocalDateTime.now());
             oldTurntable.setUpdateTime(LocalDateTime.now());
             oldTurntable.setContent(turnTable.getContent());
             oldTurntable.setId(null);
             oldTurntable.setType(TurnTableType.TURN_TABLE_TYPE_OPT);
             oldTurntable.setOpenid(SecurityUtil.getUserName());
+            if(turnTable.getTitle()!=null){
+                oldTurntable.setTitle(turnTable.getTitle());
+            }
             mapper.insert(oldTurntable);
         } else {
             // 情况2 修改用户自定义转盘

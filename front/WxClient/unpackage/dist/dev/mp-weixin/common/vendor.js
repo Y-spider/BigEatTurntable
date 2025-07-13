@@ -9732,46 +9732,7 @@ uni.addInterceptor({
 /* 37 */,
 /* 38 */,
 /* 39 */,
-/* 40 */,
-/* 41 */,
-/* 42 */,
-/* 43 */,
-/* 44 */,
-/* 45 */,
-/* 46 */,
-/* 47 */,
-/* 48 */,
-/* 49 */,
-/* 50 */,
-/* 51 */,
-/* 52 */,
-/* 53 */,
-/* 54 */,
-/* 55 */,
-/* 56 */,
-/* 57 */,
-/* 58 */,
-/* 59 */,
-/* 60 */,
-/* 61 */,
-/* 62 */,
-/* 63 */,
-/* 64 */,
-/* 65 */,
-/* 66 */,
-/* 67 */,
-/* 68 */,
-/* 69 */,
-/* 70 */,
-/* 71 */,
-/* 72 */,
-/* 73 */,
-/* 74 */,
-/* 75 */,
-/* 76 */,
-/* 77 */,
-/* 78 */,
-/* 79 */
+/* 40 */
 /*!************************************************************************************************!*\
   !*** ./node_modules/@dcloudio/vue-cli-plugin-uni/packages/@babel/runtime/regenerator/index.js ***!
   \************************************************************************************************/
@@ -9780,11 +9741,11 @@ uni.addInterceptor({
 
 // TODO(Babel 8): Remove this file.
 
-var runtime = __webpack_require__(/*! @babel/runtime/helpers/regeneratorRuntime */ 80)();
+var runtime = __webpack_require__(/*! @babel/runtime/helpers/regeneratorRuntime */ 41)();
 module.exports = runtime;
 
 /***/ }),
-/* 80 */
+/* 41 */
 /*!*******************************************************************!*\
   !*** ./node_modules/@babel/runtime/helpers/regeneratorRuntime.js ***!
   \*******************************************************************/
@@ -10105,7 +10066,7 @@ function _regeneratorRuntime() {
 module.exports = _regeneratorRuntime, module.exports.__esModule = true, module.exports["default"] = module.exports;
 
 /***/ }),
-/* 81 */
+/* 42 */
 /*!*****************************************************************!*\
   !*** ./node_modules/@babel/runtime/helpers/asyncToGenerator.js ***!
   \*****************************************************************/
@@ -10145,7 +10106,320 @@ function _asyncToGenerator(fn) {
 module.exports = _asyncToGenerator, module.exports.__esModule = true, module.exports["default"] = module.exports;
 
 /***/ }),
-/* 82 */
+/* 43 */
+/*!**************************************************************************************************!*\
+  !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/apis/turntableApi.js ***!
+  \**************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.getHotTurtableAPI = getHotTurtableAPI;
+exports.getTurntableDetailAPI = getTurntableDetailAPI;
+exports.getUserTurntableInfoAPI = getUserTurntableInfoAPI;
+exports.updateTurntableAPI = updateTurntableAPI;
+var _globalRequest = __webpack_require__(/*! @/request/globalRequest.js */ 44);
+function updateTurntableAPI(data) {
+  return (0, _globalRequest.httpOFPost)("turntable/update", data, true, "PUT");
+}
+
+// h获取当前用户的自定义的转盘信息
+function getUserTurntableInfoAPI() {
+  return (0, _globalRequest.httpOFGet)("turntable/list/user");
+}
+
+// 根据id获取转盘详细信息
+function getTurntableDetailAPI(id) {
+  return (0, _globalRequest.httpOFGet)("turntable/querySingle/".concat(id));
+}
+
+// 获取热门轮盘
+
+function getHotTurtableAPI() {
+  return (0, _globalRequest.httpOFGet)("turntable/list/hot");
+}
+
+/***/ }),
+/* 44 */
+/*!******************************************************************************************************!*\
+  !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/request/globalRequest.js ***!
+  \******************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+/* WEBPACK VAR INJECTION */(function(uni) {
+
+var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.httpOFGet = httpOFGet;
+exports.httpOFPost = httpOFPost;
+exports.httpOfGetWithNotToken = httpOfGetWithNotToken;
+var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ 40));
+var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ 42));
+// 正式环境
+// const BASE_URL = "https://www.chopper.love:39001/api/"
+// 开发环境
+// const BASE_URL = "http://192.168.242.22:16378/"
+var BASE_URL = "http://192.168.100.3:16378/";
+
+// 检查是否登录，如果没有登录则进行登录
+function checkLogin() {
+  return new Promise(function (resolve, reject) {
+    var token = uni.getStorageSync("token");
+    if (token) {
+      return resolve(token);
+    } else {
+      uni.login({
+        success: function success(res) {
+          uni.request({
+            method: "POST",
+            url: BASE_URL + "user/client/login",
+            data: {
+              "code": res.code
+            },
+            success: function success(res) {
+              console.log("登录成功");
+              uni.setStorageSync("token", res.data.data);
+              return resolve();
+            },
+            fail: function fail(failMsg) {
+              console.log(failMsg);
+              return reject(failMsg);
+            }
+          });
+        }
+      });
+    }
+  });
+}
+function httpOFPost(path) {
+  var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
+  var loading = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
+  var method = arguments.length > 3 ? arguments[3] : undefined;
+  checkLogin().then(function () {
+    if (false) {}
+    ;
+    return new Promise(function (resolve, reject) {
+      uni.request({
+        header: {
+          token: uni.getStorageSync("token") || ""
+        },
+        url: BASE_URL + path,
+        method: method,
+        data: params,
+        success: function success(res) {
+          return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
+            var _res$data, _res$data2;
+            return _regenerator.default.wrap(function _callee$(_context) {
+              while (1) {
+                switch (_context.prev = _context.next) {
+                  case 0:
+                    // uni.hideLoading();
+                    resolve(res.data);
+                    // res.data?.code表示先判断res.data是否为null或undefined，
+                    //如果不是，则访问其code属性。这样可以有效避免在对象为null或undefined时造成的错误
+                    if (((_res$data = res.data) === null || _res$data === void 0 ? void 0 : _res$data.code) == -1) {
+                      uni.showToast({
+                        icon: "error",
+                        duration: 2000,
+                        title: res.data.errMsg
+                      });
+                      reject(res.data);
+                    } else if (((_res$data2 = res.data) === null || _res$data2 === void 0 ? void 0 : _res$data2.code) == -99) {
+                      uni.removeStorageSync("token");
+                      uni.showToast({
+                        icon: "error",
+                        duration: 2000,
+                        title: "令牌失效"
+                      });
+                      reject(res.data);
+                    }
+                  case 2:
+                  case "end":
+                    return _context.stop();
+                }
+              }
+            }, _callee);
+          }))();
+        },
+        fail: function fail(err) {
+          reject(err);
+        },
+        complete: function complete() {
+          // uni.hideLoading();    // 在showToast之前执行会受影响
+        }
+      });
+    });
+  });
+}
+;
+
+// 封装发送get请求
+function httpOFGet(path) {
+  var loading = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
+  checkLogin();
+  // console.log('%c请求拦截：', ' background:orange',path);
+  if (false) {}
+  ;
+  return new Promise(function (resolve, reject) {
+    uni.request({
+      url: BASE_URL + path,
+      method: "GET",
+      header: {
+        "token": uni.getStorageSync("token") || ""
+      },
+      timeout: 60000,
+      success: function success(res) {
+        return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
+          var _res$data3, _res$data4;
+          return _regenerator.default.wrap(function _callee2$(_context2) {
+            while (1) {
+              switch (_context2.prev = _context2.next) {
+                case 0:
+                  // uni.hideLoading()
+                  resolve(res.data); // 将响应数据返回
+                  // console.log('响应拦截：', path,res.data);
+                  if (((_res$data3 = res.data) === null || _res$data3 === void 0 ? void 0 : _res$data3.code) == -1) {
+                    uni.showToast({
+                      icon: "fail",
+                      title: res.data.errMsg,
+                      duration: 2000
+                    });
+                  } else if (((_res$data4 = res.data) === null || _res$data4 === void 0 ? void 0 : _res$data4.code) == -99) {
+                    uni.removeStorageSync("token");
+                    uni.showToast({
+                      icon: "error",
+                      duration: 2000,
+                      title: "令牌失效"
+                    });
+                    reject(res.data);
+                  }
+                case 2:
+                case "end":
+                  return _context2.stop();
+              }
+            }
+          }, _callee2);
+        }))();
+      },
+      fail: function fail(err) {
+        // uni.hideLoading();
+        uni.showToast({
+          icon: "fail",
+          title: "服务器错误，请稍后再试",
+          duration: 1200
+        });
+        reject(err);
+      }
+    });
+  });
+}
+
+// 封装发送get请求
+function httpOfGetWithNotToken(path) {
+  var loading = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
+  if (false) {}
+  ;
+  return new Promise(function (resolve, reject) {
+    uni.request({
+      url: BASE_URL + path,
+      method: "GET",
+      timeout: 1000 * 30,
+      success: function success(res) {
+        return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3() {
+          var _res$data5;
+          return _regenerator.default.wrap(function _callee3$(_context3) {
+            while (1) {
+              switch (_context3.prev = _context3.next) {
+                case 0:
+                  // uni.hideLoading()
+                  resolve(res.data); // 将响应数据返回
+                  if (((_res$data5 = res.data) === null || _res$data5 === void 0 ? void 0 : _res$data5.code) == -1) {
+                    uni.showToast({
+                      icon: "fail",
+                      title: res.data.errMsg,
+                      duration: 2000
+                    });
+                  }
+                  ;
+                case 3:
+                case "end":
+                  return _context3.stop();
+              }
+            }
+          }, _callee3);
+        }))();
+      },
+      fail: function fail(err) {
+        // uni.hideLoading();
+        uni.showToast({
+          icon: "fail",
+          title: "服务器错误，请稍后再试",
+          duration: 1200
+        });
+        reject(err);
+      }
+    });
+  });
+}
+/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
+
+/***/ }),
+/* 45 */,
+/* 46 */,
+/* 47 */,
+/* 48 */,
+/* 49 */,
+/* 50 */,
+/* 51 */,
+/* 52 */,
+/* 53 */,
+/* 54 */,
+/* 55 */,
+/* 56 */,
+/* 57 */,
+/* 58 */,
+/* 59 */,
+/* 60 */,
+/* 61 */,
+/* 62 */,
+/* 63 */,
+/* 64 */,
+/* 65 */,
+/* 66 */,
+/* 67 */,
+/* 68 */,
+/* 69 */,
+/* 70 */,
+/* 71 */,
+/* 72 */,
+/* 73 */,
+/* 74 */,
+/* 75 */,
+/* 76 */,
+/* 77 */,
+/* 78 */,
+/* 79 */,
+/* 80 */,
+/* 81 */,
+/* 82 */,
+/* 83 */,
+/* 84 */,
+/* 85 */,
+/* 86 */,
+/* 87 */,
+/* 88 */,
+/* 89 */,
+/* 90 */,
+/* 91 */
 /*!*******************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/components/@lucky-canvas/uni/utils.js ***!
   \*******************************************************************************************************************/
@@ -10162,8 +10436,8 @@ Object.defineProperty(exports, "__esModule", {
 exports.changeUnits = void 0;
 exports.getImage = getImage;
 exports.rpx2px = exports.resolveImage = void 0;
-var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ 79));
-var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ 81));
+var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ 40));
+var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ 42));
 var windowWidth = uni.getSystemInfoSync().windowWidth;
 // uni-app@2.9起, 屏幕最多适配到960, 超出则按375计算
 if (windowWidth > 960) windowWidth = 375;
@@ -10273,7 +10547,7 @@ function getImage(canvasId, canvas) {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
 
 /***/ }),
-/* 83 */
+/* 92 */
 /*!***********************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/components/lucky-canvas/dist/index.esm.js ***!
   \***********************************************************************************************************************/
@@ -11984,17 +12258,30 @@ exports.LuckyGrid = W;
 exports.LuckyWheel = T;
 
 /***/ }),
-/* 84 */,
-/* 85 */,
-/* 86 */,
-/* 87 */,
-/* 88 */,
-/* 89 */,
-/* 90 */,
-/* 91 */
-/*!**************************************************************************************************!*\
-  !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/apis/turntableApi.js ***!
-  \**************************************************************************************************/
+/* 93 */,
+/* 94 */,
+/* 95 */,
+/* 96 */,
+/* 97 */,
+/* 98 */,
+/* 99 */,
+/* 100 */,
+/* 101 */,
+/* 102 */,
+/* 103 */,
+/* 104 */,
+/* 105 */,
+/* 106 */,
+/* 107 */,
+/* 108 */,
+/* 109 */,
+/* 110 */,
+/* 111 */,
+/* 112 */,
+/* 113 */
+/*!*******************************************************************************************************!*\
+  !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/apis/rotationRecordApi.js ***!
+  \*******************************************************************************************************/
 /*! no static exports found */
 /***/ (function(module, exports, __webpack_require__) {
 
@@ -12004,244 +12291,24 @@ exports.LuckyWheel = T;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
-exports.getUserTurntableInfoAPI = getUserTurntableInfoAPI;
-exports.updateTurntableAPI = updateTurntableAPI;
-var _globalRequest = __webpack_require__(/*! @/request/globalRequest.js */ 92);
-function updateTurntableAPI(data) {
-  return (0, _globalRequest.httpOFPost)("truntable/update", data, true, "PUT");
+exports.listWithPageAPI = listWithPageAPI;
+exports.saveRecordAPI = saveRecordAPI;
+exports.selectRecordCountAPI = selectRecordCountAPI;
+var _globalRequest = __webpack_require__(/*! @/request/globalRequest.js */ 44);
+// 分页获取转动记录
+function listWithPageAPI(pageIndex, pageSize) {
+  return (0, _globalRequest.httpOFGet)("record/list/page/".concat(pageIndex, "/").concat(pageSize));
 }
 
-// h获取当前用户的自定义的转盘信息
-function getUserTurntableInfoAPI() {
-  return (0, _globalRequest.httpOFGet)("truntable/list/user");
+// 获取用户转动总数
+function selectRecordCountAPI() {
+  return (0, _globalRequest.httpOFGet)("record/list/count");
 }
 
-/***/ }),
-/* 92 */
-/*!******************************************************************************************************!*\
-  !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/request/globalRequest.js ***!
-  \******************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-/* WEBPACK VAR INJECTION */(function(uni) {
-
-var _interopRequireDefault = __webpack_require__(/*! @babel/runtime/helpers/interopRequireDefault */ 4);
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.httpOFGet = httpOFGet;
-exports.httpOFPost = httpOFPost;
-exports.httpOfGetWithNotToken = httpOfGetWithNotToken;
-var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ 79));
-var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ 81));
-// 正式环境
-// const BASE_URL = "https://www.chopper.love:39001/api/"
-// 开发环境
-var BASE_URL = "http://127.0.0.1:16378/";
-
-// 检查是否登录，如果没有登录则进行登录
-function checkLogin() {
-  return new Promise(function (resolve, reject) {
-    var token = uni.getStorageSync("token");
-    if (token) {
-      return resolve(token);
-    } else {
-      uni.login({
-        success: function success(res) {
-          uni.request({
-            method: "POST",
-            url: BASE_URL + "user/client/login",
-            data: {
-              "code": res.code
-            },
-            success: function success(res) {
-              console.log("登录成功");
-              uni.setStorageSync("token", res.data.data);
-              return resolve();
-            },
-            fail: function fail(failMsg) {
-              console.log(failMsg);
-              return reject(failMsg);
-            }
-          });
-        }
-      });
-    }
-  });
+// 添加转动记录
+function saveRecordAPI(data) {
+  return (0, _globalRequest.httpOFPost)("record/add", data, false, "POST");
 }
-function httpOFPost(path) {
-  var params = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : {};
-  var loading = arguments.length > 2 && arguments[2] !== undefined ? arguments[2] : true;
-  var method = arguments.length > 3 ? arguments[3] : undefined;
-  checkLogin().then(function () {
-    if (false) {}
-    ;
-    return new Promise(function (resolve, reject) {
-      uni.request({
-        header: {
-          token: uni.getStorageSync("token") || ""
-        },
-        url: BASE_URL + path,
-        method: method,
-        data: params,
-        success: function success(res) {
-          return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
-            var _res$data, _res$data2;
-            return _regenerator.default.wrap(function _callee$(_context) {
-              while (1) {
-                switch (_context.prev = _context.next) {
-                  case 0:
-                    uni.hideLoading();
-                    resolve(res.data);
-                    // res.data?.code表示先判断res.data是否为null或undefined，
-                    //如果不是，则访问其code属性。这样可以有效避免在对象为null或undefined时造成的错误
-                    if (((_res$data = res.data) === null || _res$data === void 0 ? void 0 : _res$data.code) == -1) {
-                      uni.showToast({
-                        icon: "error",
-                        duration: 2000,
-                        title: res.data.errMsg
-                      });
-                      reject(res.data);
-                    } else if (((_res$data2 = res.data) === null || _res$data2 === void 0 ? void 0 : _res$data2.code) == -99) {
-                      uni.removeStorageSync("token");
-                      uni.showToast({
-                        icon: "error",
-                        duration: 2000,
-                        title: "令牌失效"
-                      });
-                      reject(res.data);
-                    }
-                  case 3:
-                  case "end":
-                    return _context.stop();
-                }
-              }
-            }, _callee);
-          }))();
-        },
-        fail: function fail(err) {
-          reject(err);
-        },
-        complete: function complete() {
-          // uni.hideLoading();    // 在showToast之前执行会受影响
-        }
-      });
-    });
-  });
-}
-;
-
-// 封装发送get请求
-function httpOFGet(path) {
-  var loading = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-  checkLogin();
-  // console.log('%c请求拦截：', ' background:orange',path);
-  if (false) {}
-  ;
-  return new Promise(function (resolve, reject) {
-    uni.request({
-      url: BASE_URL + path,
-      method: "GET",
-      header: {
-        "token": uni.getStorageSync("token") || ""
-      },
-      timeout: 60000,
-      success: function success(res) {
-        return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
-          var _res$data3, _res$data4;
-          return _regenerator.default.wrap(function _callee2$(_context2) {
-            while (1) {
-              switch (_context2.prev = _context2.next) {
-                case 0:
-                  uni.hideLoading();
-                  resolve(res.data); // 将响应数据返回
-                  // console.log('响应拦截：', path,res.data);
-                  if (((_res$data3 = res.data) === null || _res$data3 === void 0 ? void 0 : _res$data3.code) == -1) {
-                    uni.showToast({
-                      icon: "fail",
-                      title: res.data.errMsg,
-                      duration: 2000
-                    });
-                  } else if (((_res$data4 = res.data) === null || _res$data4 === void 0 ? void 0 : _res$data4.code) == -99) {
-                    uni.removeStorageSync("token");
-                    uni.showToast({
-                      icon: "error",
-                      duration: 2000,
-                      title: "令牌失效"
-                    });
-                    reject(res.data);
-                  }
-                case 3:
-                case "end":
-                  return _context2.stop();
-              }
-            }
-          }, _callee2);
-        }))();
-      },
-      fail: function fail(err) {
-        uni.hideLoading();
-        uni.showToast({
-          icon: "fail",
-          title: "服务器错误，请稍后再试",
-          duration: 1200
-        });
-        reject(err);
-      }
-    });
-  });
-}
-
-// 封装发送get请求
-function httpOfGetWithNotToken(path) {
-  var loading = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : false;
-  if (false) {}
-  ;
-  return new Promise(function (resolve, reject) {
-    uni.request({
-      url: BASE_URL + path,
-      method: "GET",
-      timeout: 1000 * 30,
-      success: function success(res) {
-        return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3() {
-          var _res$data5;
-          return _regenerator.default.wrap(function _callee3$(_context3) {
-            while (1) {
-              switch (_context3.prev = _context3.next) {
-                case 0:
-                  uni.hideLoading();
-                  resolve(res.data); // 将响应数据返回
-                  if (((_res$data5 = res.data) === null || _res$data5 === void 0 ? void 0 : _res$data5.code) == -1) {
-                    uni.showToast({
-                      icon: "fail",
-                      title: res.data.errMsg,
-                      duration: 2000
-                    });
-                  }
-                  ;
-                case 4:
-                case "end":
-                  return _context3.stop();
-              }
-            }
-          }, _callee3);
-        }))();
-      },
-      fail: function fail(err) {
-        uni.hideLoading();
-        uni.showToast({
-          icon: "fail",
-          title: "服务器错误，请稍后再试",
-          duration: 1200
-        });
-        reject(err);
-      }
-    });
-  });
-}
-/* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
 
 /***/ })
 ]]);

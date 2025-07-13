@@ -3,7 +3,8 @@
     "pages/index/index",
     "pages/home/home",
     "pages/hot/hot",
-    "pages/editWheel/index"
+    "pages/editWheel/index",
+    "pages/detail/detail"
   ],
   "subPackages": [],
   "window": {

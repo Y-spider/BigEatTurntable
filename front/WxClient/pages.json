@@ -28,6 +28,13 @@
 				"navigationBarTitleText" : "修改",
 				"enablePullDownRefresh" : false
 			}
+		},
+		{
+			"path" : "pages/detail/detail",
+			"style" : 
+			{
+				"navigationBarTitleText" : ""
+			}
 		}
 	],
 	"tabBar": {

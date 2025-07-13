@@ -36,4 +36,6 @@ public class TurnTable {
     private LocalDateTime createTime;
     @Schema(name="updateTime",description="更新时间")
     private LocalDateTime updateTime;
+    @Schema(name = "orderNumber",description = "排序字段")
+    private Integer orderNumber;
 }

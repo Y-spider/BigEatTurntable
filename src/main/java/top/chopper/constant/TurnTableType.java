@@ -9,4 +9,5 @@ package top.chopper.constant;
 public class TurnTableType {
     public static final Integer TURN_TABLE_TYPE_SYS = 1; // 系统轮盘
     public static final  Integer TURN_TABLE_TYPE_OPT = 0; // 用户轮盘
+    public static final Integer TURN_TABLE_TYPE_HOT = 2; // 热门转盘
 }
