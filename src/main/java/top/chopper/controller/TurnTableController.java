@@ -5,7 +5,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.cglib.core.Local;
 import org.springframework.web.bind.annotation.*;
 import top.chopper.constant.TurnTableType;
 import top.chopper.dto.QueryPageDto;
@@ -33,12 +32,12 @@ public class TurnTableController {
      * 获取当前用户的所有定义的转盘，一般都不会太多，所以这里就不采用分页的形式了
      * @return
      */
-    @Operation(description = "根据openid获取微信用户的随机转盘的名称和id",summary = "根据openid获取微信用户的随机转盘的名称和id")
+    @Operation(description = "根据openid获取微信用户的转盘的名称和id,createTime,type",summary = "根据openid获取微信用户的转盘的名称和id,createTime,type")
     @GetMapping("/list/user")
     public R listByOpenid(){
         String openid = SecurityUtil.getUserName();
         LambdaQueryWrapper<TurnTable> queryWrapper = new LambdaQueryWrapper<TurnTable>()
-                .select(TurnTable::getId,TurnTable::getTitle)
+                .select(TurnTable::getId,TurnTable::getTitle,TurnTable::getCreateTime,TurnTable::getType)
                 .eq(TurnTable::getOpenid, openid)
                 .orderByDesc(TurnTable::getUpdateTime);
         return R.SUCCESS(service.list(queryWrapper));

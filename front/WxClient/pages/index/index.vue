@@ -24,7 +24,7 @@
 		</view>
 		<!-- 转盘区域 -->
 		<view class="turntable-box">
-			<Turntable :key="key_count" @routeDone="getRouteResult" :prizeList="prizeList" style="margin: 50rpx;"></Turntable>
+			<Turntable :turntable="turntable" :key="key_count" @routeDone="getRouteResult" :prizeList="prizeList" style="margin: 50rpx;"></Turntable>
 			<view class="fun-button" style="display: flex;justify-content: space-between; align-items: center;">
 				<view class="fun-but">
 					<button v-if="true" class="cu-btn bg-gradual-green shadow"> <text class="cuIcon-form" style="margin: 0 10rpx;"></text>菜谱</button>
@@ -118,7 +118,8 @@
 				],
 				customTypes: [
 					// {title:"xxx",id:1}
-				]
+				],
+				turntable:{"id":1,"title":"早餐",type:1}
 			}
 		},
 		methods: {
@@ -135,20 +136,18 @@
 				this.selectedType = id
 				let res = await getTurntableDetailAPI(id)
 				this.prizeList = JSON.parse(res.data.content)
+				this.turntable = res.data
 				this.key_count++
 			},
 			async init(){
 				uni.setStorageSync("routing",false)
 				let res = await getUserTurntableInfoAPI()
 				this.customTypes = res.data.splice(0,6) // 只展示前6个
+				this.getTuratableDetail(1)
 			},
 			goEdit() {
-				let isSystem = false
-				if(this.selectedType >=1 && this.selectedType <= 7){
-					isSystem = true
-				}
 				uni.setStorageSync('editPrizeList', this.prizeList)
-				uni.navigateTo({ url: `/pages/editWheel/index?turntableName=早餐&id=${this.selectedType}&isSystem=${isSystem}`
+				uni.navigateTo({ url: `/pages/editWheel/index?id=${this.selectedType}`
 				})
 			},
 			selectType(type) {
@@ -156,24 +155,31 @@
 				// 根据不同类型执行不同函数
 				switch(type) {
 					case 1:
+						this.turntable = {"id":type,"title":"早餐",type:1}
 						this.handleBreakfast();
 						break;
 					case 2:
+						this.turntable = {"id":type,"title":"午餐",type:1}
 						this.handleLunch();
 						break;
 					case 3:
+						this.turntable = {"id":type,"title":"晚餐",type:1}
 						this.handleDinner();
 						break;
 					case 4:
+						this.turntable = {"id":type,"title":"宵夜",type:1}
 						this.handleMidnight();
 						break;
 					case 5:
+						this.turntable = {"id":type,"title":"减脂餐",type:1}
 						this.handleDiet();
 						break;
 					case 6:
+						this.turntable = {"id":type,"title":"随机吃点",type:1}
 						this.handleRandom();
 						break;
 					case 7:
+						this.turntable = {"id":type,"title":"喝点奶茶",type:1}
 						this.handleMilkTea();
 						break;
 				}
@@ -220,7 +226,7 @@
 				handler(newVal, oldVal) {
 					// 当奖品数据变化时，强制更新转盘
 					this.$nextTick(() => {
-						console.log('奖品数据已更新:', newVal)
+						// console.log('奖品数据已更新:', newVal)
 						// 强制重新渲染转盘组件
 						this.$forceUpdate()
 					})
@@ -229,19 +235,23 @@
 			},
 			selectedType: {
 				handler(newVal, oldVal) {
-					// 当选中类型变化时，确保数据更新
-					this.$nextTick(() => {
-						console.log('选中类型已更新:', newVal)
-					})
+					if(newVal>7){
+						let res = this.customTypes.find(item=>item.id === newVal)
+						this.turntable = {
+							id:res.id,
+							title:res.title,
+							type:0
+						}
+					}
 				}
 			}
 		},
 		onShow() {
 			this.init()
-			const list = uni.getStorageSync('editPrizeList')
-			if (list && Array.isArray(list)) {
-				this.prizeList = list
-			}
+			// const list = uni.getStorageSync('editPrizeList')
+			// if (list && Array.isArray(list)) {
+			// 	this.prizeList = list
+			// }
 		}
 	}
 </script>

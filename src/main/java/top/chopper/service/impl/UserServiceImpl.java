@@ -81,7 +81,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      */
     @Override
     @Transactional
-    public String wxClientLogin(String code) {
+    public R wxClientLogin(String code) {
         String openid = getOpenid(code);
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getOpenid,openid);
@@ -91,7 +91,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             user.setCreateTime(LocalDateTime.now());
             user.setOpenid(openid);
             user.setRemark("client");
-            user.setName("微信用户"+openid.substring(0,5));
+            user.setName(openid.substring(openid.length()-6));
             userMapper.insert(user);
             Integer id = user.getId();
             HashMap<String, String> claimMap = new HashMap<>();
@@ -104,7 +104,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             token.setId(user.getId());
             token.setToken(jwtToken);
             tokenMapper.insert(token);
-            return jwtToken;
+            HashMap<String, String> resMap = new HashMap<>();
+            resMap.put("token",jwtToken);
+            resMap.put("userName",user.getName());
+            return R.SUCCESS(resMap);
         }else{
             // 已经存在该用户
             HashMap<String, String> claimMap = new HashMap<>();
@@ -118,7 +121,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             tokenMapper.updateById(token);
             user.setUpdateTime(LocalDateTime.now());
             userMapper.updateById(user);
-            return jwtToken;
+            HashMap<String, String> resMap = new HashMap<>();
+            resMap.put("token",jwtToken);
+            resMap.put("userName",user.getName());
+            return R.SUCCESS(resMap);
         }
 
     }

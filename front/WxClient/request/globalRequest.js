@@ -19,7 +19,8 @@ function checkLogin(){
 						data:{"code":res.code},
 						success(res){
 							console.log("登录成功")
-							uni.setStorageSync("token",res.data.data)
+							uni.setStorageSync("token",res.data.data.token)
+							uni.setStorageSync("userName",res.data.data.userName)
 							return resolve()
 						},
 						fail(failMsg){

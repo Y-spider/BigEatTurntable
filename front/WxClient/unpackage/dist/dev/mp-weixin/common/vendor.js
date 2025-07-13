@@ -10187,7 +10187,8 @@ function checkLogin() {
             },
             success: function success(res) {
               console.log("登录成功");
-              uni.setStorageSync("token", res.data.data);
+              uni.setStorageSync("token", res.data.data.token);
+              uni.setStorageSync("userName", res.data.data.userName);
               return resolve();
             },
             fail: function fail(failMsg) {
@@ -10381,7 +10382,39 @@ function httpOfGetWithNotToken(path) {
 /* 50 */,
 /* 51 */,
 /* 52 */,
-/* 53 */,
+/* 53 */
+/*!*******************************************************************************************************!*\
+  !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/apis/rotationRecordApi.js ***!
+  \*******************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.listWithPageAPI = listWithPageAPI;
+exports.saveRecordAPI = saveRecordAPI;
+exports.selectRecordCountAPI = selectRecordCountAPI;
+var _globalRequest = __webpack_require__(/*! @/request/globalRequest.js */ 44);
+// 分页获取转动记录
+function listWithPageAPI(pageIndex, pageSize) {
+  return (0, _globalRequest.httpOFGet)("record/list/page/".concat(pageIndex, "/").concat(pageSize));
+}
+
+// 获取用户转动总数
+function selectRecordCountAPI() {
+  return (0, _globalRequest.httpOFGet)("record/list/count");
+}
+
+// 添加转动记录
+function saveRecordAPI(data) {
+  return (0, _globalRequest.httpOFPost)("record/add", data, false, "POST");
+}
+
+/***/ }),
 /* 54 */,
 /* 55 */,
 /* 56 */,
@@ -10419,7 +10452,18 @@ function httpOfGetWithNotToken(path) {
 /* 88 */,
 /* 89 */,
 /* 90 */,
-/* 91 */
+/* 91 */,
+/* 92 */,
+/* 93 */,
+/* 94 */,
+/* 95 */,
+/* 96 */,
+/* 97 */,
+/* 98 */,
+/* 99 */,
+/* 100 */,
+/* 101 */,
+/* 102 */
 /*!*******************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/components/@lucky-canvas/uni/utils.js ***!
   \*******************************************************************************************************************/
@@ -10547,7 +10591,7 @@ function getImage(canvasId, canvas) {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
 
 /***/ }),
-/* 92 */
+/* 103 */
 /*!***********************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/components/lucky-canvas/dist/index.esm.js ***!
   \***********************************************************************************************************************/
@@ -12256,59 +12300,6 @@ exports.cutRound = $;
 exports.SlotMachine = _;
 exports.LuckyGrid = W;
 exports.LuckyWheel = T;
-
-/***/ }),
-/* 93 */,
-/* 94 */,
-/* 95 */,
-/* 96 */,
-/* 97 */,
-/* 98 */,
-/* 99 */,
-/* 100 */,
-/* 101 */,
-/* 102 */,
-/* 103 */,
-/* 104 */,
-/* 105 */,
-/* 106 */,
-/* 107 */,
-/* 108 */,
-/* 109 */,
-/* 110 */,
-/* 111 */,
-/* 112 */,
-/* 113 */
-/*!*******************************************************************************************************!*\
-  !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/apis/rotationRecordApi.js ***!
-  \*******************************************************************************************************/
-/*! no static exports found */
-/***/ (function(module, exports, __webpack_require__) {
-
-"use strict";
-
-
-Object.defineProperty(exports, "__esModule", {
-  value: true
-});
-exports.listWithPageAPI = listWithPageAPI;
-exports.saveRecordAPI = saveRecordAPI;
-exports.selectRecordCountAPI = selectRecordCountAPI;
-var _globalRequest = __webpack_require__(/*! @/request/globalRequest.js */ 44);
-// 分页获取转动记录
-function listWithPageAPI(pageIndex, pageSize) {
-  return (0, _globalRequest.httpOFGet)("record/list/page/".concat(pageIndex, "/").concat(pageSize));
-}
-
-// 获取用户转动总数
-function selectRecordCountAPI() {
-  return (0, _globalRequest.httpOFGet)("record/list/count");
-}
-
-// 添加转动记录
-function saveRecordAPI(data) {
-  return (0, _globalRequest.httpOFPost)("record/add", data, false, "POST");
-}
 
 /***/ })
 ]]);

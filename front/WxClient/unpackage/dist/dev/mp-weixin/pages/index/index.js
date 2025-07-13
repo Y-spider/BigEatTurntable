@@ -264,8 +264,8 @@ var _turntableApi = __webpack_require__(/*! @/apis/turntableApi.js */ 43);
 //
 //
 var Turntable = function Turntable() {
-  __webpack_require__.e(/*! require.ensure | components/Turntable */ "components/Turntable").then((function () {
-    return resolve(__webpack_require__(/*! @/components/Turntable.vue */ 74));
+  Promise.all(/*! require.ensure | components/Turntable */[__webpack_require__.e("common/vendor"), __webpack_require__.e("components/Turntable")]).then((function () {
+    return resolve(__webpack_require__(/*! @/components/Turntable.vue */ 85));
   }).bind(null, __webpack_require__)).catch(__webpack_require__.oe);
 };
 var _default = {
@@ -285,7 +285,12 @@ var _default = {
       ],
       customTypes: [
         // {title:"xxx",id:1}
-      ]
+      ],
+      turntable: {
+        "id": 1,
+        "title": "早餐",
+        type: 1
+      }
     };
   },
   methods: {
@@ -312,8 +317,9 @@ var _default = {
               case 3:
                 res = _context.sent;
                 _this.prizeList = JSON.parse(res.data.content);
+                _this.turntable = res.data;
                 _this.key_count++;
-              case 6:
+              case 7:
               case "end":
                 return _context.stop();
             }
@@ -335,7 +341,8 @@ var _default = {
               case 3:
                 res = _context2.sent;
                 _this2.customTypes = res.data.splice(0, 6); // 只展示前6个
-              case 5:
+                _this2.getTuratableDetail(1);
+              case 6:
               case "end":
                 return _context2.stop();
             }
@@ -344,13 +351,9 @@ var _default = {
       }))();
     },
     goEdit: function goEdit() {
-      var isSystem = false;
-      if (this.selectedType >= 1 && this.selectedType <= 7) {
-        isSystem = true;
-      }
       uni.setStorageSync('editPrizeList', this.prizeList);
       uni.navigateTo({
-        url: "/pages/editWheel/index?turntableName=\u65E9\u9910&id=".concat(this.selectedType, "&isSystem=").concat(isSystem)
+        url: "/pages/editWheel/index?id=".concat(this.selectedType)
       });
     },
     selectType: function selectType(type) {
@@ -358,24 +361,59 @@ var _default = {
       // 根据不同类型执行不同函数
       switch (type) {
         case 1:
+          this.turntable = {
+            "id": type,
+            "title": "早餐",
+            type: 1
+          };
           this.handleBreakfast();
           break;
         case 2:
+          this.turntable = {
+            "id": type,
+            "title": "午餐",
+            type: 1
+          };
           this.handleLunch();
           break;
         case 3:
+          this.turntable = {
+            "id": type,
+            "title": "晚餐",
+            type: 1
+          };
           this.handleDinner();
           break;
         case 4:
+          this.turntable = {
+            "id": type,
+            "title": "宵夜",
+            type: 1
+          };
           this.handleMidnight();
           break;
         case 5:
+          this.turntable = {
+            "id": type,
+            "title": "减脂餐",
+            type: 1
+          };
           this.handleDiet();
           break;
         case 6:
+          this.turntable = {
+            "id": type,
+            "title": "随机吃点",
+            type: 1
+          };
           this.handleRandom();
           break;
         case 7:
+          this.turntable = {
+            "id": type,
+            "title": "喝点奶茶",
+            type: 1
+          };
           this.handleMilkTea();
           break;
       }
@@ -423,7 +461,7 @@ var _default = {
         var _this3 = this;
         // 当奖品数据变化时，强制更新转盘
         this.$nextTick(function () {
-          console.log('奖品数据已更新:', newVal);
+          // console.log('奖品数据已更新:', newVal)
           // 强制重新渲染转盘组件
           _this3.$forceUpdate();
         });
@@ -432,19 +470,25 @@ var _default = {
     },
     selectedType: {
       handler: function handler(newVal, oldVal) {
-        // 当选中类型变化时，确保数据更新
-        this.$nextTick(function () {
-          console.log('选中类型已更新:', newVal);
-        });
+        if (newVal > 7) {
+          var res = this.customTypes.find(function (item) {
+            return item.id === newVal;
+          });
+          this.turntable = {
+            id: res.id,
+            title: res.title,
+            type: 0
+          };
+        }
       }
     }
   },
   onShow: function onShow() {
     this.init();
-    var list = uni.getStorageSync('editPrizeList');
-    if (list && Array.isArray(list)) {
-      this.prizeList = list;
-    }
+    // const list = uni.getStorageSync('editPrizeList')
+    // if (list && Array.isArray(list)) {
+    // 	this.prizeList = list
+    // }
   }
 };
 exports.default = _default;

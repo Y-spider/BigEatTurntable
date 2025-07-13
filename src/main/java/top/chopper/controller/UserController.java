@@ -35,7 +35,7 @@ public class UserController {
     @Operation(description = "微信小程序用户登录",summary = "微信小程序用户登录")
     @PostMapping("/client/login")
     public R clientLogin(@RequestBody HashMap<String,String> params){
-        return R.SUCCESS( userService.wxClientLogin(params.get("code")));
+        return userService.wxClientLogin(params.get("code"));
     }
 
 }

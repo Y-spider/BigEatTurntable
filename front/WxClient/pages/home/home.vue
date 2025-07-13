@@ -7,7 +7,7 @@
     <view class="fixed-header">
       <view class="user-info-box animate__animated animate__fadeInDown">
         <view class="user-info">
-          <view class="nickname animate__animated animate__fadeInLeft">{{ userInfo.nickName }}
+          <view class="nickname animate__animated animate__fadeInLeft">吃货{{ userName }}
           </view>
           <view class="stat animate__animated animate__fadeInRight">
             <text>创建轮盘：<text class="stat-num">{{ createCount }}</text></text>
@@ -27,21 +27,28 @@
       @scrolltolower="onScrollToLower"
     >
       <view v-if="showType === 'create'" class="list-area animate__animated animate__fadeIn">
-        <view v-for="item in myTurntables" :key="item.id" class="list-item animate__animated animate__fadeInUp">
-          <view class="title">{{ item.title }}</view>
-          <view class="desc">创建时间：{{ item.create_time }}</view>
+        <view  @click="goTurntable(item)" v-for="item in myTurntables" :key="item.id" class="row-between list-item animate__animated animate__fadeInUp">
+         <view>
+			 <view class="title">{{ item.title }}
+			 				<view style="margin: 0 10rpx;" class="cu-tag radius sm bg-red">{{item.type==0?"自定义":(item.type==1?"系统":"热门")}}</view>
+			  </view>
+			 <view class="desc">创建时间：{{ item.createTime }}</view>
+		 </view>
+		 <view class="arrow">
+			 <view class="cuIcon-right arrow"></view>
+		 </view>
         </view>
         <view v-if="myTurntables.length === 0" class="empty-tip">暂无创建的轮盘</view>
       </view>
       <view v-else class="list-area animate__animated animate__fadeIn">
-        <view v-for="rec in spinRecords" :key="rec.id" class="list-item animate__animated animate__fadeInUp">
-          <view class="title">{{ rec.title }}</view>
-          <view class="desc">转动时间：{{ rec.time }}</view>
+        <view v-for="rec in RotationRecords" :key="rec.id" class="list-item animate__animated animate__fadeInUp">
+          <view class="title">{{ rec.turntableName }}</view>
+          <view class="desc">转动时间：{{ rec.createTime }}</view>
           <view class="desc">结果：{{ rec.result }}</view>
         </view>
         <view v-if="spinLoading" class="empty-tip">加载中...</view>
-        <view v-if="spinFinished && spinRecords.length" class="empty-tip">没有更多了</view>
-        <view v-if="!spinLoading && spinRecords.length === 0" class="empty-tip">暂无转动记录</view>
+        <view v-if="spinFinished && RotationRecords.length" class="empty-tip">没有更多了</view>
+        <view v-if="!spinLoading && RotationRecords.length === 0" class="empty-tip">暂无转动记录</view>
       </view>
     </scroll-view>
   </view>
@@ -53,7 +60,7 @@ import {getUserTurntableInfoAPI} from "@/apis/turntableApi.js"
 export default {
   data() {
     return {
-      userInfo: { nickName: '吃货小明' },
+      userName:"",
       createCount: 0,
       spinCount: 0,
       showType: 'create',
@@ -66,14 +73,25 @@ export default {
       spinFinished: false
     }
   },
-  onLoad() {
+  created(){
+	  this.userName = uni.getStorageSync("userName")
+  },
+  onShow() {
     this.loadSpinRecords(true)
+	this.init()
   },
   methods: {
+	// 前往转盘
+	goTurntable(turntable){
+	  uni.navigateTo({
+	  	url:`/pages/detail/detail?id=${turntable.id}&tableName=${turntable.title}`
+	  })
+	},
     // 模拟分页API
     async init() {
       let createRes = await getUserTurntableInfoAPI()
-	  this.createCount = res.data.length
+	  this.createCount = createRes.data.length
+	  this.myTurntables = createRes.data
 	  let recordCountRes = await selectRecordCountAPI()
 	  this.spinCount = recordCountRes.data
 	},
@@ -83,13 +101,13 @@ export default {
       this.spinLoading = true
       if (reset) {
         this.spinPage = 1
-        this.spinRecords = []
+        this.RotationRecords = []
         this.spinFinished = false
       }
-      const res = await this.listWithPageAPI(this.spinPage, this.spinPageSize)
-      this.spinRecords = this.spinRecords.concat(res.list)
-      this.spinTotal = res.total
-      if (this.spinRecords.length >= this.spinTotal) {
+      const res = await listWithPageAPI(this.spinPage, this.spinPageSize)
+      this.RotationRecords = [...this.RotationRecords,...res.data.records]
+      this.spinTotal = res.data.total
+      if (this.RotationRecords.length >= this.spinTotal) {
         this.spinFinished = true
       } else {
         this.spinPage++
@@ -106,6 +124,7 @@ export default {
   watch: {
     showType(val) {
       if (val === 'record') {
+		this.spinFinished = false
         this.loadSpinRecords(true)
       }
     }

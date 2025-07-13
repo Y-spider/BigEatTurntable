@@ -4311,4 +4311,9 @@ scroll-view.cu-steps .cu-item {
 	justify-content: center;
 	align-items: center;
 }
+.row-between{
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+}
 
