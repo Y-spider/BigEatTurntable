@@ -1,0 +1,104 @@
+
+.home-page.data-v-92bb8f34 {
+  background: #f8f8f8;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+.fixed-header.data-v-92bb8f34 {
+  position: -webkit-sticky;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: #f8f8f8;
+}
+.user-info-box.data-v-92bb8f34 {
+  background: #fff;
+  border-radius: 16rpx;
+  margin: 24rpx 24rpx 0 24rpx;
+  padding: 24rpx;
+  box-shadow: 0 2px 8px rgba(255,165,0,0.06);
+}
+.user-info.data-v-92bb8f34 {
+  flex: 1;
+}
+.nickname.data-v-92bb8f34 {
+  font-size: 36rpx;
+  color: #333;
+  font-weight: bold;
+  margin-bottom: 8rpx;
+  display: flex;
+  align-items: center;
+}
+.fixed-tag.data-v-92bb8f34 {
+  background: #FFA500;
+  color: #fff;
+  font-size: 22rpx;
+  border-radius: 8rpx;
+  padding: 2rpx 10rpx;
+  margin-left: 12rpx;
+}
+.stat.data-v-92bb8f34 {
+  font-size: 28rpx;
+  color: #FFA500;
+}
+.stat-num.data-v-92bb8f34 {
+  font-size: 36rpx;
+  font-weight: bold;
+  color: #ff6600;
+  margin: 0 4rpx;
+  display: inline-block;
+  -webkit-animation: bounceIn 1s;
+          animation: bounceIn 1s;
+}
+.switch-bar.data-v-92bb8f34 {
+  display: flex;
+  justify-content: center;
+  margin: 32rpx 0 0 0;
+}
+.cu-btn.data-v-92bb8f34 {
+  margin: 0 12rpx;
+  border-radius: 24rpx;
+  font-size: 28rpx;
+}
+.bg-orange.data-v-92bb8f34 {
+  background: #FFA500 !important;
+  color: #fff !important;
+}
+.scroll-list-area.data-v-92bb8f34 {
+  flex: 1;
+  height: 0; /* 让flex:1生效 */
+  overflow: hidden;
+}
+.list-area.data-v-92bb8f34 {
+  margin: 24rpx;
+}
+.list-item.data-v-92bb8f34 {
+  background: #fff;
+  border-radius: 12rpx;
+  margin-bottom: 18rpx;
+  padding: 24rpx;
+  box-shadow: 0 2px 8px rgba(255,165,0,0.04);
+  transition: box-shadow 0.3s;
+}
+.list-item.data-v-92bb8f34:active {
+  box-shadow: 0 4px 16px rgba(255,165,0,0.12);
+}
+.title.data-v-92bb8f34 {
+  font-size: 32rpx;
+  color: #333;
+  font-weight: 500;
+}
+.desc.data-v-92bb8f34 {
+  font-size: 24rpx;
+  color: #999;
+  margin-top: 6rpx;
+}
+.empty-tip.data-v-92bb8f34 {
+  text-align: center;
+  color: #ccc;
+  font-size: 28rpx;
+  margin: 48rpx 0;
+}
+

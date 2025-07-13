@@ -1,0 +1,6 @@
+{
+  "component": true,
+  "usingComponents": {
+    "lucky-wheel": "/components/@lucky-canvas/uni/lucky-wheel"
+  }
+}

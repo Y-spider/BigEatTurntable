@@ -1,0 +1,11 @@
+
+.hot-turntable-page.data-v-41251cbc {
+	background: #f8f8f8;
+	min-height: 100vh;
+}
+.hot-item.data-v-41251cbc {
+	background: #fff;
+	border-bottom: 1rpx solid #f0f0f0;
+}
+
+
