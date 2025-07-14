@@ -12,8 +12,10 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
+import top.chopper.mapper.TokenMapper;
 import top.chopper.pojo.R;
 import top.chopper.pojo.RCode;
+import top.chopper.pojo.Token;
 import top.chopper.utils.JWTUtil;
 
 import java.io.IOException;
@@ -31,6 +33,8 @@ import java.util.List;
    */
 @Component
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
+    @Autowired
+    private TokenMapper tokenMapper;
 
     @Autowired
     @Qualifier(value = "handlerExceptionResolver")
@@ -62,6 +66,17 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             // 解析token，查看是移动端用户还是后台用户
             String role = JWTUtil.getDecodeJWTData(token, "tony chopper", "role");
             String identity = JWTUtil.getDecodeJWTData(token, "tony chopper", "identity");
+            Token tableToken = tokenMapper.ISelectById(identity);
+            if(tableToken==null){
+                R<Object> expireR = new R<>();
+                expireR.setCode(RCode.EXPIRETOKEN);
+                expireR.setErrMsg("令牌已失效，请重新登录");
+                response.setHeader("Content-Type","application/json;charset=utf-8");
+                response.getWriter().write(JSONUtil.toJsonStr(expireR));
+                response.getWriter().flush();
+                response.getWriter().close();
+                return;
+            }
             // 这里密码就存放的是角色信息
             UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(identity,role,null);
             SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
@@ -70,7 +85,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         else{
             R<Object> expireR = new R<>();
             expireR.setCode(RCode.EXPIRETOKEN);
-            expireR.setErrMsg("无效令牌");
+            expireR.setErrMsg("令牌为空");
             response.setHeader("Content-Type","application/json;charset=utf-8");
             response.getWriter().write(JSONUtil.toJsonStr(expireR));
             response.getWriter().flush();

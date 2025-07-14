@@ -10,4 +10,6 @@ import top.chopper.pojo.Token;
    @Description:
    */
 public interface TokenMapper extends BaseMapper<Token> {
+    // 根据管理端账号或者openid查询Token信息
+    Token ISelectById(String identity);
 }

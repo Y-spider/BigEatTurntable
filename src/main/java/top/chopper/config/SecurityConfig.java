@@ -57,8 +57,10 @@ public class SecurityConfig {
 //                .sessionManagement(session -> session
 //                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
 //                )
-                // 4. 添加JWT过滤器
+                // 4. 添加JWT过滤器在进入Security认证链之前
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                // 添加JWT过滤器在进入Security认证链之后(但是不推荐)
+                //.addFilterAfter(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
                 // 5. 跨域配置
                 .cors(cors -> cors.configurationSource(getConfigurationSource()))
                 // 6. 关闭CSRF
