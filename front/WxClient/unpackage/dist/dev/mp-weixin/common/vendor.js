@@ -10119,6 +10119,8 @@ module.exports = _asyncToGenerator, module.exports.__esModule = true, module.exp
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.addTurntableAPI = addTurntableAPI;
+exports.deleteTurntableByIdAPI = deleteTurntableByIdAPI;
 exports.getHotTurtableAPI = getHotTurtableAPI;
 exports.getTurntableDetailAPI = getTurntableDetailAPI;
 exports.getUserTurntableInfoAPI = getUserTurntableInfoAPI;
@@ -10142,6 +10144,12 @@ function getTurntableDetailAPI(id) {
 
 function getHotTurtableAPI() {
   return (0, _globalRequest.httpOFGet)("turntable/list/hot");
+}
+function addTurntableAPI(data) {
+  return (0, _globalRequest.httpOFPost)("turntable/client/add", data, false, "POST");
+}
+function deleteTurntableByIdAPI(id) {
+  return (0, _globalRequest.httpOFPost)("turntable/delete/".concat(id), null, false, "DELETE");
 }
 
 /***/ }),
@@ -10167,7 +10175,7 @@ var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/r
 // 正式环境
 // const BASE_URL = "https://www.chopper.love:39001/api/"
 // 开发环境
-// const BASE_URL = "http://192.168.242.22:16378/"
+// const BASE_URL = "http://127.0.0.1:16378/"
 var BASE_URL = "http://192.168.100.3:16378/";
 
 // 检查是否登录，如果没有登录则进行登录
@@ -10266,62 +10274,64 @@ function httpOFPost(path) {
 // 封装发送get请求
 function httpOFGet(path) {
   var loading = arguments.length > 1 && arguments[1] !== undefined ? arguments[1] : true;
-  checkLogin();
-  // console.log('%c请求拦截：', ' background:orange',path);
-  if (false) {}
-  ;
-  return new Promise(function (resolve, reject) {
-    uni.request({
-      url: BASE_URL + path,
-      method: "GET",
-      header: {
-        "token": uni.getStorageSync("token") || ""
-      },
-      timeout: 60000,
-      success: function success(res) {
-        return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
-          var _res$data3, _res$data4;
-          return _regenerator.default.wrap(function _callee2$(_context2) {
-            while (1) {
-              switch (_context2.prev = _context2.next) {
-                case 0:
-                  // uni.hideLoading()
-                  resolve(res.data); // 将响应数据返回
-                  // console.log('响应拦截：', path,res.data);
-                  if (((_res$data3 = res.data) === null || _res$data3 === void 0 ? void 0 : _res$data3.code) == -1) {
-                    uni.showToast({
-                      icon: "fail",
-                      title: res.data.errMsg,
-                      duration: 2000
-                    });
-                  } else if (((_res$data4 = res.data) === null || _res$data4 === void 0 ? void 0 : _res$data4.code) == -99) {
-                    uni.removeStorageSync("token");
-                    uni.showToast({
-                      icon: "error",
-                      duration: 2000,
-                      title: "令牌失效"
-                    });
-                    reject(res.data);
-                  }
-                case 2:
-                case "end":
-                  return _context2.stop();
+  return checkLogin().then(function () {
+    return new Promise(function (resolve, reject) {
+      uni.request({
+        url: BASE_URL + path,
+        method: "GET",
+        header: {
+          "token": uni.getStorageSync("token") || ""
+        },
+        timeout: 60000,
+        success: function success(res) {
+          return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
+            var _res$data3, _res$data4;
+            return _regenerator.default.wrap(function _callee2$(_context2) {
+              while (1) {
+                switch (_context2.prev = _context2.next) {
+                  case 0:
+                    resolve(res.data); // 将响应数据返回
+                    if (((_res$data3 = res.data) === null || _res$data3 === void 0 ? void 0 : _res$data3.code) == -1) {
+                      uni.showToast({
+                        icon: "fail",
+                        title: res.data.errMsg,
+                        duration: 2000
+                      });
+                    } else if (((_res$data4 = res.data) === null || _res$data4 === void 0 ? void 0 : _res$data4.code) == -99) {
+                      uni.removeStorageSync("token");
+                      uni.showToast({
+                        icon: "error",
+                        duration: 2000,
+                        title: "令牌失效"
+                      });
+                      reject(res.data);
+                    }
+                  case 2:
+                  case "end":
+                    return _context2.stop();
+                }
               }
-            }
-          }, _callee2);
-        }))();
-      },
-      fail: function fail(err) {
-        // uni.hideLoading();
-        uni.showToast({
-          icon: "fail",
-          title: "服务器错误，请稍后再试",
-          duration: 1200
-        });
-        reject(err);
-      }
+            }, _callee2);
+          }))();
+        },
+        fail: function fail(err) {
+          uni.showToast({
+            icon: "fail",
+            title: "服务器错误，请稍后再试",
+            duration: 1200
+          });
+          reject(err);
+        }
+      });
     });
   });
+  // console.log('%c请求拦截：', ' background:orange',path);
+  // if(false){
+  // 	uni.showLoading({
+  // 		title:"加载中",
+  // 		mask:true
+  // 	})
+  // }
 }
 
 // 封装发送get请求
@@ -10463,7 +10473,9 @@ function saveRecordAPI(data) {
 /* 99 */,
 /* 100 */,
 /* 101 */,
-/* 102 */
+/* 102 */,
+/* 103 */,
+/* 104 */
 /*!*******************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/components/@lucky-canvas/uni/utils.js ***!
   \*******************************************************************************************************************/
@@ -10591,7 +10603,7 @@ function getImage(canvasId, canvas) {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
 
 /***/ }),
-/* 103 */
+/* 105 */
 /*!***********************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/components/lucky-canvas/dist/index.esm.js ***!
   \***********************************************************************************************************************/

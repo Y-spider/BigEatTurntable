@@ -241,28 +241,6 @@ var _turntableApi = __webpack_require__(/*! @/apis/turntableApi.js */ 43);
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 var Turntable = function Turntable() {
   Promise.all(/*! require.ensure | components/Turntable */[__webpack_require__.e("common/vendor"), __webpack_require__.e("components/Turntable")]).then((function () {
     return resolve(__webpack_require__(/*! @/components/Turntable.vue */ 85));
@@ -274,6 +252,7 @@ var _default = {
   },
   data: function data() {
     return {
+      modalName: "",
       key_count: 0,
       isShowMaker: false,
       selectedItem: null,
@@ -311,15 +290,21 @@ var _default = {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
+                if (!uni.getStorageSync("routing")) {
+                  _context.next = 2;
+                  break;
+                }
+                return _context.abrupt("return");
+              case 2:
                 _this.selectedType = id;
-                _context.next = 3;
+                _context.next = 5;
                 return (0, _turntableApi.getTurntableDetailAPI)(id);
-              case 3:
+              case 5:
                 res = _context.sent;
                 _this.prizeList = JSON.parse(res.data.content);
                 _this.turntable = res.data;
                 _this.key_count++;
-              case 7:
+              case 9:
               case "end":
                 return _context.stop();
             }
@@ -357,6 +342,11 @@ var _default = {
       });
     },
     selectType: function selectType(type) {
+      if (uni.getStorageSync("routing")) {
+        // 当前正在转动无法切换
+        console.log("无法切换");
+        return;
+      }
       this.selectedType = type;
       // 根据不同类型执行不同函数
       switch (type) {
@@ -420,7 +410,6 @@ var _default = {
     },
     // 早餐菜单处理函数
     handleBreakfast: function handleBreakfast() {
-      console.log('选择了早餐菜单');
       // 这里可以添加你的逻辑，比如跳转页面、显示数据等
       this.getTuratableDetail(1);
     },
@@ -485,10 +474,6 @@ var _default = {
   },
   onShow: function onShow() {
     this.init();
-    // const list = uni.getStorageSync('editPrizeList')
-    // if (list && Array.isArray(list)) {
-    // 	this.prizeList = list
-    // }
   }
 };
 exports.default = _default;

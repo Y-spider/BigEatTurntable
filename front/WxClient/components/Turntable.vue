@@ -19,6 +19,7 @@
     />
 	<!-- 结果弹框 -->
 	<view class="cu-modal" :class="modalName=='DialogModal2'?'show':''">
+	<!-- <view class="cu-modal" class="DialogModal2"> -->
 		<view class="cu-dialog">
 			<view class="cu-bar bg-white justify-end">
 				<view class="content">抽奖结果</view>
@@ -30,10 +31,13 @@
 				{{resultPrize.fonts[0].text}}
 			</view>
 			<view class="cu-bar bg-white">
-				<view  class="action margin-0 flex-sub text-green " @tap="playAgain()">
+				<view  class="action margin-0 flex-sub text-yellow " @tap="playAgain()">
 					<text ></text>再来一次</view>
-				<view class="action margin-0 flex-sub text-green solid-left" @tap="sharPage">分享</view>
-				<view class="action margin-0 flex-sub  solid-left" @tap="handConfim()">确定</view>
+				<view class="action margin-0 flex-sub text-green solid-left" @tap="sharPage">
+					<button open-type="share" class="share-btn">分享</button>
+					<text>分享</text>
+				</view>
+				<view class="action margin-0 flex-sub text-red solid-left" @tap="handConfim()">确定</view>
 			</view>
 		</view>
 	</view>
@@ -56,6 +60,8 @@
 	},
     data () {
       return {
+		openMusic:true,
+		roatingDuration:2,
 		modalName:"",
 		resultPrize:null,
 		count:0,
@@ -96,17 +102,20 @@
 				this.count++
 				if(this.LuckyWheel){
 					this.LuckyWheel.init(this.prizes)
-					// console.log("触发init更新")
 				}
 			}
 		}
 	},
     methods: {
-		sharPage(){
-			// 分享小程序
+		checkSetting(){
+			let duration = uni.getStorageSync("roatingDuration")
+			let openMusic = uni.getStorageSync("openMusic")
+			this.roatingDuration = duration?duration:this.roatingDuration
+			this.openMusic = openMusic!='' || openMusic!=undefined?openMusic:this.openMusic
 		},
 		hideModal(){
 			this.modalName = ""
+			uni.setStorageSync("routing",false)
 		},
 		playAgain(){
 			// 再来一次
@@ -132,26 +141,29 @@
       // 点击抽奖按钮触发回调
       startCallBack () {
         // 先开始旋转
-		console.log("执行转动")
 		let routing = uni.getStorageSync("routing")
-		console.log("routing",routing)
 		if(routing){
 			// 之前装盘还未出结果，无法再次转动
 			return;
 		}
-		this.audioPlay.play()
+		this.checkSetting()
+		if(this.openMusic){
+			this.audioPlay.play()
+		}
         this.$refs.myLucky.play()
 		uni.setStorageSync("routing",true)
         setTimeout(() => {
           // 调用stop停止旋转并传递中奖奖品  不传入小标则可以使用range 权重了
 			this.$refs.myLucky.stop()
-        }, 1200)
+        }, this.roatingDuration*1000)
       },
       // 抽奖结束触发回调
 	endCallBack (prize) {
 		this.resultPrize = prize
 		this.audioPlay.stop()
-		this.audioEnd.play()
+		if(this.openMusic){
+			this.audioEnd.play()
+		}
 		this.modalName = "DialogModal2"
 	  },
 	handConfim(){
@@ -178,5 +190,9 @@
 		justify-content: center;
 		align-items: center;
 		padding: 15rpx;
+	}
+	.share-btn{
+		opacity: 0;
+		position: absolute;
 	}
 </style>

@@ -16,7 +16,7 @@
 	width: 80%;
 	height: 60rpx;
 	display: flex;
-	box-shadow: 0 2px 8px rgba(255,165,0,0.08);
+	box-shadow: 0 2px 8px rgba(255, 165, 0, 0.08);
 	overflow: hidden;
 }
 .choice-btn.data-v-57280228 {
@@ -41,7 +41,7 @@
 	justify-content: center;
 	align-items: center;
 }
-.choose-icon.data-v-57280228{
+.choose-icon.data-v-57280228 {
 	display: flex;
 	justify-content: center;
 	align-items: center;
@@ -49,10 +49,10 @@
 	width: 50rpx;
 	height: 50rpx;
 }
-.turntable-box.data-v-57280228{
+.turntable-box.data-v-57280228 {
 	background-color: #FFA500;
 }
-.fun-but.data-v-57280228{
+.fun-but.data-v-57280228 {
 	margin: 12rpx;
 }
 .custom-select-area.data-v-57280228 {

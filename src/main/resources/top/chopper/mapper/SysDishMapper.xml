@@ -5,10 +5,12 @@
 <mapper namespace="top.chopper.mapper.SysDishMapper">
 
     <select id="listRandom" resultType="top.chopper.pojo.SysDish">
-        select * from sys_dish where is_delete = 0
+        select * from `sys_dish` where is_delete = 0
                                <if test="type!=null and type > 0">
                                    and type_id = #{type}
                                </if>
                                order by rand() limit #{count}
     </select>
+
+
 </mapper>

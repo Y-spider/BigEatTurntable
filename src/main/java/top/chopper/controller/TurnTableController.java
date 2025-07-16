@@ -92,10 +92,13 @@ public class TurnTableController {
         return R.SUCCESS();
     }
 
-    @Operation(description = "添加轮盘信息",summary = "添加轮盘信息")
-    @PostMapping("/add")
+    @Operation(description = "用户端添加轮盘信息",summary = "用户端添加轮盘信息")
+    @PostMapping("/client/add")
     public R handleAddTurntable(@RequestBody TurnTable turnTable){
         // 这里需要判断具体的添加的角色，来进行一些信息的填充
+        turnTable.setOpenid(SecurityUtil.getUserName());
+        turnTable.setUpdateTime(LocalDateTime.now());
+        turnTable.setType(TurnTableType.TURN_TABLE_TYPE_OPT);
         turnTable.setCreateTime(LocalDateTime.now());
         return R.SUCCESS(service.save(turnTable));
     }

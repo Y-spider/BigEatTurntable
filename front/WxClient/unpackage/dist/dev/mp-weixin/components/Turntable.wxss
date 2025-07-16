@@ -7,4 +7,8 @@
 	align-items: center;
 	padding: 15rpx;
 }
+.share-btn.data-v-0bb993b4{
+	opacity: 0;
+	position: absolute;
+}
 

@@ -101,7 +101,7 @@ var components
 try {
   components = {
     uniNumberBox: function () {
-      return __webpack_require__.e(/*! import() | uni_modules/uni-number-box/components/uni-number-box/uni-number-box */ "uni_modules/uni-number-box/components/uni-number-box/uni-number-box").then(__webpack_require__.bind(null, /*! @/uni_modules/uni-number-box/components/uni-number-box/uni-number-box.vue */ 90))
+      return __webpack_require__.e(/*! import() | uni_modules/uni-number-box/components/uni-number-box/uni-number-box */ "uni_modules/uni-number-box/components/uni-number-box/uni-number-box").then(__webpack_require__.bind(null, /*! @/uni_modules/uni-number-box/components/uni-number-box/uni-number-box.vue */ 92))
     },
   }
 } catch (e) {
@@ -252,6 +252,9 @@ var _turntableApi = __webpack_require__(/*! @/apis/turntableApi.js */ 43);
 //
 //
 //
+//
+//
+//
 
 var COLOR_POOL = ['#e9e8fe', '#b8c5f2', '#f7cac9', '#f6eac2', '#b5ead7', '#ffdac1', '#c7ceea', '#f2b5d4', '#f9f871', '#b2f7ef', '#f7d6e0', '#f7b2ad', '#b2b7f7', '#f7eab2', '#b2f7c1', '#f7b2e0', '#b2f7e0', '#f7b2b2', '#b2e0f7', '#e0b2f7', '#445ff7', "#FFFFFF", "#ff0852"];
 function getRandomColor(usedColors) {
@@ -265,26 +268,18 @@ var _default = {
   data: function data() {
     return {
       id: null,
-      prizeList: [{
-        fonts: [{
-          text: '炒饭',
-          top: '15%'
-        }],
-        background: '#e9e8fe'
-      }, {
-        fonts: [{
-          text: '炒面',
-          top: '15%'
-        }],
-        background: '#b8c5f2'
-      }],
+      prizeList: [
+        // { fonts: [{ text: '炒饭', top: '15%' }], background: '#e9e8fe' },
+      ],
       colorList: COLOR_POOL,
       colorPickerIdx: null,
       showBatch: false,
       batchText: '',
-      tableInfo: {}
+      tableInfo: {},
+      isCreate: false // 标识是否是创建转盘
     };
   },
+
   methods: {
     addItem: function addItem() {
       // 自动分配不重复颜色
@@ -334,7 +329,7 @@ var _default = {
       this.showBatch = false;
       this.batchText = '';
     },
-    finishEdit: function finishEdit() {
+    saveNewTurntable: function saveNewTurntable() {
       var _this2 = this;
       return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
         var updateData;
@@ -342,13 +337,59 @@ var _default = {
           while (1) {
             switch (_context.prev = _context.next) {
               case 0:
+                updateData = {
+                  content: JSON.stringify(_this2.prizeList)
+                }; // 调用创建新转盘api
+                uni.showModal({
+                  title: "新转盘名称",
+                  editable: true,
+                  placeholderText: '请输入新转盘名称',
+                  success: function success(res) {
+                    if (res.confirm) {
+                      if (res.content == "") {
+                        uni.showToast({
+                          icon: "error",
+                          title: "名称不能为空!!",
+                          duration: 2000
+                        });
+                        return;
+                      }
+                      updateData.title = res.content;
+                      (0, _turntableApi.addTurntableAPI)(updateData);
+                      uni.navigateBack();
+                    }
+                  }
+                });
+              case 2:
+              case "end":
+                return _context.stop();
+            }
+          }
+        }, _callee);
+      }))();
+    },
+    finishEdit: function finishEdit() {
+      var _this3 = this;
+      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
+        var updateData;
+        return _regenerator.default.wrap(function _callee2$(_context2) {
+          while (1) {
+            switch (_context2.prev = _context2.next) {
+              case 0:
+                if (!_this3.isCreate) {
+                  _context2.next = 3;
+                  break;
+                }
+                _this3.saveNewTurntable();
+                return _context2.abrupt("return");
+              case 3:
                 // 返回并传递数据
                 // 进行保存
                 updateData = {
-                  id: _this2.id,
-                  content: JSON.stringify(_this2.prizeList)
+                  id: _this3.id,
+                  content: JSON.stringify(_this3.prizeList)
                 };
-                if (_this2.tableInfo.type != 0) {
+                if (_this3.tableInfo.type != 0) {
                   uni.showModal({
                     title: "新转盘名称",
                     editable: true,
@@ -365,51 +406,58 @@ var _default = {
                         }
                         updateData.title = res.content;
                         (0, _turntableApi.updateTurntableAPI)(updateData);
-                        uni.setStorageSync('editPrizeList', _this2.prizeList);
+                        uni.setStorageSync('editPrizeList', _this3.prizeList);
                         uni.navigateBack();
                       }
                     }
                   });
                 } else {
                   (0, _turntableApi.updateTurntableAPI)(updateData);
-                  uni.setStorageSync('editPrizeList', _this2.prizeList);
+                  uni.setStorageSync('editPrizeList', _this3.prizeList);
                   uni.navigateBack();
                 }
-              case 2:
+              case 5:
               case "end":
-                return _context.stop();
+                return _context2.stop();
             }
           }
-        }, _callee);
+        }, _callee2);
       }))();
     }
   },
   onLoad: function onLoad(option) {
-    var _this3 = this;
-    return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
+    var _this4 = this;
+    return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3() {
       var list, res;
-      return _regenerator.default.wrap(function _callee2$(_context2) {
+      return _regenerator.default.wrap(function _callee3$(_context3) {
         while (1) {
-          switch (_context2.prev = _context2.next) {
+          switch (_context3.prev = _context3.next) {
             case 0:
-              // 可从上个页面传递数据过来
+              if (!(option.id == 0)) {
+                _context3.next = 3;
+                break;
+              }
+              // 表示是创建键盘
+              _this4.isCreate = true;
+              return _context3.abrupt("return");
+            case 3:
               list = uni.getStorageSync('editPrizeList');
               if (list && Array.isArray(list)) {
-                _this3.prizeList = list;
+                _this4.prizeList = list;
               }
-              _this3.id = option.id;
-              _context2.next = 5;
-              return (0, _turntableApi.getTurntableDetailAPI)(_this3.id);
-            case 5:
-              res = _context2.sent;
-              _this3.tableInfo = res.data;
-              _this3.tableInfo.content = JSON.parse(_this3.tableInfo.content);
+              _this4.id = option.id;
+              _context3.next = 8;
+              return (0, _turntableApi.getTurntableDetailAPI)(_this4.id);
             case 8:
+              res = _context3.sent;
+              _this4.tableInfo = res.data;
+              _this4.tableInfo.content = JSON.parse(_this4.tableInfo.content);
+            case 11:
             case "end":
-              return _context2.stop();
+              return _context3.stop();
           }
         }
-      }, _callee2);
+      }, _callee3);
     }))();
   }
 };

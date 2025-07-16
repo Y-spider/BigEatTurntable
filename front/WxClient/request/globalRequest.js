@@ -1,7 +1,7 @@
 // 正式环境
 // const BASE_URL = "https://www.chopper.love:39001/api/"
 // 开发环境
-// const BASE_URL = "http://192.168.242.22:16378/"
+// const BASE_URL = "http://127.0.0.1:16378/"
 const BASE_URL = "http://192.168.100.3:16378/"
 
 // 检查是否登录，如果没有登录则进行登录
@@ -74,7 +74,6 @@ export function httpOFPost(path, params = {}, loading = true,method) {
 					});
 					reject(res.data)
 				}
-
 			},
 			fail(err) {
 				reject(err);
@@ -89,55 +88,52 @@ export function httpOFPost(path, params = {}, loading = true,method) {
 
 // 封装发送get请求
 export function httpOFGet(path,loading = true){
-	checkLogin()
-	// console.log('%c请求拦截：', ' background:orange',path);
-	if(false){
-		uni.showLoading({
-			title:"加载中",
-			mask:true
-		})
-	};
-	
-	return new Promise((resolve,reject)=>{
-		uni.request({
-			url:BASE_URL + path,
-			method:"GET",
-			header:{
-				"token":uni.getStorageSync("token") || "",
-			},
-			timeout:60000,
-			async success(res){
-				// uni.hideLoading()
-				resolve(res.data) // 将响应数据返回
-				// console.log('响应拦截：', path,res.data);
-				if(res.data?.code == -1){
+	return checkLogin().then(()=>{
+		return new Promise((resolve,reject)=>{
+			uni.request({
+				url:BASE_URL + path,
+				method:"GET",
+				header:{
+					"token":uni.getStorageSync("token") || "",
+				},
+				timeout:60000,
+				async success(res){
+					resolve(res.data) // 将响应数据返回
+					if(res.data?.code == -1){
+						uni.showToast({
+							icon:"fail",
+							title:res.data.errMsg,
+							duration:2000
+						});
+					}
+					else if(res.data?.code == -99){
+						uni.removeStorageSync("token")
+						uni.showToast({
+							icon: "error",
+							duration: 2000,
+							title: "令牌失效"
+						});
+						reject(res.data)
+					}
+				},
+				fail(err){
 					uni.showToast({
 						icon:"fail",
-						title:res.data.errMsg,
-						duration:2000
-					});
-				}
-				else if(res.data?.code == -99){
-					uni.removeStorageSync("token")
-					uni.showToast({
-						icon: "error",
-						duration: 2000,
-						title: "令牌失效"
-					});
-					reject(res.data)
-				}
-			},
-			fail(err){
-				// uni.hideLoading();
-				uni.showToast({
-					icon:"fail",
-					title:"服务器错误，请稍后再试",
-					duration:1200
-				})
-				reject(err);
-			},
-		})
-	});
+						title:"服务器错误，请稍后再试",
+						duration:1200
+					})
+					reject(err);
+				},
+			})
+		});
+	})
+	// console.log('%c请求拦截：', ' background:orange',path);
+	// if(false){
+	// 	uni.showLoading({
+	// 		title:"加载中",
+	// 		mask:true
+	// 	})
+	// }
 } 
 
 // 封装发送get请求

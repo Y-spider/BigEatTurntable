@@ -4,8 +4,11 @@
 	      <block slot="backText">返回</block>
 	      <block slot="content">编辑转盘</block>
 	  </cu-custom>
-    <view class="edit-title">
+    <view v-if="!isCreate" class="edit-title">
 		{{tableInfo.title}}
+	</view>
+	<view v-else class="edit-title">
+		新建转盘
 	</view>
     <!-- 选项列表 -->
     <view v-for="(item, idx) in prizeList" :key="idx" class="edit-item">
@@ -49,7 +52,7 @@
       </view>
     </view>
     <!-- 完成按钮 -->
-    <button class="cu-btn bg-blue finish-btn" @click="finishEdit">完成({{prizeList.length}}项)</button>
+    <button class="cu-btn bg-yellow finish-btn" @click="finishEdit">完成({{prizeList.length}}项)</button>
   </view>
 </template>
 
@@ -64,20 +67,20 @@ function getRandomColor(usedColors) {
   if (available.length === 0) return COLOR_POOL[Math.floor(Math.random() * COLOR_POOL.length)]
   return available[Math.floor(Math.random() * available.length)]
 }
-import {updateTurntableAPI,getTurntableDetailAPI } from "@/apis/turntableApi.js"
+import {updateTurntableAPI,getTurntableDetailAPI,addTurntableAPI } from "@/apis/turntableApi.js"
 export default {
   data() {
     return {
 	  id:null,
       prizeList: [
-        { fonts: [{ text: '炒饭', top: '15%' }], background: '#e9e8fe' },
-        { fonts: [{ text: '炒面', top: '15%' }], background: '#b8c5f2' }
+        // { fonts: [{ text: '炒饭', top: '15%' }], background: '#e9e8fe' },
       ],
       colorList: COLOR_POOL,
       colorPickerIdx: null,
       showBatch: false,
       batchText: '',
-	  tableInfo:{}
+	  tableInfo:{},
+	  isCreate:false // 标识是否是创建转盘
     }
   },
   methods: {
@@ -114,7 +117,37 @@ export default {
       this.showBatch = false
       this.batchText = ''
     },
+	async saveNewTurntable(){
+		let updateData = {
+		  content: JSON.stringify(this.prizeList),
+		}
+		// 调用创建新转盘api
+		uni.showModal({
+		  title: "新转盘名称",
+		  editable: true,
+		  placeholderText: '请输入新转盘名称',
+		  success: (res) => {
+		    if (res.confirm) {
+		      if (res.content == "") {
+		        uni.showToast({
+		          icon: "error",
+		          title: "名称不能为空!!",
+		          duration: 2000,
+		        })
+		        return;
+		      }
+		      updateData.title = res.content
+		      addTurntableAPI(updateData)
+		      uni.navigateBack()
+		    }
+		  }
+		})
+	},
     async finishEdit() {
+		if(this.isCreate){
+			this.saveNewTurntable()
+			return;
+		}
       // 返回并传递数据
       // 进行保存
       let updateData = {
@@ -152,11 +185,16 @@ export default {
   },
   async onLoad(option) {
     // 可从上个页面传递数据过来
-    const list = uni.getStorageSync('editPrizeList')
-    if (list && Array.isArray(list)) {
-      this.prizeList = list
-    }
-    this.id = option.id
+	if(option.id==0){
+		// 表示是创建键盘
+		this.isCreate = true
+		return
+	}
+	const list = uni.getStorageSync('editPrizeList')
+	if (list && Array.isArray(list)) {
+	  this.prizeList = list
+	}
+	this.id = option.id
 	let res =  await getTurntableDetailAPI(this.id)
 	this.tableInfo = res.data
 	this.tableInfo.content = JSON.parse(this.tableInfo.content)

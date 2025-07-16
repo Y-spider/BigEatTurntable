@@ -111,9 +111,15 @@ var render = function () {
     : null
   if (!_vm._isMounted) {
     _vm.e0 = function ($event) {
-      _vm.showType = "create"
+      _vm.modalName = ""
     }
     _vm.e1 = function ($event) {
+      _vm.modalName = ""
+    }
+    _vm.e2 = function ($event) {
+      _vm.showType = "create"
+    }
+    _vm.e3 = function ($event) {
       _vm.showType = "record"
     }
   }
@@ -228,9 +234,52 @@ var _turntableApi = __webpack_require__(/*! @/apis/turntableApi.js */ 43);
 //
 //
 //
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
 var _default = {
   data: function data() {
     return {
+      roatingDuration: 2,
+      //默认为2s
+      switchA: true,
+      // 默认为打开
+      modalName: "DrawerModalL",
       userName: "",
       createCount: 0,
       spinCount: 0,
@@ -252,6 +301,86 @@ var _default = {
     this.init();
   },
   methods: {
+    openSetting: function openSetting() {
+      // 打开设置
+      var openMusic = uni.getStorageSync("openMusic");
+      var duration = uni.getStorageSync("roatingDuration");
+      this.switchA = openMusic != "" || openMusic != undefined ? openMusic : this.switchA;
+      this.roatingDuration = duration ? duration : this.roatingDuration;
+      this.modalName = "bottomModal";
+    },
+    clearCache: function clearCache() {
+      var storageInfo = uni.getStorageInfoSync();
+      storageInfo.keys.forEach(function (key) {
+        if (key !== "__DC_STAT_UUID" && key !== "editPrizeList") {
+          uni.removeStorageSync(key);
+        }
+      });
+      uni.setStorageSync("openMusic", true);
+      uni.setStorageSync("roatingDuration", 2.5);
+      uni.showToast({
+        icon: "success",
+        title: "清除缓存成功",
+        duration: 1200
+      });
+      this.modalName = "";
+    },
+    sliderChange: function sliderChange(check) {
+      uni.setStorageSync("roatingDuration", check.detail.value);
+    },
+    SwitchMusic: function SwitchMusic(check) {
+      // 控制转动音效
+      uni.setStorageSync("openMusic", check.detail.value);
+    },
+    handleDeleteTurntable: function handleDeleteTurntable(item) {
+      // 删除我的转盘
+      var that = this;
+      uni.showModal({
+        title: "警告",
+        content: "\u662F\u5426\u5220\u9664\u8F6C\u76D8[".concat(item.title, "]"),
+        success: function success(res) {
+          return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
+            var _res;
+            return _regenerator.default.wrap(function _callee$(_context) {
+              while (1) {
+                switch (_context.prev = _context.next) {
+                  case 0:
+                    if (!res.confirm) {
+                      _context.next = 6;
+                      break;
+                    }
+                    _context.next = 3;
+                    return (0, _turntableApi.deleteTurntableByIdAPI)(item.id);
+                  case 3:
+                    _res = _context.sent;
+                    // ✅ 本地数组中删除
+                    that.myTurntables = that.myTurntables.filter(function (t) {
+                      return t.id !== item.id;
+                    });
+                    that.createCount--;
+                  case 6:
+                  case "end":
+                    return _context.stop();
+                }
+              }
+            }, _callee);
+          }))();
+        }
+      });
+    },
+    showTips: function showTips() {
+      uni.showModal({
+        title: "提示",
+        showCancel: false,
+        content: "长按可删除轮盘!"
+      });
+    },
+    gotoCreate: function gotoCreate() {
+      // 前往创建键盘
+      uni.navigateTo({
+        url: "/pages/editWheel/index?id=0"
+      });
+    },
     // 前往转盘
     goTurntable: function goTurntable(turntable) {
       uni.navigateTo({
@@ -261,47 +390,47 @@ var _default = {
     // 模拟分页API
     init: function init() {
       var _this = this;
-      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
+      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
         var createRes, recordCountRes;
-        return _regenerator.default.wrap(function _callee$(_context) {
+        return _regenerator.default.wrap(function _callee2$(_context2) {
           while (1) {
-            switch (_context.prev = _context.next) {
+            switch (_context2.prev = _context2.next) {
               case 0:
-                _context.next = 2;
+                _context2.next = 2;
                 return (0, _turntableApi.getUserTurntableInfoAPI)();
               case 2:
-                createRes = _context.sent;
+                createRes = _context2.sent;
                 _this.createCount = createRes.data.length;
                 _this.myTurntables = createRes.data;
-                _context.next = 7;
+                _context2.next = 7;
                 return (0, _rotationRecordApi.selectRecordCountAPI)();
               case 7:
-                recordCountRes = _context.sent;
+                recordCountRes = _context2.sent;
                 _this.spinCount = recordCountRes.data;
               case 9:
               case "end":
-                return _context.stop();
+                return _context2.stop();
             }
           }
-        }, _callee);
+        }, _callee2);
       }))();
     },
     // 加载转动记录
     loadSpinRecords: function loadSpinRecords() {
       var _arguments = arguments,
         _this2 = this;
-      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
+      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3() {
         var reset, res;
-        return _regenerator.default.wrap(function _callee2$(_context2) {
+        return _regenerator.default.wrap(function _callee3$(_context3) {
           while (1) {
-            switch (_context2.prev = _context2.next) {
+            switch (_context3.prev = _context3.next) {
               case 0:
                 reset = _arguments.length > 0 && _arguments[0] !== undefined ? _arguments[0] : false;
                 if (!(_this2.spinLoading || _this2.spinFinished)) {
-                  _context2.next = 3;
+                  _context3.next = 3;
                   break;
                 }
-                return _context2.abrupt("return");
+                return _context3.abrupt("return");
               case 3:
                 _this2.spinLoading = true;
                 if (reset) {
@@ -309,10 +438,10 @@ var _default = {
                   _this2.RotationRecords = [];
                   _this2.spinFinished = false;
                 }
-                _context2.next = 7;
+                _context3.next = 7;
                 return (0, _rotationRecordApi.listWithPageAPI)(_this2.spinPage, _this2.spinPageSize);
               case 7:
-                res = _context2.sent;
+                res = _context3.sent;
                 _this2.RotationRecords = [].concat((0, _toConsumableArray2.default)(_this2.RotationRecords), (0, _toConsumableArray2.default)(res.data.records));
                 _this2.spinTotal = res.data.total;
                 if (_this2.RotationRecords.length >= _this2.spinTotal) {
@@ -323,10 +452,10 @@ var _default = {
                 _this2.spinLoading = false;
               case 12:
               case "end":
-                return _context2.stop();
+                return _context3.stop();
             }
           }
-        }, _callee2);
+        }, _callee3);
       }))();
     },
     // 触底加载更多

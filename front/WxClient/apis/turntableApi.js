@@ -20,3 +20,11 @@ export function getTurntableDetailAPI(id){
 export function getHotTurtableAPI(){
 	return httpOFGet("turntable/list/hot")
 }
+
+export function addTurntableAPI(data){
+	return httpOFPost("turntable/client/add",data,false,"POST")
+}
+
+export function deleteTurntableByIdAPI(id){
+	return httpOFPost(`turntable/delete/${id}`,null,false,"DELETE")
+}
