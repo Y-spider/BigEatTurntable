@@ -1,18 +1,21 @@
 package top.chopper.config;
+
 import com.baomidou.mybatisplus.annotation.DbType;
 import com.baomidou.mybatisplus.extension.plugins.MybatisPlusInterceptor;
 import com.baomidou.mybatisplus.extension.plugins.inner.PaginationInnerInterceptor;
+import io.minio.MinioClient;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Contact;
 import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import top.chopper.pojo.MinioProp;
 
 import java.util.List;
 
@@ -25,6 +28,8 @@ import java.util.List;
 @Configuration
 @Slf4j
 public class WebConfig implements WebMvcConfigurer {
+    @Autowired
+    private MinioProp minioProp;
 
     @Override
     public void configureMessageConverters(List<HttpMessageConverter<?>> converters) {
@@ -58,5 +63,13 @@ public class WebConfig implements WebMvcConfigurer {
         // 如果有多数据源可以不配具体类型, 否则都建议配上具体的 DbType
         return interceptor;
     }
+
+    @Bean
+    public MinioClient minioClient(){
+        return MinioClient.builder()
+                .credentials(minioProp.getAccesskey(), minioProp.getSecretKey())
+                .endpoint(minioProp.getEndpoint()).build();
+    }
+
 
 }

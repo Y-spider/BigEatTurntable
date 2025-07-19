@@ -3,8 +3,6 @@ package top.chopper.dto;
 import lombok.Data;
 
 import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
 
 /*
    @Author:ROBOT
@@ -39,7 +37,7 @@ public class QueryPageDto {
     @SuppressWarnings("unchecked")
     public boolean queryConditionIsExists(String queryName) {
         // 使用Optional来安全地获取值
-        return queryMap.get(queryName)!=null;
+        return queryMap.get(queryName)!=null && queryMap.get(queryName)!="";
     }
 
     public Object getQueryConditionValue(String queryName){
