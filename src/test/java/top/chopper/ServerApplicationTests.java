@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import top.chopper.pojo.TurnTable;
 import top.chopper.service.TurnTableService;
+import top.chopper.utils.MinioUtil;
 import top.chopper.utils.MyGetCommentUtil;
 
 @SpringBootTest(classes = ServerApplication.class)
@@ -16,6 +17,9 @@ class ServerApplicationTests {
 
     @Autowired
     private TurnTableService turnTableService;
+
+    @Autowired
+    private MinioUtil minioUtil;
     @Test
     void generateTableFiled(){
 //        myGetCommentUtil.generatePerfect("dish_type",true);
@@ -30,6 +34,13 @@ class ServerApplicationTests {
         Page<TurnTable> page = new Page<>(2,10);
         turnTableService.page(page,queryWrapper);
         System.out.println(page);
+    }
+
+    // 测试上传网络文件到minio中
+    @Test
+    void testMinioUploadFile(){
+        String url = "https://i2.chuimg.com/b917a46af36711e6947d0242ac110002_1177w_1178h.jpg?imageView2/2/w/660/interlace/1/q/75";
+        System.out.println(minioUtil.uploadFile(url));
     }
 
 }
