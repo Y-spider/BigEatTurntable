@@ -71,8 +71,13 @@ public class MinioUtil {
      * @return 返回文件访问地址
      */
     public HashMap<String,String> uploadFile(String url){
+        try {
+            // 避免被禁止掉ip
+            Thread.sleep(1000);
+        } catch ( InterruptedException e ) {
+            throw new RuntimeException(e);
+        }
         byte[] contentBytes =HttpUtil.downloadBytes(url);
-        System.out.println(contentBytes);
         String contentType = getFileType(url);
         String fileName = UUID.randomUUID() + "." + contentType;
         try {

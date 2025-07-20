@@ -45,7 +45,8 @@ public class SecurityConfig {
                                 "/swagger-ui.html",
                                 "/doc.html",          // 如果用 knife4j
                                 "/webjars/**",
-                                "/file/upload"
+                                "/file/upload",
+                                "/make/add/url"
                         )
                         .permitAll() // 公开接口
                         .anyRequest() // 其他所有接口
