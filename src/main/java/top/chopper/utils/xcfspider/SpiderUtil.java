@@ -10,8 +10,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import top.chopper.constant.SysConstant;
 import top.chopper.mapper.DishMakeMapper;
+import top.chopper.mapper.DishTypeMapper;
 import top.chopper.mapper.SysDishMapper;
 import top.chopper.pojo.DishMake;
+import top.chopper.pojo.DishType;
 import top.chopper.pojo.SysDish;
 import top.chopper.utils.MinioUtil;
 
@@ -35,6 +37,8 @@ public class SpiderUtil {
     private SysDishMapper sysDishMapper;
     @Autowired
     private DishMakeMapper dishMakeMapper;
+    @Autowired
+    private DishTypeMapper dishTypeMapper;
     /**
      * @param url 目标菜品详细页面url
      * @return FootPreparation对象
@@ -69,16 +73,15 @@ public class SpiderUtil {
         String name = jsonObject.getStr("name");
         String coverUrl = minioUtil.uploadFile(jsonObject.getStr("image")).get("url");
         String description = jsonObject.getStr("description");
-        String regex = "<img\\s+src=\"(https:\\/\\/i2\\.chuimg\\.com/[^\"]+)\"[^>]*alt=\"([^\"]+)\"";
-        // 注意这里捕获的前面两个分别为 菜品封面图和作者头像(这两个都是不需要的)
-        List<String> imagesUrl = ReUtil.findAll(regex, pageContent, 1);
-        List<String> stepDes = ReUtil.findAll(regex, pageContent, 2);
-        Step[] steps = new Step[imagesUrl.size() - 2];
-        for (int i = 2; i < imagesUrl.size(); i++) {
+        String regex = "<li\\b[^>]*class=\"container\"[^>]*>\\s*<p\\b[^>]*>([^<]+)</p>\\s*<img\\b[^>]*src=\"(?:<url\\b[^>]*>)?([^\"\\s]+)(?:</url>)?\"[^>]*>";
+        List<String> imagesUrl = ReUtil.findAll(regex, pageContent, 2);
+        List<String> stepDes = ReUtil.findAll(regex, pageContent, 1);
+        Step[] steps = new Step[imagesUrl.size()];
+        for (int i = 0; i < imagesUrl.size(); i++) {
             Step step = new Step();
             step.setDesc(stepDes.get(i));
-            step.setImgUrl(minioUtil.uploadFile(imagesUrl.get(i) + "-" +System.currentTimeMillis()).get("url"));
-            steps[i-2] = step;
+            step.setImgUrl(minioUtil.uploadFile(imagesUrl.get(i)).get("url"));
+            steps[i] = step;
         }
         FoodPreparation build = FoodPreparation.builder()
                 .desc(description)
@@ -99,28 +102,36 @@ public class SpiderUtil {
     /**
      * @param searchName 搜索的菜品名称
      * @param aimCount 想要保存菜品的数量
-     * @param pageIndex 搜索页数 表示从第几页开始搜索(默认为1) 最大递归到15页数据
-     * @param aimUrl 类型页面 类似于 https://www.xiachufang.com/explore/?page=1 当传入aimUrl时无需传递searchName和pageIndex
+     * @param startPage 搜索页数 表示从第几页开始搜索(默认为1) 最大递归到15页数据
+     * @param aimUrl 类型页面 类似于 https://www.xiachufang.com/explore/?page=1 当传入aimUrl时无需传递searchName
+     * @param endPage 查找页数，如果在startPage-endPage中间都没找到符合要求的数量，会在找完endPage停止
      * @return 返回上传成功菜单的名称列表
      * tips: 如果在检索的菜品中有重名的 可能会造成有一部分的菜品遗漏检查不到
      */
-    public void spiderFoodPreparationBySearch(String searchName,Integer aimCount,Integer pageIndex,String aimUrl){
+    public void spiderFoodPreparationBySearch(String searchName,Integer aimCount,Integer startPage,String aimUrl,Integer endPage,Integer typeCode){
         if(aimCount == null){
             aimCount = 1;
         }
-        if(pageIndex==null){
-            pageIndex = 1;
+        if(startPage==null){
+            startPage = 1;
+        }
+        if(endPage==null){
+            endPage = 15;
+        }
+        if(searchName != null && !searchName.isEmpty()){
+            typeCode = SysConstant.DISH_DEFAULT_TYPE;
         }
         int uploadedCount = 0;
-        String url = "https://www.xiachufang.com/search/?keyword="+searchName+"&cat=1001&page="+pageIndex;
+        String url = "https://www.xiachufang.com/search/?keyword="+searchName+"&cat=1001&page="+startPage;
         if(aimUrl!=null){
-            url = aimUrl;
+            url = aimUrl+"?page=" + startPage;
         }
+        log.info("请求网址为===>{}",url);
         String htmlContent = HttpUtil.get(url);
         String reg = "<div class=\"info pure-u\">.*?<a href=\"([^\"]+)\"[^>]*>(.*?)<\\/a>";
         List<String> uri = ReUtil.findAll(reg, htmlContent, 1);
         List<String> dish = ReUtil.findAll(reg, htmlContent, 2);
-        if(uri.isEmpty() || pageIndex>=15){
+        if(uri.isEmpty() || startPage>=15){
             log.info("未找到目标菜品==>{}制作教程",searchName);
             return;
         }
@@ -129,7 +140,7 @@ public class SpiderUtil {
             ArrayList<String> searchDishNames = new ArrayList<>();
             ArrayList<String> targetUris = new ArrayList<>();
             for(int j = i;j < i + aimCount && j < uri.size();j++){
-                searchDishNames.add(dish.get(j) + "-" + System.currentTimeMillis());
+                searchDishNames.add(dish.get(j).replaceAll("\\s+", "") + "-" + startPage + "-"+ (j+1));
                 targetUris.add(uri.get(j));
             }
             queryWrapper.in(SysDish::getName,searchDishNames);
@@ -140,7 +151,7 @@ public class SpiderUtil {
                    // 添加菜品信息
                    // 水面1s 免得没屏蔽掉ip
                    try {
-                       Thread.sleep(1000);
+                       Thread.sleep(100);
                    } catch ( InterruptedException e ) {
                        throw new RuntimeException(e);
                    }
@@ -150,6 +161,7 @@ public class SpiderUtil {
                    sysDish.setIsMake(true);
                    sysDish.setUpdateTime(LocalDateTime.now());
                    sysDish.setName(searchDishNames.get(l));
+                   sysDish.setTypeId(typeCode);
                    sysDishMapper.insert(sysDish);
                    // 开始添加菜品制作流程信息
                    DishMake dishMake = new DishMake();
@@ -163,12 +175,33 @@ public class SpiderUtil {
                }
                 log.info("添加菜品==>{}成功", searchDishNames);
                if(uploadedCount < aimCount){
-                   spiderFoodPreparationBySearch(searchName,aimCount-uploadedCount,++pageIndex,null);
+                   spiderFoodPreparationBySearch(searchName,aimCount-uploadedCount,++startPage,aimUrl,endPage,typeCode);
                }
                return ;
             }
         }
-        spiderFoodPreparationBySearch(searchName,aimCount-uploadedCount,++pageIndex,null);
+        spiderFoodPreparationBySearch(searchName,aimCount-uploadedCount,++startPage,aimUrl,endPage,typeCode);
     }
 
+
+    /**
+     * @param typeName 分类名称 查看是否
+     * @param aimCount
+     * @param startPage
+     * @param aimUrl
+     * @param endPage
+     */
+    public void spiderFoodPreparationByType(String typeName,Integer aimCount,Integer startPage,String aimUrl,Integer endPage){
+        LambdaQueryWrapper<DishType> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(DishType::getName,typeName);
+        DishType dishType = dishTypeMapper.selectOne(queryWrapper);
+        if(dishType==null){
+            dishType = new DishType();
+            dishType.setIsDelete(SysConstant.ALIVE);
+            dishType.setName(typeName);
+            dishType.setCreateTime(LocalDateTime.now());
+            dishTypeMapper.insert(dishType);
+        }
+        this.spiderFoodPreparationBySearch(null,aimCount,startPage,aimUrl,endPage,dishType.getId());
+    }
 }

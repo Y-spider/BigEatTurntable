@@ -10,4 +10,5 @@ import top.chopper.pojo.DishType;
    @Description:
    */
 public interface DishTypeService extends IService<DishType> {
+    void deleteDishById(Integer id);
 }

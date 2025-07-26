@@ -1,8 +1,8 @@
 package top.chopper.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import jakarta.validation.constraints.Max;
 import top.chopper.pojo.SysDish;
+
 import java.util.List;
 /*
    @Author:ROBOT
@@ -12,4 +12,7 @@ import java.util.List;
    */
 public interface SysDishMapper extends BaseMapper<SysDish> {
     List<SysDish> listRandom(Integer count,Integer type);
+
+    // 设置dishtypeId为默认id=0
+    int updateSetDishType(Integer dishTypeId);
 }

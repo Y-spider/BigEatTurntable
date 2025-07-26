@@ -1,5 +1,6 @@
 package top.chopper.dto;
 
+import com.github.xiaoymin.knife4j.core.util.StrUtil;
 import lombok.Data;
 
 import java.util.HashMap;
@@ -37,11 +38,17 @@ public class QueryPageDto {
     @SuppressWarnings("unchecked")
     public boolean queryConditionIsExists(String queryName) {
         // 使用Optional来安全地获取值
-        return queryMap.get(queryName)!=null && queryMap.get(queryName)!="";
+        if(queryMap.get(queryName)==null){
+            return false;
+        }
+        return !(StrUtil.isBlank(queryMap.get(queryName).toString()));
     }
 
-    public Object getQueryConditionValue(String queryName){
-        return  queryMap.get(queryName);
+    public String getQueryConditionValue(String queryName){
+        if(queryMap.get(queryName)==null){
+            return null;
+        }
+        return  queryMap.get(queryName).toString();
     }
 
 

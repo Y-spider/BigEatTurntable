@@ -30,6 +30,8 @@ public class DishMakeServiceImpl extends ServiceImpl<DishMakeMapper, DishMake> i
     private DishMakeMapper mapper;
     @Autowired
     private SysDishMapper sysDishMapper;
+    @Autowired
+    private DishMakeMapper dishMakeMapper;
 
     @Override
     @Transactional
@@ -45,8 +47,19 @@ public class DishMakeServiceImpl extends ServiceImpl<DishMakeMapper, DishMake> i
         sysDish.setId(dishId);
         sysDish.setUpdateTime(LocalDateTime.now());
         sysDish.setIsMake(true);
-        sysDish.setMakeId(dishMake.getId());
         sysDishMapper.updateById(sysDish);
 
+    }
+
+    @Override
+    @Transactional
+    public void addDishMake(DishMake dishMake) {
+        dishMake.setCreateTime(LocalDateTime.now());
+        dishMake.setIsDelete(SysConstant.ALIVE);
+        dishMakeMapper.insert(dishMake);
+        SysDish sysDish = new SysDish();
+        sysDish.setId(dishMake.getDishId());
+        sysDish.setIsMake(true);
+        sysDishMapper.updateById(sysDish);
     }
 }

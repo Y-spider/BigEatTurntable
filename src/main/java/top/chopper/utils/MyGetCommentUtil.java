@@ -272,6 +272,7 @@ public class MyGetCommentUtil {
             case "varchar":return "String";
             case "datetime":return "LocalDateTime";
             case "tinyint":return "Boolean";
+            case "text":return "String";
             default:throw new RuntimeException("数据库字段"+tableDateType+"不在转换规则中");
         }
     }

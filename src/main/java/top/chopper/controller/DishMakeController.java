@@ -1,4 +1,5 @@
 package top.chopper.controller;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,16 +26,18 @@ public class DishMakeController {
     @Autowired
     private SpiderUtil spiderUtil;
 
-    @Operation(description = "根据id获取制作教程",summary = "根据id获取制作教程")
+    @Operation(description = "根据dishId获取制作教程",summary = "根据id获取制作教程")
     @GetMapping("/select/{id}")
     public R getDishMakeById(@PathVariable("id") Integer id){
-        return R.SUCCESS(service.getById(id));
+        LambdaQueryWrapper<DishMake> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(DishMake::getDishId,id);
+        return R.SUCCESS(service.getOne(queryWrapper));
     }
 
     @Operation(description = "为菜品添加制作教程",summary = "为菜品添加制作教程")
     @PostMapping("/add")
     public R handleAdd(@RequestBody DishMake dishMake){
-        service.save(dishMake);
+        service.addDishMake(dishMake);
         return R.SUCCESS();
     }
 
@@ -54,18 +57,20 @@ public class DishMakeController {
         return R.SUCCESS();
     }
 
-    @PostMapping("/add/search/｛searchName｝/{count}/{startPage}")
+    @PostMapping("/add/search/｛searchName｝/{count}/{startPage}/{endPage}")
     @Operation(description = "按照菜品名称搜索添加菜品+制作过程",summary = "按照菜品名称搜索添加菜品+制作过程")
-    public R handAddWithSearch(@PathVariable("searchName") String searchName,@PathVariable("count") Integer count,@PathVariable("startPage") Integer startPage){
-        spiderUtil.spiderFoodPreparationBySearch(searchName,count,startPage,null);
+    public R handAddWithSearch(@PathVariable("searchName") String searchName,@PathVariable("count")
+                            Integer count,@PathVariable("startPage") Integer startPage,
+                            @PathVariable("endPage") Integer endPage){
+        spiderUtil.spiderFoodPreparationBySearch(searchName,count,startPage,null,endPage,null);
         return R.SUCCESS();
     }
 
-    @PostMapping("/add/type/｛typeUrl｝/{count}/")
+    @PostMapping("/add/type/{typeName}/｛typeUrl｝/{count}/{startPage}/{endPage}")
     @Operation(description = "按照给出的菜品分类URL 添加菜品URL(类似于https://www.xiachufang.com/category/40076/)",
             summary = "按照给出的菜品分类URL 添加菜品URL(类似于https://www.xiachufang.com/category/40076/)")
-    public R handAddWithListPageUrl(@PathVariable("typeUrl") String typeUrl,@PathVariable("count") Integer count){
-        spiderUtil.spiderFoodPreparationBySearch(null,count,null,typeUrl);
+    public R handAddWithListPageUrl(@PathVariable("typeName")String typeName,@PathVariable("typeUrl") String typeUrl,@PathVariable("count") Integer count, @PathVariable("endPage") Integer endPage,@PathVariable("startPage") Integer startPage){
+        spiderUtil.spiderFoodPreparationByType(typeName,count,startPage,typeUrl,endPage);
         return R.SUCCESS();
     }
 

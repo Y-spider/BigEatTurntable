@@ -28,7 +28,7 @@ class ServerApplicationTests {
     @Test
     void generateTableFiled(){
 //        myGetCommentUtil.generatePerfect("dish_type",true);
-        myGetCommentUtil.generatePerfect("rotation_record",true);
+        myGetCommentUtil.generatePerfect("sys_notice",false);
 //        myGetCommentUtil.generatePerfect("turntable",true);
     }
 
@@ -58,7 +58,14 @@ class ServerApplicationTests {
     @Test
     void testSearchUploadDishMake(){
         //
-        spiderUtil.spiderFoodPreparationBySearch("青椒肉丝",16,1,null);
+//        spiderUtil.spiderFoodPreparationBySearch("大虾",30,1,null);
+         spiderUtil.spiderFoodPreparationBySearch(null,60,1,"https://www.xiachufang.com/category/30048/",15,null);
+
+    }
+
+    @Test
+    void testSpiderByType(){
+        spiderUtil.spiderFoodPreparationByType("本周最受欢迎",5,1,"https://www.xiachufang.com/explore/",20);
     }
 
 }

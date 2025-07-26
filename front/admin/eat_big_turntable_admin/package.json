@@ -5,12 +5,24 @@
   "scripts": {
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
+    "build:test": "vue-cli-service build --mode test",
+    "build:prod": "vue-cli-service build --mode production",
     "lint": "vue-cli-service lint"
   },
   "dependencies": {
+    "@lucky-canvas/vue": "^0.1.11",
+    "axios": "^1.10.0",
     "core-js": "^3.8.3",
+    "element-ui": "^2.15.14",
+    "js-cookie": "^3.0.5",
+    "nprogress": "^0.2.0",
+    "path-browserify": "^1.0.1",
+    "path-to-regexp": "^6.3.0",
+    "reset-css": "^5.0.2",
     "vue": "^2.6.14",
     "vue-router": "^3.5.1",
+    "vue-server-renderer": "^2.6.14",
+    "vuedraggable": "^2.24.3",
     "vuex": "^3.6.2"
   },
   "devDependencies": {
@@ -23,6 +35,8 @@
     "@vue/cli-service": "~5.0.0",
     "eslint": "^7.32.0",
     "eslint-plugin-vue": "^8.0.3",
+    "sass": "^1.89.2",
+    "sass-loader": "^13.3.3",
     "vue-template-compiler": "^2.6.14"
   },
   "eslintConfig": {

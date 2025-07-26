@@ -41,7 +41,8 @@ public class SysDishController {
         LambdaQueryWrapper<SysDish> queryWrapper = new LambdaQueryWrapper<>();
         Page<SysDish> page = new Page<>(queryPageDto.getPage(),queryPageDto.getLimit());
         queryWrapper.like(queryPageDto.queryConditionIsExists("name"),SysDish::getName,queryPageDto.getQueryConditionValue("name"))
-                .eq(queryPageDto.queryConditionIsExists("type"),SysDish::getTypeId,queryPageDto.getQueryConditionValue("type")) ;
+                .eq(queryPageDto.queryConditionIsExists("type"),SysDish::getTypeId,queryPageDto.getQueryConditionValue("type"))
+                .eq(queryPageDto.queryConditionIsExists("isMake"),SysDish::getIsMake,queryPageDto.getQueryConditionValue("isMake"));
         return R.SUCCESS( service.page(page,queryWrapper));
     }
 

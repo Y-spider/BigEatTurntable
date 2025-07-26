@@ -65,7 +65,7 @@ public class DishTypeController {
    @DeleteMapping("/delete/{id}")
    @Operation(description = "根据id(逻辑删除)菜品类获型",summary = "根据id(逻辑删除)菜品类获型")
    public R deleteDishType(@PathVariable("id") Integer id){
-      service.removeById(id);
+      service.deleteDishById(id);
       return R.SUCCESS();
    }
 }

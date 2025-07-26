@@ -11,4 +11,5 @@ import top.chopper.pojo.DishMake;
    */
 public interface DishMakeService extends IService<DishMake> {
     void addDishMakeByUrl(String url,Integer dishId);
+    void addDishMake(DishMake dishMake);
 }

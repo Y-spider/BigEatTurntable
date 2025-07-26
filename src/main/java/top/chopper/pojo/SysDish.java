@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableLogic;
 import com.baomidou.mybatisplus.annotation.TableName;
-import com.fasterxml.jackson.annotation.JsonFormat;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -30,8 +29,8 @@ public class SysDish {
     private Boolean isMake;
     @Schema(name="hot",description="热度值")
     private Integer hot;
-    @Schema(name="makeId",description="菜品制作教程id")
-    private Integer makeId;
+//    @Schema(name="makeId",description="菜品制作教程id")
+//    private Integer makeId;
     @Schema(name="createTime",description="创建时间")
     private LocalDateTime createTime;
     @Schema(name="updateTime",description="更新时间")

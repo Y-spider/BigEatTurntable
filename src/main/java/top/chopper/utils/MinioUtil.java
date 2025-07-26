@@ -1,4 +1,6 @@
 package top.chopper.utils;
+
+import cn.hutool.http.HttpException;
 import cn.hutool.http.HttpUtil;
 import io.minio.MinioClient;
 import io.minio.PutObjectArgs;
@@ -71,16 +73,13 @@ public class MinioUtil {
      * @return 返回文件访问地址
      */
     public HashMap<String,String> uploadFile(String url){
+        HashMap<String,String> data = new HashMap<>();
         try {
             // 避免被禁止掉ip
-            Thread.sleep(1000);
-        } catch ( InterruptedException e ) {
-            throw new RuntimeException(e);
-        }
-        byte[] contentBytes =HttpUtil.downloadBytes(url);
-        String contentType = getFileType(url);
-        String fileName = UUID.randomUUID() + "." + contentType;
-        try {
+            Thread.sleep(30);
+            byte[] contentBytes =HttpUtil.downloadBytes(url);
+            String contentType = getFileType(url);
+            String fileName = UUID.randomUUID() + "." + contentType;
             InputStream in = new ByteArrayInputStream(contentBytes);
             minioClient.putObject(PutObjectArgs.builder()
                     .contentType("image/jpeg")
@@ -88,18 +87,17 @@ public class MinioUtil {
                     .object(fileName)
                     .bucket(minioProp.getBucketName())
                     .build());
+            String fileUrl = minioProp.getEndpoint() + "/" + minioProp.getBucketName() + "/" + fileName;
+            data.put("url",fileUrl);
+            data.put("timestamp", String.valueOf(System.currentTimeMillis()));
+            data.put("fileName",fileName);
+            data.put("contentType",contentType);
         } catch ( ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
                   InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
-                  XmlParserException e ) {
+                  XmlParserException | InterruptedException |  HttpException e ) {
             log.error("上传文件==》"+url+"<====发送错误" + e);
-            throw new BusinessException("网络文件保存失败==>"+url + ":" + e);
+            throw new BusinessException("网络文件保存失败==>"+url + "\n" + e);
         }
-        String fileUrl = minioProp.getEndpoint() + "/" + minioProp.getBucketName() + "/" + fileName;
-        HashMap<String,String> data = new HashMap<>();
-        data.put("url",fileUrl);
-        data.put("timestamp", String.valueOf(System.currentTimeMillis()));
-        data.put("fileName",fileName);
-        data.put("contentType",contentType);
         return data;
     }
         /**
