@@ -16,6 +16,7 @@ import top.chopper.pojo.DishMake;
 import top.chopper.pojo.DishType;
 import top.chopper.pojo.SysDish;
 import top.chopper.utils.MinioUtil;
+import top.chopper.websocket.WebSocketServer;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,6 +40,8 @@ public class SpiderUtil {
     private DishMakeMapper dishMakeMapper;
     @Autowired
     private DishTypeMapper dishTypeMapper;
+    @Autowired
+    private WebSocketServer webSocketServer;
     /**
      * @param url 目标菜品详细页面url
      * @return FootPreparation对象

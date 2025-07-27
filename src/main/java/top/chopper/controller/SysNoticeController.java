@@ -1,6 +1,7 @@
 package top.chopper.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -30,6 +31,12 @@ public class SysNoticeController {
     @PostMapping("/add")
     public R handleAdd(@RequestBody SysNotice sysNotice){
         sysNotice.setCreateTime(LocalDateTime.now());
+        sysNotice.setUpdateTime(LocalDateTime.now());
+        if(sysNotice.getActive()){
+            LambdaUpdateWrapper<SysNotice> updateChainWrapper = new LambdaUpdateWrapper<>();
+            updateChainWrapper.set(SysNotice::getActive,false);
+            service.update(updateChainWrapper);
+        }
         service.save(sysNotice);
         return R.SUCCESS();
     }
@@ -41,6 +48,7 @@ public class SysNoticeController {
         sysNotice.setUpdateTime(LocalDateTime.now());
         if(sysNotice.getActive()){
              SysNotice oldActive = (SysNotice) handleGetActive().getData();
+             oldActive.setActive(false);
              service.updateById(oldActive);
         }
         service.updateById(sysNotice);

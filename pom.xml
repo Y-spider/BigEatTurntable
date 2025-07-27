@@ -97,12 +97,11 @@
             <artifactId>minio</artifactId>
             <version>8.4.3</version>
         </dependency>
-        <!-- https://mvnrepository.com/artifact/p6spy/p6spy -->
-<!--        <dependency>-->
-<!--            <groupId>p6spy</groupId>-->
-<!--            <artifactId>p6spy</artifactId>-->
-<!--            <version>3.9.1</version>-->
-<!--        </dependency>-->
+<!--        websocket 依赖-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-websocket</artifactId>
+        </dependency>
 <!--        德鲁伊连接池-->
         <!--        knief4j依赖-->
         <dependency>

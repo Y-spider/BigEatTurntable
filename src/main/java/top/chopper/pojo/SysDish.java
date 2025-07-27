@@ -1,9 +1,6 @@
 package top.chopper.pojo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -38,6 +35,9 @@ public class SysDish {
     @TableLogic(value = "0", delval = "2") // 逻辑删除字段
     @Schema(name="isDelete",description="采用逻辑删除 0表示未删除 2表示删除")
     private Integer isDelete;
+
+    @TableField(exist = false)
+    private String makeUrl;
     public void autoSetUpdateTime(){
         this.updateTime = LocalDateTime.now();
     }

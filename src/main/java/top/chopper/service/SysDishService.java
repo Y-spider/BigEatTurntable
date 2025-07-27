@@ -11,4 +11,6 @@ import java.util.List;
    */
 public interface SysDishService extends IService<SysDish> {
     List<SysDish> listRandomDish(Integer count,Integer type);
+
+    void saveSysDishWithMakeUrl(SysDish sysDish);
 }

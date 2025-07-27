@@ -8,10 +8,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import top.chopper.dto.QueryPageDto;
+import top.chopper.mapper.DishMakeMapper;
+import top.chopper.pojo.DishMake;
 import top.chopper.pojo.R;
 import top.chopper.pojo.SysDish;
 import top.chopper.service.SysDishService;
+
 import java.util.ArrayList;
+import java.util.List;
 
 /*
    @Author:ROBOT
@@ -25,6 +29,8 @@ import java.util.ArrayList;
 public class SysDishController {
     @Autowired
     private SysDishService service;
+    @Autowired
+    private DishMakeMapper dishMakeMapper;
 
     @Operation(description = "随机获取菜品", summary = "随机获取菜品", parameters = {
             @Parameter(name = "count", description = "随机获取的数量", required = true),
@@ -42,7 +48,8 @@ public class SysDishController {
         Page<SysDish> page = new Page<>(queryPageDto.getPage(),queryPageDto.getLimit());
         queryWrapper.like(queryPageDto.queryConditionIsExists("name"),SysDish::getName,queryPageDto.getQueryConditionValue("name"))
                 .eq(queryPageDto.queryConditionIsExists("type"),SysDish::getTypeId,queryPageDto.getQueryConditionValue("type"))
-                .eq(queryPageDto.queryConditionIsExists("isMake"),SysDish::getIsMake,queryPageDto.getQueryConditionValue("isMake"));
+                .eq(queryPageDto.queryConditionIsExists("isMake"),SysDish::getIsMake,queryPageDto.getQueryConditionValue("isMake"))
+                .orderByDesc(SysDish::getCreateTime);
         return R.SUCCESS( service.page(page,queryWrapper));
     }
 
@@ -57,6 +64,10 @@ public class SysDishController {
     @PostMapping("/delete/batch")
     // 还需要调试
     public R delete(@RequestBody ArrayList<Integer> ids){
+        LambdaQueryWrapper<DishMake> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.select(DishMake::getId).in(DishMake::getDishId,ids);
+        List<Integer> dishMakeIds = dishMakeMapper.selectObjs(queryWrapper);
+        dishMakeMapper.deleteByIds(dishMakeIds);
         return R.SUCCESS(service.removeBatchByIds(ids));
     }
 
@@ -72,6 +83,13 @@ public class SysDishController {
     @PostMapping("/add")
     public R addSysDish(@RequestBody SysDish sysDish){
         service.save(sysDish);
+        return R.SUCCESS();
+    }
+
+    @Operation(description = "新增菜品信息附加菜品制作教程url",summary = "新增菜品信息附加菜品制作教程url")
+    @PostMapping("/add/additional/makeUrl")
+    public R addSysDishWithMakeUrl(@RequestBody SysDish sysDish){
+        service.saveSysDishWithMakeUrl(sysDish);
         return R.SUCCESS();
     }
 }
