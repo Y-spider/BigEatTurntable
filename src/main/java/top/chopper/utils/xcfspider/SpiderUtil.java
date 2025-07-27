@@ -48,7 +48,6 @@ public class SpiderUtil {
      */
     public FoodPreparation spiderPreparation(String url) {
         String pageContent = HttpUtil.get(url);
-//        System.out.println("获取网页信息==>"+pageContent);
         // 正则表达式匹配用料名称和用量
         String namePattern = "<td class=\"name\">\\s*(?:<a href=\"[^\"]*\">)?(.*?)(?:</a>)?\\s*</td>";
         String unitPattern = "<td class=\"unit\">\\s*(.*?)\\s*</td>";

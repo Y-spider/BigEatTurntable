@@ -46,7 +46,8 @@ public class SecurityConfig {
                                 "/doc.html",          // 如果用 knife4j
                                 "/webjars/**",
                                 "/file/upload",
-                                "/make/add/url"
+                                "/make/add/url",
+                                "/websocket/**"
                         )
                         .permitAll() // 公开接口
                         .anyRequest() // 其他所有接口

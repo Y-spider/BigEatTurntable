@@ -51,7 +51,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             "/v3/",
             "/swagger-resources/",
             "/file/upload",
-            "/make/add/url"
+            "/make/add/url",
+            "/websocket"
     );
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {

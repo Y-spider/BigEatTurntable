@@ -1,15 +1,18 @@
 package top.chopper.websocket;
 
-import jakarta.websocket.*;
-import jakarta.websocket.server.PathParam;
+import jakarta.websocket.OnClose;
+import jakarta.websocket.OnError;
+import jakarta.websocket.OnOpen;
+import jakarta.websocket.Session;
 import jakarta.websocket.server.ServerEndpoint;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import top.chopper.Exception.BusinessException;
 
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.concurrent.CopyOnWriteArraySet;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicInteger;
 
 
@@ -19,13 +22,13 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 @Slf4j
 @Service
-@ServerEndpoint("/websocket/{sid}")
+@ServerEndpoint("/websocket")
 public class WebSocketServer {
 
     //静态变量，用来记录当前在线连接数。应该把它设计成线程安全的。
     private static AtomicInteger onlineCount = new AtomicInteger(0);
     //concurrent包的线程安全Set，用来存放每个客户端对应的WebSocket对象。
-    private static CopyOnWriteArraySet<WebSocketServer> webSocketSet = new CopyOnWriteArraySet<>();
+    private static HashMap<String,WebSocketServer> webSocketmap = new HashMap<String,WebSocketServer>();
 
     //与某个客户端的连接会话，需要通过它来给客户端发送数据
     private Session session;
@@ -36,10 +39,11 @@ public class WebSocketServer {
      * 连接建立成功调用的方法
      */
     @OnOpen
-    public void onOpen(Session session, @PathParam("sid") String sid) {
+    public void onOpen(Session session) {
+        Map<String, List<String>> params = session.getRequestParameterMap();
+        this.sid = params.get("sid").get(0);     // 手动取
         this.session = session;
-        webSocketSet.add(this);     // 加入set中
-        this.sid = sid;
+        webSocketmap.put(sid,this);     // 加入set中
         addOnlineCount();           // 在线数加1
         try {
             sendMessage("conn_success");
@@ -54,7 +58,7 @@ public class WebSocketServer {
      */
     @OnClose
     public void onClose() {
-        webSocketSet.remove(this);  // 从set中删除
+        webSocketmap.remove(this.sid);  // 从set中删除
         subOnlineCount();              // 在线数减1
         // 断开连接情况下，更新主板占用情况为释放
         log.info("释放的sid=" + sid + "的客户端");
@@ -72,26 +76,6 @@ public class WebSocketServer {
     }
 
     /**
-     * 收到客户端消息后调用的方法
-     *
-     * @Param message 客户端发送过来的消息
-     */
-    @OnMessage
-    public void onMessage(String message, Session session) {
-        log.info("收到来自客户端 sid=" + sid + " 的信息:" + message);
-        // 群发消息
-        HashSet<String> sids = new HashSet<>();
-        for (WebSocketServer item : webSocketSet) {
-            sids.add(item.sid);
-        }
-        try {
-            sendMessage("客户端 " + this.sid + "发布消息：" + message, sids);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    /**
      * 发生错误回调
      */
     @OnError
@@ -100,25 +84,6 @@ public class WebSocketServer {
         error.printStackTrace();
     }
 
-    /**
-     * 群发自定义消息
-     */
-    public static void sendMessage(String message, HashSet<String> toSids) throws IOException {
-        log.info("推送消息到客户端 " + toSids + "，推送内容:" + message);
-
-        for (WebSocketServer item : webSocketSet) {
-            try {
-                //这里可以设定只推送给传入的sid，为null则全部推送
-                if (toSids.size() <= 0) {
-                    item.sendMessage(message);
-                } else if (toSids.contains(item.sid)) {
-                    item.sendMessage(message);
-                }
-            } catch (IOException e) {
-                continue;
-            }
-        }
-    }
 
     /**
      * 实现服务器主动推送消息到 指定客户端
@@ -158,7 +123,7 @@ public class WebSocketServer {
      * 获取当前在线客户端对应的WebSocket对象
      * @return
      */
-    public static CopyOnWriteArraySet<WebSocketServer> getWebSocketSet() {
-        return webSocketSet;
+    public static HashMap<String,WebSocketServer> getWebSocketSet() {
+        return webSocketmap;
     }
 }
