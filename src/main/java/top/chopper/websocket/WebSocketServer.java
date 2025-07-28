@@ -123,7 +123,7 @@ public class WebSocketServer {
      * 获取当前在线客户端对应的WebSocket对象
      * @return
      */
-    public static HashMap<String,WebSocketServer> getWebSocketSet() {
+    public static HashMap<String,WebSocketServer> getWebSocketMap() {
         return webSocketmap;
     }
 }

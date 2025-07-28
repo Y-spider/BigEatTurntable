@@ -57,7 +57,7 @@ public class DishMakeController {
         return R.SUCCESS();
     }
 
-    @PostMapping("/add/search/｛searchName｝/{count}/{startPage}/{endPage}")
+    @PostMapping("/add/search/{searchName}/{count}/{startPage}/{endPage}")
     @Operation(description = "按照菜品名称搜索添加菜品+制作过程",summary = "按照菜品名称搜索添加菜品+制作过程")
     public R handAddWithSearch(@PathVariable("searchName") String searchName,@PathVariable("count")
                             Integer count,@PathVariable("startPage") Integer startPage,

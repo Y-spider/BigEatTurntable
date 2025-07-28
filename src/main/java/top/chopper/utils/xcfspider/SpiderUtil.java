@@ -2,7 +2,6 @@ package top.chopper.utils.xcfspider;
 
 import cn.hutool.core.util.ReUtil;
 import cn.hutool.http.HttpUtil;
-import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
@@ -16,10 +15,13 @@ import top.chopper.pojo.DishMake;
 import top.chopper.pojo.DishType;
 import top.chopper.pojo.SysDish;
 import top.chopper.utils.MinioUtil;
+import top.chopper.utils.SecurityUtil;
 import top.chopper.websocket.WebSocketServer;
 
+import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /*
@@ -40,8 +42,6 @@ public class SpiderUtil {
     private DishMakeMapper dishMakeMapper;
     @Autowired
     private DishTypeMapper dishTypeMapper;
-    @Autowired
-    private WebSocketServer webSocketServer;
     /**
      * @param url 目标菜品详细页面url
      * @return FootPreparation对象
@@ -66,15 +66,26 @@ public class SpiderUtil {
             ingredient.setAmount(units.get(i));
             ingredients[i] = ingredient;
         }
-        // 提取JSON字符串
-        // 正则表达式匹配<img>标签中的src属性
-        String jsonStr = ReUtil.getGroup0("<script type=\"application/ld\\+json\">(.*?)</script>", pageContent);
-        // 将JSON字符串转换为JSONObject
-        JSONObject jsonObject = JSONUtil.parseObj(jsonStr.substring(jsonStr.indexOf("{")));
-       // 提取字段 name 菜品名称 image 菜品封面图 description 菜品描述
-        String name = jsonObject.getStr("name");
-        String coverUrl = minioUtil.uploadFile(jsonObject.getStr("image")).get("url");
-        String description = jsonObject.getStr("description");
+       // 正则表达式匹配<img>标签中的src属性
+        // 提取菜品名称和封面图片
+        String titleRes = "<h1[^>]*class=\"page-title\"[^>]*>(.*?)</h1>";
+        String coverImage = "<img\\s+[^>]*src=\"([^\"]+)\"";
+        String desRes = "<div\\s+class=\"desc mt30\">\\s*(.*?)\\s*</div>";
+        List<String> title = ReUtil.findAll(titleRes, pageContent, 1);
+        List<String> coverImageUrl = ReUtil.findAll(coverImage, pageContent, 1);
+        List<String> des = ReUtil.findAll(desRes, pageContent, 1);
+        String name = "";
+        String coverUrl = "";
+        String description = "";
+        if(!title.isEmpty()){
+            name = title.get(0);
+        }
+        if(!coverImageUrl.isEmpty()){
+            coverUrl = coverImageUrl.get(0);
+        }
+        if(!des.isEmpty()){
+            description = des.get(0);
+        }
         String regex = "<li\\b[^>]*class=\"container\"[^>]*>\\s*<p\\b[^>]*>([^<]+)</p>\\s*<img\\b[^>]*src=\"(?:<url\\b[^>]*>)?([^\"\\s]+)(?:</url>)?\"[^>]*>";
         List<String> imagesUrl = ReUtil.findAll(regex, pageContent, 2);
         List<String> stepDes = ReUtil.findAll(regex, pageContent, 1);
@@ -174,8 +185,10 @@ public class SpiderUtil {
                    FoodPreparation foodPreparation = spiderPreparation(detailUrl);
                    dishMake.setContent(JSONUtil.toJsonStr(foodPreparation));
                    dishMakeMapper.insert(dishMake);
+                   sendSocketMessage(searchDishNames.get(l));
                }
                 log.info("添加菜品==>{}成功", searchDishNames);
+
                if(uploadedCount < aimCount){
                    spiderFoodPreparationBySearch(searchName,aimCount-uploadedCount,++startPage,aimUrl,endPage,typeCode);
                }
@@ -205,5 +218,18 @@ public class SpiderUtil {
             dishTypeMapper.insert(dishType);
         }
         this.spiderFoodPreparationBySearch(null,aimCount,startPage,aimUrl,endPage,dishType.getId());
+    }
+
+    private void sendSocketMessage(String message){
+        HashMap<String, WebSocketServer> map = WebSocketServer.getWebSocketMap();
+        String account = SecurityUtil.getUserName();
+        WebSocketServer webSocketServer = map.get(account);
+        if(webSocketServer!=null){
+            try {
+                webSocketServer.sendMessage(message);
+            } catch ( IOException e ) {
+                log.error("websocket发送消息 '{}' 给用户 [{}] 失败", message, account,e);
+            }
+        }
     }
 }
