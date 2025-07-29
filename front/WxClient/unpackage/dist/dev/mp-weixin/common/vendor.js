@@ -10176,7 +10176,7 @@ var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/r
 // const BASE_URL = "https://www.chopper.love:39001/api/"
 // 开发环境
 // const BASE_URL = "http://127.0.0.1:16378/"
-var BASE_URL = "http://192.168.100.3:16378/";
+var BASE_URL = "http://192.168.100.4:16378/";
 
 // 检查是否登录，如果没有登录则进行登录
 function checkLogin() {

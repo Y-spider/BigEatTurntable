@@ -1,6 +1,6 @@
 {
   "navigationBarTitleText": "今天吃什么?",
   "usingComponents": {
-    "turntable": "/components/Turntable"
+    "lucky-wheel": "/components/@lucky-canvas/uni/lucky-wheel"
   }
 }

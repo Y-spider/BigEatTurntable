@@ -84,4 +84,17 @@
 	max-width: 60vw;
 	white-space: nowrap;
 }
+.turntable-title.data-v-57280228 {
+	font-size: 36rpx;
+	font-weight: bolder;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 15rpx;
+}
+.share-btn.data-v-57280228 {
+	opacity: 0;
+	position: absolute;
+}
+
 

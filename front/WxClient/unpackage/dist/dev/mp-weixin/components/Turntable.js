@@ -159,16 +159,6 @@ var _rotationRecordApi = __webpack_require__(/*! @/apis/rotationRecordApi.js */ 
 //
 //
 //
-//
-//
-//
-//
-//
-//
-//
-//
-//
-//
 var LuckyWheel = function LuckyWheel() {
   Promise.all(/*! require.ensure | components/@lucky-canvas/uni/lucky-wheel */[__webpack_require__.e("common/vendor"), __webpack_require__.e("components/@lucky-canvas/uni/lucky-wheel")]).then((function () {
     return resolve(__webpack_require__(/*! @/components/@lucky-canvas/uni/lucky-wheel */ 99));

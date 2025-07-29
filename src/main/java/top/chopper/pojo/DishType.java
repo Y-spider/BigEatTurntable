@@ -30,4 +30,6 @@ public class DishType {
     @TableLogic(value = "0", delval = "2") // 逻辑删除字段
     @Schema(name="isDelete",description="采用逻辑删除 0表示未删除 2表示删除")
     private Integer isDelete;
+    @Schema(name = "typeUrl",description = "下厨房分类对应url")
+    private String typeUrl;
 }

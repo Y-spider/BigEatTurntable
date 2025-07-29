@@ -66,11 +66,11 @@ public class DishMakeController {
         return R.SUCCESS();
     }
 
-    @PostMapping("/add/type/{typeName}/｛typeUrl｝/{count}/{startPage}/{endPage}")
+    @PostMapping("/add/type")
     @Operation(description = "按照给出的菜品分类URL 添加菜品URL(类似于https://www.xiachufang.com/category/40076/)",
             summary = "按照给出的菜品分类URL 添加菜品URL(类似于https://www.xiachufang.com/category/40076/)")
-    public R handAddWithListPageUrl(@PathVariable("typeName")String typeName,@PathVariable("typeUrl") String typeUrl,@PathVariable("count") Integer count, @PathVariable("endPage") Integer endPage,@PathVariable("startPage") Integer startPage){
-        spiderUtil.spiderFoodPreparationByType(typeName,count,startPage,typeUrl,endPage);
+    public R handAddWithListPageUrl(@RequestBody HashMap<String,String> params){
+        spiderUtil.spiderFoodPreparationByType(params.get("typeName"),Integer.valueOf(params.get("count")),Integer.valueOf(params.get("startPage")),params.get("typeUrl"),Integer.valueOf(params.get("endPage")));
         return R.SUCCESS();
     }
 

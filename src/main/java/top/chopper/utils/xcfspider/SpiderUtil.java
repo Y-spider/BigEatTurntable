@@ -7,6 +7,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import top.chopper.Exception.BusinessException;
 import top.chopper.constant.SysConstant;
 import top.chopper.mapper.DishMakeMapper;
 import top.chopper.mapper.DishTypeMapper;
@@ -69,7 +70,8 @@ public class SpiderUtil {
        // 正则表达式匹配<img>标签中的src属性
         // 提取菜品名称和封面图片
         String titleRes = "<h1[^>]*class=\"page-title\"[^>]*>(.*?)</h1>";
-        String coverImage = "<img\\s+[^>]*src=\"([^\"]+)\"";
+        String coverImage =  "(?s)<div\\s+class=\"[^\"]*\\bcover\\b[^\"]*\\bimage\\b[^\"]*\\bexpandable\\b[^\"]*\\bblock-negative-margin\\b[^\"]*\"[^>]*>" +
+                ".*?<img\\s+[^>]*src\\s*=\\s*\"([^\"]*)\"[^>]*>.*?</div>";
         String desRes = "<div\\s+class=\"desc mt30\">\\s*(.*?)\\s*</div>";
         List<String> title = ReUtil.findAll(titleRes, pageContent, 1);
         List<String> coverImageUrl = ReUtil.findAll(coverImage, pageContent, 1);
@@ -81,7 +83,7 @@ public class SpiderUtil {
             name = title.get(0);
         }
         if(!coverImageUrl.isEmpty()){
-            coverUrl = coverImageUrl.get(0);
+            coverUrl = minioUtil.uploadFile(coverImageUrl.get(0)).get("url");
         }
         if(!des.isEmpty()){
             description = des.get(0);
@@ -141,10 +143,13 @@ public class SpiderUtil {
         }
         log.info("请求网址为===>{}",url);
         String htmlContent = HttpUtil.get(url);
+        if("redirect".equals(htmlContent)){
+            throw new BusinessException("网址==>redirect，请稍后再试");
+        }
         String reg = "<div class=\"info pure-u\">.*?<a href=\"([^\"]+)\"[^>]*>(.*?)<\\/a>";
         List<String> uri = ReUtil.findAll(reg, htmlContent, 1);
         List<String> dish = ReUtil.findAll(reg, htmlContent, 2);
-        if(uri.isEmpty() || startPage>=15){
+        if(uri.isEmpty() || startPage>=endPage){
             log.info("未找到目标菜品==>{}制作教程",searchName);
             return;
         }
@@ -215,6 +220,7 @@ public class SpiderUtil {
             dishType.setIsDelete(SysConstant.ALIVE);
             dishType.setName(typeName);
             dishType.setCreateTime(LocalDateTime.now());
+            dishType.setTypeUrl(aimUrl);
             dishTypeMapper.insert(dishType);
         }
         this.spiderFoodPreparationBySearch(null,aimCount,startPage,aimUrl,endPage,dishType.getId());

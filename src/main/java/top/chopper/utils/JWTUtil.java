@@ -67,6 +67,17 @@ public class JWTUtil {
         return builder.sign(Algorithm.HMAC256(secretKey)); // 设置加密密钥，并且生成token字符串
     }
 
+    public static String createJWTWitExpire(HashMap<String,String> claimMap,String secretKey,Integer expireHour){
+        Calendar instance = Calendar.getInstance();
+        instance.add(Calendar.HOUR,expireHour); // 设置过期时间
+        JWTCreator.Builder builder = JWT.create();
+        builder.withExpiresAt(instance.getTime());
+        for (String claimKey : claimMap.keySet()) {
+            builder.withClaim(claimKey,claimMap.get(claimKey)); // 存储信息，也就是加载在payload中的数据，可以设置多个
+        }
+        return builder.sign(Algorithm.HMAC256(secretKey)); // 设置加密密钥，并且生成token字符串
+    }
+
     /**
      * @param token token字符串
      * @param secretKey 密钥

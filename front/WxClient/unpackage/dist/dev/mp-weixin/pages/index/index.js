@@ -162,6 +162,7 @@ exports.default = void 0;
 var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ 40));
 var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ 42));
 var _turntableApi = __webpack_require__(/*! @/apis/turntableApi.js */ 43);
+var _rotationRecordApi = __webpack_require__(/*! @/apis/rotationRecordApi.js */ 53);
 //
 //
 //
@@ -241,17 +242,69 @@ var _turntableApi = __webpack_require__(/*! @/apis/turntableApi.js */ 43);
 //
 //
 //
-var Turntable = function Turntable() {
-  Promise.all(/*! require.ensure | components/Turntable */[__webpack_require__.e("common/vendor"), __webpack_require__.e("components/Turntable")]).then((function () {
-    return resolve(__webpack_require__(/*! @/components/Turntable.vue */ 85));
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+//
+var LuckyWheel = function LuckyWheel() {
+  Promise.all(/*! require.ensure | components/@lucky-canvas/uni/lucky-wheel */[__webpack_require__.e("common/vendor"), __webpack_require__.e("components/@lucky-canvas/uni/lucky-wheel")]).then((function () {
+    return resolve(__webpack_require__(/*! @/components/@lucky-canvas/uni/lucky-wheel */ 99));
   }).bind(null, __webpack_require__)).catch(__webpack_require__.oe);
 };
 var _default = {
   components: {
-    Turntable: Turntable
+    LuckyWheel: LuckyWheel
   },
   data: function data() {
     return {
+      resultPrize: null,
+      defaultConfig: {
+        accelerationTime: 2000,
+        decelerationTime: 1600
+      },
+      blocks: [{
+        padding: '13px',
+        background: 'red'
+      }],
+      buttons: [{
+        radius: '50px',
+        background: '#FFA500'
+      }, {
+        radius: '45px',
+        background: '#FFA500'
+      }, {
+        radius: '40px',
+        background: '#FFA500',
+        pointer: true,
+        fonts: [{
+          text: '吃货\n开奖',
+          top: '-20px'
+        }]
+      }],
       modalName: "",
       key_count: 0,
       isShowMaker: false,
@@ -269,10 +322,72 @@ var _default = {
         "id": 1,
         "title": "早餐",
         type: 1
-      }
+      },
+      audioPlay: null,
+      audioEnd: null,
+      openMusic: true,
+      roatingDuration: 2
     };
   },
+  created: function created() {
+    this.initAudio();
+  },
+  destroyed: function destroyed() {
+    this.audioPlay.destroy(); // 释放资源
+    this.audioEnd.destroy();
+  },
   methods: {
+    hideModal: function hideModal() {
+      this.modalName = "";
+      uni.setStorageSync("routing", false);
+    },
+    handConfim: function handConfim() {
+      var saveRecordData = {
+        turntableId: this.turntable.id,
+        turntableName: this.turntable.title,
+        result: this.resultPrize.fonts[0].text,
+        type: this.turntable.type
+      };
+      (0, _rotationRecordApi.saveRecordAPI)(saveRecordData);
+      this.$emit("routeDone", this.resultPrize.fonts[0]);
+      this.modalName = "";
+      uni.setStorageSync("routing", false);
+    },
+    // 抽奖结束触发回调
+    endCallBack: function endCallBack(prize) {
+      this.resultPrize = prize;
+      this.audioPlay.stop();
+      if (this.openMusic) {
+        this.audioEnd.play();
+      }
+      this.modalName = "DialogModal2";
+    },
+    // 点击抽奖按钮触发回调
+    startCallBack: function startCallBack() {
+      var _this = this;
+      // 先开始旋转
+      var routing = uni.getStorageSync("routing");
+      if (routing) {
+        // 之前装盘还未出结果，无法再次转动
+        return;
+      }
+      this.checkSetting();
+      if (this.openMusic) {
+        this.audioPlay.play();
+      }
+      this.$refs.myLucky.play();
+      uni.setStorageSync("routing", true);
+      setTimeout(function () {
+        // 调用stop停止旋转并传递中奖奖品  不传入小标则可以使用range 权重了
+        _this.$refs.myLucky.stop();
+      }, this.roatingDuration * 1000);
+    },
+    playAgain: function playAgain() {
+      // 再来一次
+      this.modalName = "";
+      uni.setStorageSync("routing", false);
+      this.startCallBack();
+    },
     getRouteResult: function getRouteResult(data) {
       this.selectedItem = data;
       if (this.selectedItem.isMake) {
@@ -283,7 +398,7 @@ var _default = {
       uni.setStorageSync("routing", false);
     },
     getTuratableDetail: function getTuratableDetail(id) {
-      var _this = this;
+      var _this2 = this;
       return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
         var res;
         return _regenerator.default.wrap(function _callee$(_context) {
@@ -296,14 +411,14 @@ var _default = {
                 }
                 return _context.abrupt("return");
               case 2:
-                _this.selectedType = id;
+                _this2.selectedType = id;
                 _context.next = 5;
                 return (0, _turntableApi.getTurntableDetailAPI)(id);
               case 5:
                 res = _context.sent;
-                _this.prizeList = JSON.parse(res.data.content);
-                _this.turntable = res.data;
-                _this.key_count++;
+                _this2.prizeList = JSON.parse(res.data.content);
+                _this2.turntable = res.data;
+                _this2.key_count++;
               case 9:
               case "end":
                 return _context.stop();
@@ -313,7 +428,7 @@ var _default = {
       }))();
     },
     init: function init() {
-      var _this2 = this;
+      var _this3 = this;
       return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
         var res;
         return _regenerator.default.wrap(function _callee2$(_context2) {
@@ -325,8 +440,8 @@ var _default = {
                 return (0, _turntableApi.getUserTurntableInfoAPI)();
               case 3:
                 res = _context2.sent;
-                _this2.customTypes = res.data.splice(0, 6); // 只展示前6个
-                _this2.getTuratableDetail(1);
+                _this3.customTypes = res.data.splice(0, 6); // 只展示前6个
+                _this3.getTuratableDetail(1);
               case 6:
               case "end":
                 return _context2.stop();
@@ -334,6 +449,24 @@ var _default = {
           }
         }, _callee2);
       }))();
+    },
+    checkSetting: function checkSetting() {
+      var duration = uni.getStorageSync("roatingDuration");
+      var openMusic = uni.getStorageSync("openMusic");
+      this.roatingDuration = duration ? duration : this.roatingDuration;
+      this.openMusic = openMusic != '' || openMusic != undefined ? openMusic : this.openMusic;
+    },
+    initAudio: function initAudio() {
+      this.audioPlay = uni.createInnerAudioContext({
+        useWebAudioImplement: true
+      });
+      this.audioEnd = uni.createInnerAudioContext({
+        useWebAudioImplement: true
+      });
+      this.audioPlay.src = "/static/audio/audioPlayForce_1.mp3"; // 本地或网络音频
+      this.audioPlay.loop = true;
+      this.audioEnd.src = "/static/audio/audioEnd.mp3";
+      // this.LuckyWheel = this.$refs.myLucky
     },
     goEdit: function goEdit() {
       uni.setStorageSync('editPrizeList', this.prizeList);
@@ -447,12 +580,12 @@ var _default = {
   watch: {
     prizeList: {
       handler: function handler(newVal, oldVal) {
-        var _this3 = this;
+        var _this4 = this;
         // 当奖品数据变化时，强制更新转盘
         this.$nextTick(function () {
           // console.log('奖品数据已更新:', newVal)
           // 强制重新渲染转盘组件
-          _this3.$forceUpdate();
+          _this4.$forceUpdate();
         });
       },
       deep: true
