@@ -7,6 +7,8 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.exceptions.SignatureVerificationException;
 import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
+import top.chopper.Exception.BusinessException;
+
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
@@ -100,10 +102,10 @@ public class JWTUtil {
             return verify.getClaim(ClaimKey).asString();
         }catch ( SignatureVerificationException e){
 //            TempExceptionMsg.exMsg = "密钥错误";
-            throw new RuntimeException("密钥错误");
+            throw new BusinessException("密钥错误");
         }catch ( TokenExpiredException e ){
 //            TempExceptionMsg.exMsg = "令牌已经过期";
-            throw new RuntimeException("令牌已经过期");
+            throw new BusinessException("令牌已经过期,请重新登录");
         }
 
     }

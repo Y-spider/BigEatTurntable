@@ -12,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
+import top.chopper.Exception.BusinessException;
 import top.chopper.mapper.TokenMapper;
 import top.chopper.pojo.R;
 import top.chopper.pojo.RCode;
@@ -67,23 +68,29 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         response.setCharacterEncoding("utf-8");
         if(token!=null && !token.isEmpty()){
             // 解析token，查看是移动端用户还是后台用户
-            String role = JWTUtil.getDecodeJWTData(token, "tony chopper", "role");
-            String identity = JWTUtil.getDecodeJWTData(token, "tony chopper", "identity");
-            Token tableToken = tokenMapper.ISelectById(identity);
-            if(tableToken==null){
-                R<Object> expireR = new R<>();
-                expireR.setCode(RCode.EXPIRETOKEN);
-                expireR.setErrMsg("令牌已失效，请重新登录");
-                response.setHeader("Content-Type","application/json;charset=utf-8");
-                response.getWriter().write(JSONUtil.toJsonStr(expireR));
-                response.getWriter().flush();
-                response.getWriter().close();
-                return;
-            }
-            // 这里密码就存放的是角色信息
-            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(identity,role,null);
-            SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
-            filterChain.doFilter(request,response);
+           try {
+               String role = JWTUtil.getDecodeJWTData(token, "tony chopper", "role");
+               String identity = JWTUtil.getDecodeJWTData(token, "tony chopper", "identity");
+               Token tableToken = tokenMapper.ISelectById(identity);
+               if(tableToken==null){
+                   R<Object> expireR = new R<>();
+                   expireR.setCode(RCode.EXPIRETOKEN);
+                   expireR.setErrMsg("令牌已失效，请重新登录");
+                   response.setHeader("Content-Type","application/json;charset=utf-8");
+                   response.getWriter().write(JSONUtil.toJsonStr(expireR));
+                   response.getWriter().flush();
+                   response.getWriter().close();
+                   return;
+               }
+               // 这里密码就存放的是角色信息
+               UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken = new UsernamePasswordAuthenticationToken(identity,role,null);
+               SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
+               filterChain.doFilter(request,response);
+           }catch ( BusinessException e ){
+               R<Object> fail = R.FAIL(e.toString());
+               response.getWriter().write(JSONUtil.toJsonStr(fail));
+               response.getWriter().close();
+           }
         }
         else{
             R<Object> expireR = new R<>();

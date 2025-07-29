@@ -1,7 +1,7 @@
 <template>
 	<view>
 		<cu-custom :isBack="false">
-			<block slot="content">今天吃什么好呢</block>
+			<block slot="content">吃什么呢?૮₍ ˃ ⤙ ˂ ₎ა</block>
 		</cu-custom>
 		<!-- 按钮区开始 -->
 		<view class="choice-bar-wrap">
@@ -21,7 +21,7 @@
 			<view class="turntable-title">
 				{{turntable.title}}
 			</view>
-			<LuckyWheel :key="count" ref="myLucky" width="700rpx" height="700rpx" offsetDegree=10 :blocks="blocks"
+			<LuckyWheel ref="myLucky" width="700rpx" height="700rpx" offsetDegree=10 :blocks="blocks"
 				:prizes="prizeList" :buttons="buttons" :defaultStyle="defaultStyle" :default-config="defaultConfig"
 				@start="startCallBack" @end="endCallBack" />
 			<!-- 结果弹框 -->
@@ -34,7 +34,7 @@
 						</view>
 					</view>
 					<view class="padding-xl">
-						{{resultPrize.fonts[0].text}}
+						{{randomEmotion()}}{{resultPrize.fonts[0].text}}
 					</view>
 					<view class="cu-bar bg-white">
 						<view class="action margin-0 flex-sub text-yellow " @tap="playAgain()">
@@ -120,6 +120,9 @@
 		},
 		data() {
 			return {
+				resultEmotionList: ["₍ᐢ..ᐢ₎♡", "૮(˶ᵔ ᵕ ᵔ˶)ა", "૮꒰ ˶• ༝ •˶꒱ა", "꒰ᐢ⸝⸝•༝•⸝⸝ᐢ꒱ ​​", "°꒰๑'ꀾ'๑꒱°", "(ᕑᗢᓫ∗)",
+					"₍ᐢ.ˬ.⑅ᐢ₎", "ଘ(੭ˊ꒳​ˋ)੭ "
+				],
 				resultPrize: null,
 				defaultConfig: {
 					accelerationTime: 2000,
@@ -148,7 +151,6 @@
 					},
 				],
 				modalName: "",
-				key_count: 0,
 				isShowMaker: false,
 				selectedItem: null,
 				mode: 'random',
@@ -164,20 +166,27 @@
 					"title": "早餐",
 					type: 1
 				},
-				audioPlay:null,
-				audioEnd:null,
-				openMusic:true,
-				roatingDuration:2
+				audioPlay: null,
+				audioEnd: null,
+				openMusic: true,
+				roatingDuration: 2,
+				luckWheel: null,
+				isCheckMenu: true
 			}
 		},
-		created(){
+		onLoad() {
 			this.initAudio()
+			this.luckWheel = this.$refs.myLucky
 		},
 		destroyed() {
 			this.audioPlay.destroy() // 释放资源
 			this.audioEnd.destroy()
 		},
 		methods: {
+			randomEmotion() {
+				const list = this.resultEmotionList;
+				return list[Math.floor(Math.random() * list.length)];
+			},
 			hideModal() {
 				this.modalName = ""
 				uni.setStorageSync("routing", false)
@@ -190,15 +199,15 @@
 					type: this.turntable.type
 				}
 				saveRecordAPI(saveRecordData)
-				this.$emit("routeDone", this.resultPrize.fonts[0])
 				this.modalName = ""
 				uni.setStorageSync("routing", false)
 			},
 			// 抽奖结束触发回调
 			endCallBack(prize) {
+				if (this.isCheckMenu) return;
 				this.resultPrize = prize
 				this.audioPlay.stop()
-				if(this.openMusic){
+				if (this.openMusic) {
 					this.audioEnd.play()
 				}
 				this.modalName = "DialogModal2"
@@ -206,6 +215,7 @@
 			// 点击抽奖按钮触发回调
 			startCallBack() {
 				// 先开始旋转
+				this.isCheckMenu = false
 				let routing = uni.getStorageSync("routing")
 				if (routing) {
 					// 之前装盘还未出结果，无法再次转动
@@ -246,7 +256,10 @@
 				let res = await getTurntableDetailAPI(id)
 				this.prizeList = JSON.parse(res.data.content)
 				this.turntable = res.data
-				this.key_count++
+				// 下面是为了强制刷新轮盘内容
+				this.isCheckMenu = true
+				this.$refs.myLucky?.play?.();
+				this.$refs.myLucky?.stop?.(-1);
 			},
 			async init() {
 				uni.setStorageSync("routing", false)
@@ -387,7 +400,6 @@
 					// 当奖品数据变化时，强制更新转盘
 					this.$nextTick(() => {
 						// console.log('奖品数据已更新:', newVal)
-						// 强制重新渲染转盘组件
 						this.$forceUpdate()
 					})
 				},
@@ -507,7 +519,9 @@
 		min-width: 120rpx;
 		max-width: 60vw;
 		white-space: nowrap;
-	},
+	}
+
+	,
 	.turntable-title {
 		font-size: 36rpx;
 		font-weight: bolder;
@@ -516,9 +530,9 @@
 		align-items: center;
 		padding: 15rpx;
 	}
+
 	.share-btn {
 		opacity: 0;
 		position: absolute;
 	}
-	
 </style>

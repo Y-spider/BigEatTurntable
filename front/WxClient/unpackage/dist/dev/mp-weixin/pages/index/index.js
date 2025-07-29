@@ -102,6 +102,7 @@ var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
+  var m0 = _vm.randomEmotion()
   var g0 = _vm.customTypes.length
   if (!_vm._isMounted) {
     _vm.e0 = function ($event) {
@@ -115,6 +116,7 @@ var render = function () {
     {},
     {
       $root: {
+        m0: m0,
         g0: g0,
       },
     }
@@ -281,6 +283,7 @@ var _default = {
   },
   data: function data() {
     return {
+      resultEmotionList: ["₍ᐢ..ᐢ₎♡", "૮(˶ᵔ ᵕ ᵔ˶)ა", "૮꒰ ˶• ༝ •˶꒱ა", "꒰ᐢ⸝⸝•༝•⸝⸝ᐢ꒱ ​​", "°꒰๑'ꀾ'๑꒱°", "(ᕑᗢᓫ∗)", "₍ᐢ.ˬ.⑅ᐢ₎", "ଘ(੭ˊ꒳​ˋ)੭ "],
       resultPrize: null,
       defaultConfig: {
         accelerationTime: 2000,
@@ -306,7 +309,6 @@ var _default = {
         }]
       }],
       modalName: "",
-      key_count: 0,
       isShowMaker: false,
       selectedItem: null,
       mode: 'random',
@@ -326,17 +328,24 @@ var _default = {
       audioPlay: null,
       audioEnd: null,
       openMusic: true,
-      roatingDuration: 2
+      roatingDuration: 2,
+      luckWheel: null,
+      isCheckMenu: true
     };
   },
-  created: function created() {
+  onLoad: function onLoad() {
     this.initAudio();
+    this.luckWheel = this.$refs.myLucky;
   },
   destroyed: function destroyed() {
     this.audioPlay.destroy(); // 释放资源
     this.audioEnd.destroy();
   },
   methods: {
+    randomEmotion: function randomEmotion() {
+      var list = this.resultEmotionList;
+      return list[Math.floor(Math.random() * list.length)];
+    },
     hideModal: function hideModal() {
       this.modalName = "";
       uni.setStorageSync("routing", false);
@@ -349,12 +358,12 @@ var _default = {
         type: this.turntable.type
       };
       (0, _rotationRecordApi.saveRecordAPI)(saveRecordData);
-      this.$emit("routeDone", this.resultPrize.fonts[0]);
       this.modalName = "";
       uni.setStorageSync("routing", false);
     },
     // 抽奖结束触发回调
     endCallBack: function endCallBack(prize) {
+      if (this.isCheckMenu) return;
       this.resultPrize = prize;
       this.audioPlay.stop();
       if (this.openMusic) {
@@ -366,6 +375,7 @@ var _default = {
     startCallBack: function startCallBack() {
       var _this = this;
       // 先开始旋转
+      this.isCheckMenu = false;
       var routing = uni.getStorageSync("routing");
       if (routing) {
         // 之前装盘还未出结果，无法再次转动
@@ -400,6 +410,7 @@ var _default = {
     getTuratableDetail: function getTuratableDetail(id) {
       var _this2 = this;
       return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
+        var _this2$$refs$myLucky, _this2$$refs$myLucky$, _this2$$refs$myLucky2, _this2$$refs$myLucky3;
         var res;
         return _regenerator.default.wrap(function _callee$(_context) {
           while (1) {
@@ -418,8 +429,11 @@ var _default = {
                 res = _context.sent;
                 _this2.prizeList = JSON.parse(res.data.content);
                 _this2.turntable = res.data;
-                _this2.key_count++;
-              case 9:
+                // 下面是为了强制刷新轮盘内容
+                _this2.isCheckMenu = true;
+                (_this2$$refs$myLucky = _this2.$refs.myLucky) === null || _this2$$refs$myLucky === void 0 ? void 0 : (_this2$$refs$myLucky$ = _this2$$refs$myLucky.play) === null || _this2$$refs$myLucky$ === void 0 ? void 0 : _this2$$refs$myLucky$.call(_this2$$refs$myLucky);
+                (_this2$$refs$myLucky2 = _this2.$refs.myLucky) === null || _this2$$refs$myLucky2 === void 0 ? void 0 : (_this2$$refs$myLucky3 = _this2$$refs$myLucky2.stop) === null || _this2$$refs$myLucky3 === void 0 ? void 0 : _this2$$refs$myLucky3.call(_this2$$refs$myLucky2, -1);
+              case 11:
               case "end":
                 return _context.stop();
             }
@@ -584,7 +598,6 @@ var _default = {
         // 当奖品数据变化时，强制更新转盘
         this.$nextTick(function () {
           // console.log('奖品数据已更新:', newVal)
-          // 强制重新渲染转盘组件
           _this4.$forceUpdate();
         });
       },

@@ -41,7 +41,7 @@
 					<view class="nickname animate__animated animate__fadeInLeft">吃货{{ userName }}
 					</view>
 					<view class="stat animate__animated animate__fadeInRight">
-						<text>我的轮盘：<text class="stat-num">{{ createCount }}</text></text>
+						<text>我的转盘：<text class="stat-num">{{ createCount }}</text></text>
 						<text style="margin-left: 32rpx;">转动次数：<text class="stat-num">{{ spinCount }}</text></text>
 					</view>
 				</view>
@@ -51,7 +51,7 @@
 			</view>
 			<view class="switch-bar animate__animated animate__fadeInUp">
 				<button class="cu-btn" :class="{ 'bg-orange': showType === 'create' }"
-					@click="showType = 'create'">我创建的轮盘</button>
+					@click="showType = 'create'">我创建的转盘</button>
 				<view class="cuIcon-question" @click="showTips"></view>
 				<button class="cu-btn" :class="{ 'bg-orange': showType === 'record' }"
 					@click="showType = 'record'">转动记录</button>
