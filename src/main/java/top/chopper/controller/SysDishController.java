@@ -1,5 +1,6 @@
 package top.chopper.controller;
 
+import cn.hutool.core.util.StrUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
@@ -91,5 +92,16 @@ public class SysDishController {
     public R addSysDishWithMakeUrl(@RequestBody SysDish sysDish){
         service.saveSysDishWithMakeUrl(sysDish);
         return R.SUCCESS();
+    }
+
+
+    @Operation(description = "根据菜品分类id和searchName获取菜品",summary = "根据菜品分类id和searchName获取菜品")
+    @GetMapping("/list/typeId/{typeId}/{searchName}")
+    public R listDishByTypeId(@PathVariable("typeId") Integer typeId,@PathVariable("searchName") String searchName){
+        if("all".equals(searchName)) searchName = "";
+        LambdaQueryWrapper<SysDish> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.like(!StrUtil.isEmpty(searchName),SysDish::getName,searchName);
+        queryWrapper.eq(SysDish::getTypeId,typeId);
+        return R.SUCCESS(service.list(queryWrapper));
     }
 }
