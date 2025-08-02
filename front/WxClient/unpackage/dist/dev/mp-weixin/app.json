@@ -4,7 +4,8 @@
     "pages/home/home",
     "pages/hot/hot",
     "pages/editWheel/index",
-    "pages/detail/detail"
+    "pages/detail/detail",
+    "pages/dishMenu/dishMenu"
   ],
   "subPackages": [],
   "window": {

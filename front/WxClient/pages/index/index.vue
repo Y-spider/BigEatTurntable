@@ -50,7 +50,7 @@
 			</view>
 			<view class="fun-button" style="display: flex;justify-content: space-between; align-items: center;">
 				<view class="fun-but">
-					<button v-if="true" class="cu-btn bg-gradual-green shadow"> <text class="cuIcon-form"
+					<button v-if="isShowMaker" class="cu-btn bg-gradual-green shadow"> <text class="cuIcon-form"
 							style="margin: 0 10rpx;"></text>菜谱</button>
 				</view>
 				<view class="fun-but">
@@ -60,34 +60,19 @@
 			</view>
 		</view>
 		<!-- 固定类型 -->
-		<view class="col-center" style="width: 100vw;">
-			<view class="row-center" style="justify-content: space-around; width: 100vw;margin: 10rpx;">
-				<button class="cu-btn round shadow" :class="selectedType === 1 ? 'bg-yellow' : 'bg-gray'"
-					@click="selectType(1)">早餐<view class='cu-tag sm bg-red radius' style="margin: 0rpx 15rpx;">系统</view>
-				</button>
-				<button class="cu-btn round shadow" :class="selectedType === 2 ? 'bg-yellow' : 'bg-gray'"
-					@click="selectType(2)">午餐<view class='cu-tag sm bg-red radius' style="margin: 0rpx 15rpx;">系统</view>
-				</button>
-				<button class="cu-btn round shadow" :class="selectedType === 3 ? 'bg-yellow' : 'bg-gray'"
-					@click="selectType(3)">晚餐<view class='cu-tag sm bg-red radius' style="margin: 0rpx 15rpx;">系统</view>
-				</button>
-			</view>
-			<view class="row-center" style="width: 60vw;margin: 10rpx;gap: 20rpx;">
-				<button class="cu-btn round shadow" :class="selectedType === 4 ? 'bg-yellow' : 'bg-gray'"
-					@click="selectType(4)">宵夜<view class='cu-tag sm bg-red radius' style="margin: 0rpx 15rpx;">系统</view>
-				</button>
-				<button class="cu-btn round shadow" :class="selectedType === 5 ? 'bg-yellow' : 'bg-gray'"
-					@click="selectType(5)">减脂餐<view class='cu-tag sm bg-red radius' style="margin: 0rpx 15rpx;">系统
-					</view></button>
-			</view>
-			<view class="row-center" style="width: 100vw;margin: 10rpx; justify-content: space-evenly;">
-				<button class="cu-btn round shadow" :class="selectedType === 6 ? 'bg-yellow' : 'bg-gray'"
-					@click="selectType(6)">随机吃点<view class='cu-tag sm bg-red radius' style="margin: 0rpx 15rpx;">系统
-					</view></button>
-				<button class="cu-btn round shadow" :class="selectedType === 7 ? 'bg-yellow' : 'bg-gray'"
-					@click="selectType(7)">喝点奶茶<view class='cu-tag sm bg-red radius' style="margin: 0rpx 15rpx;">系统
-					</view></button>
-			</view>
+		<view style="width: 100vw;position: relative; top: 50rpx;">
+			<swiper class="swiper" circular :duration="500">
+				<swiper-item v-for="types,index in typeList" :key="index">
+					<!-- 按钮容器：横向排列、自动换行、居中、等间距 -->
+					<view  class="btn-wrapper" style="display: flex;gap: 15rpx;justify-content: space-evenly;flex-wrap: wrap;">
+						<button v-for="item in types" :key="item.id" class="cu-btn round shadow" style="width: 30%;"
+							:class="selectedType === item.id ? 'bg-yellow' : 'bg-gray'" @click="selectType(item.id,item)">
+							{{ item.title }}
+							<view class="cu-tag sm bg-red radius tag" style="position: relative;left: 15px;">系统</view>
+						</button>
+					</view>
+				</swiper-item>
+			</swiper>
 		</view>
 		<!-- 自定义菜单区域 -->
 		<view class="custom-select-area">
@@ -108,18 +93,21 @@
 <script>
 	import {
 		getUserTurntableInfoAPI,
-		getTurntableDetailAPI
+		getTurntableDetailAPI,
+		getAllSystemTurntableAPI
 	} from "@/apis/turntableApi.js"
 	import {
 		saveRecordAPI
 	} from "@/apis/rotationRecordApi.js"
 	import LuckyWheel from '@/components/@lucky-canvas/uni/lucky-wheel'
+	import mySwiperVue from "../../components/my-swiper.vue"
 	export default {
 		components: {
 			LuckyWheel
 		},
 		data() {
 			return {
+				typeList: [], // 接口返回的餐类
 				resultEmotionList: ["₍ᐢ..ᐢ₎♡", "૮(˶ᵔ ᵕ ᵔ˶)ა", "૮꒰ ˶• ༝ •˶꒱ა", "꒰ᐢ⸝⸝•༝•⸝⸝ᐢ꒱ ​​", "°꒰๑'ꀾ'๑꒱°", "(ᕑᗢᓫ∗)",
 					"₍ᐢ.ˬ.⑅ᐢ₎", "ଘ(੭ˊ꒳​ˋ)੭ "
 				],
@@ -171,7 +159,8 @@
 				openMusic: true,
 				roatingDuration: 2,
 				luckWheel: null,
-				isCheckMenu: true
+				isCheckMenu: true,
+				pageShowSize:7, // 系统swiper-item每页展示数量
 			}
 		},
 		onLoad() {
@@ -206,6 +195,7 @@
 			endCallBack(prize) {
 				if (this.isCheckMenu) return;
 				this.resultPrize = prize
+				this.isShowMaker = prize?.isMake
 				this.audioPlay.stop()
 				if (this.openMusic) {
 					this.audioEnd.play()
@@ -214,6 +204,7 @@
 			},
 			// 点击抽奖按钮触发回调
 			startCallBack() {
+				this.isShowMaker = false
 				// 先开始旋转
 				this.isCheckMenu = false
 				let routing = uni.getStorageSync("routing")
@@ -238,15 +229,6 @@
 				uni.setStorageSync("routing", false)
 				this.startCallBack()
 			},
-			getRouteResult(data) {
-				this.selectedItem = data
-				if (this.selectedItem.isMake) {
-					this.isShowMaker = true
-				} else {
-					this.isShowMaker = false
-				}
-				uni.setStorageSync("routing", false)
-			},
 			async getTuratableDetail(id) {
 				if (uni.getStorageSync("routing")) {
 					// 当前正在转动无法切换
@@ -264,7 +246,11 @@
 			async init() {
 				uni.setStorageSync("routing", false)
 				let res = await getUserTurntableInfoAPI()
-				this.customTypes = res.data.splice(0, 6) // 只展示前6个
+				let turntableInfoRes = await getAllSystemTurntableAPI()
+				for(let i = 0;i < Math.round(turntableInfoRes.data.length / this.pageShowSize);i++){
+					this.typeList.push(turntableInfoRes.data.slice(i*this.pageShowSize,i*this.pageShowSize+this.pageShowSize))
+				}
+				this.customTypes = res.data.splice(0, 6) // 只	展示前6个
 				this.getTuratableDetail(1)
 			},
 			checkSetting() {
@@ -283,7 +269,6 @@
 				this.audioPlay.src = "/static/audio/audioPlayForce_1.mp3"; // 本地或网络音频
 				this.audioPlay.loop = true
 				this.audioEnd.src = "/static/audio/audioEnd.mp3"
-				// this.LuckyWheel = this.$refs.myLucky
 			},
 			goEdit() {
 				uni.setStorageSync('editPrizeList', this.prizeList)
@@ -291,120 +276,21 @@
 					url: `/pages/editWheel/index?id=${this.selectedType}`
 				})
 			},
-			selectType(type) {
+			selectType(id,type) {
 				if (uni.getStorageSync("routing")) {
 					// 当前正在转动无法切换
-					console.log("无法切换")
 					return;
 				}
 				this.selectedType = type;
-				// 根据不同类型执行不同函数
-				switch (type) {
-					case 1:
-						this.turntable = {
-							"id": type,
-							"title": "早餐",
-							type: 1
-						}
-						this.handleBreakfast();
-						break;
-					case 2:
-						this.turntable = {
-							"id": type,
-							"title": "午餐",
-							type: 1
-						}
-						this.handleLunch();
-						break;
-					case 3:
-						this.turntable = {
-							"id": type,
-							"title": "晚餐",
-							type: 1
-						}
-						this.handleDinner();
-						break;
-					case 4:
-						this.turntable = {
-							"id": type,
-							"title": "宵夜",
-							type: 1
-						}
-						this.handleMidnight();
-						break;
-					case 5:
-						this.turntable = {
-							"id": type,
-							"title": "减脂餐",
-							type: 1
-						}
-						this.handleDiet();
-						break;
-					case 6:
-						this.turntable = {
-							"id": type,
-							"title": "随机吃点",
-							type: 1
-						}
-						this.handleRandom();
-						break;
-					case 7:
-						this.turntable = {
-							"id": type,
-							"title": "喝点奶茶",
-							type: 1
-						}
-						this.handleMilkTea();
-						break;
+				this.turntable = {
+					"id": id,type,
+					"title": type.title,
+					type: 1
 				}
+				this.getTuratableDetail(id)
 			},
-			// 早餐菜单处理函数
-			handleBreakfast() {
-				// 这里可以添加你的逻辑，比如跳转页面、显示数据等
-				this.getTuratableDetail(1)
-			},
-			// 午餐菜单处理函数
-			handleLunch() {
-				console.log('选择了午餐菜单');
-				this.getTuratableDetail(2)
-			},
-			// 晚餐菜单处理函数
-			handleDinner() {
-				console.log('选择了晚餐菜单');
-				this.getTuratableDetail(3)
-			},
-			// 宵夜加餐处理函数
-			handleMidnight() {
-				console.log('选择了宵夜加餐');
-				this.getTuratableDetail(4)
-			},
-			// 减脂菜谱处理函数
-			handleDiet() {
-				console.log('选择了减脂菜谱');
-				this.getTuratableDetail(5)
-			},
-			// 随机吃处理函数
-			handleRandom() {
-				console.log('选择了随机吃');
-				this.getTuratableDetail(6)
-			},
-			// 喝点奶茶处理函数
-			handleMilkTea() {
-				console.log('选择了喝点奶茶');
-				this.getTuratableDetail(7)
-			}
 		},
 		watch: {
-			prizeList: {
-				handler(newVal, oldVal) {
-					// 当奖品数据变化时，强制更新转盘
-					this.$nextTick(() => {
-						// console.log('奖品数据已更新:', newVal)
-						this.$forceUpdate()
-					})
-				},
-				deep: true
-			},
 			selectedType: {
 				handler(newVal, oldVal) {
 					if (newVal > 7) {

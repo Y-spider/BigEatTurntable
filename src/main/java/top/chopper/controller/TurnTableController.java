@@ -39,7 +39,8 @@ public class TurnTableController {
         LambdaQueryWrapper<TurnTable> queryWrapper = new LambdaQueryWrapper<TurnTable>()
                 .select(TurnTable::getId,TurnTable::getTitle,TurnTable::getCreateTime,TurnTable::getType)
                 .eq(TurnTable::getOpenid, openid)
-                .orderByDesc(TurnTable::getUpdateTime);
+                .orderByDesc(TurnTable::getOrderNumber)
+                .orderByDesc(TurnTable::getCreateTime);
         return R.SUCCESS(service.list(queryWrapper));
     }
 
@@ -49,7 +50,9 @@ public class TurnTableController {
     @GetMapping("/list/system")
     public R getById() {
         LambdaQueryWrapper<TurnTable> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(TurnTable::getType, TurnTableType.TURN_TABLE_TYPE_SYS);
+        queryWrapper.eq(TurnTable::getType, TurnTableType.TURN_TABLE_TYPE_SYS)
+                .orderByDesc(TurnTable::getOrderNumber)
+                .orderByDesc(TurnTable::getCreateTime);
         return R.SUCCESS(service.list(queryWrapper));
     }
 
@@ -76,6 +79,7 @@ public class TurnTableController {
         queryWrapper.like(queryPageDto.queryConditionIsExists("title"),TurnTable::getTitle,queryPageDto.getQueryConditionValue("title"))
                 .eq(queryPageDto.queryConditionIsExists("type"),TurnTable::getType,queryPageDto.getQueryConditionValue("type"))
                 .eq(false,TurnTable::getOpenid,queryPageDto.getQueryConditionValue("openid"))
+                .orderByDesc(TurnTable::getOrderNumber)
                 .orderByDesc(TurnTable::getCreateTime);
         return R.SUCCESS( service.page(page,queryWrapper));
     }

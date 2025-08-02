@@ -28,3 +28,8 @@ export function addTurntableAPI(data){
 export function deleteTurntableByIdAPI(id){
 	return httpOFPost(`turntable/delete/${id}`,null,false,"DELETE")
 }
+
+// 获取所有系统转盘
+export function getAllSystemTurntableAPI(){
+	return httpOFGet(`turntable/list/system`)
+}

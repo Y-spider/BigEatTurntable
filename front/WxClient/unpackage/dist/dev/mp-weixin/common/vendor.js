@@ -10121,6 +10121,7 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.addTurntableAPI = addTurntableAPI;
 exports.deleteTurntableByIdAPI = deleteTurntableByIdAPI;
+exports.getAllSystemTurntableAPI = getAllSystemTurntableAPI;
 exports.getHotTurtableAPI = getHotTurtableAPI;
 exports.getTurntableDetailAPI = getTurntableDetailAPI;
 exports.getUserTurntableInfoAPI = getUserTurntableInfoAPI;
@@ -10150,6 +10151,11 @@ function addTurntableAPI(data) {
 }
 function deleteTurntableByIdAPI(id) {
   return (0, _globalRequest.httpOFPost)("turntable/delete/".concat(id), null, false, "DELETE");
+}
+
+// 获取所有系统转盘
+function getAllSystemTurntableAPI() {
+  return (0, _globalRequest.httpOFGet)("turntable/list/system");
 }
 
 /***/ }),
@@ -10384,15 +10390,7 @@ function httpOfGetWithNotToken(path) {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
 
 /***/ }),
-/* 45 */,
-/* 46 */,
-/* 47 */,
-/* 48 */,
-/* 49 */,
-/* 50 */,
-/* 51 */,
-/* 52 */,
-/* 53 */
+/* 45 */
 /*!*******************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/apis/rotationRecordApi.js ***!
   \*******************************************************************************************************/
@@ -10425,6 +10423,14 @@ function saveRecordAPI(data) {
 }
 
 /***/ }),
+/* 46 */,
+/* 47 */,
+/* 48 */,
+/* 49 */,
+/* 50 */,
+/* 51 */,
+/* 52 */,
+/* 53 */,
 /* 54 */,
 /* 55 */,
 /* 56 */,
@@ -10461,21 +10467,7 @@ function saveRecordAPI(data) {
 /* 87 */,
 /* 88 */,
 /* 89 */,
-/* 90 */,
-/* 91 */,
-/* 92 */,
-/* 93 */,
-/* 94 */,
-/* 95 */,
-/* 96 */,
-/* 97 */,
-/* 98 */,
-/* 99 */,
-/* 100 */,
-/* 101 */,
-/* 102 */,
-/* 103 */,
-/* 104 */
+/* 90 */
 /*!*******************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/components/@lucky-canvas/uni/utils.js ***!
   \*******************************************************************************************************************/
@@ -10603,7 +10595,7 @@ function getImage(canvasId, canvas) {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
 
 /***/ }),
-/* 105 */
+/* 91 */
 /*!***********************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/components/lucky-canvas/dist/index.esm.js ***!
   \***********************************************************************************************************************/

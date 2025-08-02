@@ -44,7 +44,7 @@
               '用户' : (scope.row.type == 1 ? '系统' : '热门') }}</el-tag>
           </template>
         </el-table-column>
-        <el-table-column prop="openid" label="创建人" align="center" show-overflow-tooltip />
+        <el-table-column prop="orderNumber" label="排序" align="center" show-overflow-tooltip />
         <el-table-column prop="createTime" label="创建时间" />
         <el-table-column prop="updateTime" label="更新时间" />
         <el-table-column label="操作" width="300">
@@ -75,6 +75,9 @@
         </el-form-item>
         <el-form-item label="转盘名称">
           <el-input v-model="dialogTurntableInfo.title" :disabled="dialogType == 'view'"></el-input>
+        </el-form-item>
+        <el-form-item label="转盘排序">
+          <el-input type="number" v-model="dialogTurntableInfo.orderNumber" :disabled="dialogType == 'view'"></el-input>
         </el-form-item>
         <el-form-item v-for="prize, index in prizeList" :key="index" :label="'内容' + (index + 1)">
           <el-row :gutter="20">
@@ -283,6 +286,8 @@ export default {
       this.dialogTitle = "新增转盘"
       this.dialogType = "add"
       this.dialogTurntableInfo.title = ""
+      this.dialogTurntableInfo.id = null
+      this.dialogTurntableInfo.orderNumber = 0
       this.prizeList = [{ fonts: [{ text: "", top: "10%" }], lineClamp: 2, background: "#409eff", range: 1 }]
       this.dialogVisible = true
     },

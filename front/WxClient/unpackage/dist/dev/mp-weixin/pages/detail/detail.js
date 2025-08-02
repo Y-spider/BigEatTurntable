@@ -145,7 +145,7 @@ var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/r
 var _turntableApi = __webpack_require__(/*! @/apis/turntableApi.js */ 43);
 var Turntable = function Turntable() {
   Promise.all(/*! require.ensure | components/Turntable */[__webpack_require__.e("common/vendor"), __webpack_require__.e("components/Turntable")]).then((function () {
-    return resolve(__webpack_require__(/*! @/components/Turntable.vue */ 85));
+    return resolve(__webpack_require__(/*! @/components/Turntable.vue */ 101));
   }).bind(null, __webpack_require__)).catch(__webpack_require__.oe);
 };
 var _default = {
