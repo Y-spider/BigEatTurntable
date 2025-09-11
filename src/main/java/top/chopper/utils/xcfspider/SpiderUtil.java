@@ -24,6 +24,8 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /*
    @Author:ROBOT
@@ -67,23 +69,27 @@ public class SpiderUtil {
             ingredient.setAmount(units.get(i));
             ingredients[i] = ingredient;
         }
+        System.out.println(pageContent);
        // 正则表达式匹配<img>标签中的src属性
         // 提取菜品名称和封面图片
         String titleRes = "<h1[^>]*class=\"page-title\"[^>]*>(.*?)</h1>";
-        String coverImage =  "(?s)<div\\s+class=\"[^\"]*\\bcover\\b[^\"]*\\bimage\\b[^\"]*\\bexpandable\\b[^\"]*\\bblock-negative-margin\\b[^\"]*\"[^>]*>" +
-                ".*?<img\\s+[^>]*src\\s*=\\s*\"([^\"]*)\"[^>]*>.*?</div>";
+        Pattern coverImagePattern = Pattern.compile("style=\"background-image:\\s*url\\((.*?)\\)");
+        Matcher matcher = coverImagePattern.matcher(pageContent);
+        String coverImageUrl = "";
+        if(matcher.find()){
+            coverImageUrl = matcher.group(1);
+        }
         String desRes = "<div\\s+class=\"desc mt30\">\\s*(.*?)\\s*</div>";
         List<String> title = ReUtil.findAll(titleRes, pageContent, 1);
-        List<String> coverImageUrl = ReUtil.findAll(coverImage, pageContent, 1);
         List<String> des = ReUtil.findAll(desRes, pageContent, 1);
         String name = "";
         String coverUrl = "";
         String description = "";
         if(!title.isEmpty()){
-            name = title.get(0);
+            name = title.get(0).replaceAll("\\s+", " ").trim();
         }
         if(!coverImageUrl.isEmpty()){
-            coverUrl = minioUtil.uploadFile(coverImageUrl.get(0)).get("url");
+            coverUrl = minioUtil.uploadFile(coverImageUrl).get("url");
         }
         if(!des.isEmpty()){
             description = des.get(0);
@@ -167,9 +173,9 @@ public class SpiderUtil {
                 // 说明找到目标
                for (int l = 0;l<searchDishNames.size();l++,uploadedCount++){
                    // 添加菜品信息
-                   // 水面1s 免得没屏蔽掉ip
+                   // 水面1s 免得被屏蔽掉ip
                    try {
-                       Thread.sleep(100);
+                       Thread.sleep(500);
                    } catch ( InterruptedException e ) {
                        throw new RuntimeException(e);
                    }
@@ -180,15 +186,17 @@ public class SpiderUtil {
                    sysDish.setUpdateTime(LocalDateTime.now());
                    sysDish.setName(searchDishNames.get(l));
                    sysDish.setTypeId(typeCode);
-                   sysDishMapper.insert(sysDish);
                    // 开始添加菜品制作流程信息
                    DishMake dishMake = new DishMake();
-                   dishMake.setDishId(sysDish.getId());
                    dishMake.setIsDelete(SysConstant.ALIVE);
                    dishMake.setCreateTime(LocalDateTime.now());
                    String detailUrl = "https://www.xiachufang.com" + targetUris.get(l);
                    FoodPreparation foodPreparation = spiderPreparation(detailUrl);
                    dishMake.setContent(JSONUtil.toJsonStr(foodPreparation));
+                   sysDish.setCoverUrl(foodPreparation.getCoverUrl());
+                   sysDish.setDishDes(foodPreparation.getDesc());
+                   sysDishMapper.insert(sysDish);
+                   dishMake.setDishId(sysDish.getId());
                    dishMakeMapper.insert(dishMake);
                    sendSocketMessage(searchDishNames.get(l));
                }
@@ -238,4 +246,5 @@ public class SpiderUtil {
             }
         }
     }
+
 }

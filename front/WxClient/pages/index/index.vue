@@ -1,12 +1,26 @@
 <template>
 	<view>
+		<!-- 公告弹出框 -->
+		<view class="cu-modal" :class="modalName=='Modal'?'show':''" style="z-index: 9999999 !important;">
+			<view class="cu-dialog">
+				<view class="cu-bar bg-white justify-end">
+					<view class="content" style="font-size: large;font-weight: bold;color:#ffa500;">ฅ( ̳• · • ̳ฅ)公告</view>
+					<view class="action" @tap="hideModal">
+						<text class="cuIcon-close text-red"></text>
+					</view> 
+				</view>
+				<view class="padding-xl" v-html="noticeContent">
+					
+				</view>
+			</view>
+		</view>
 		<cu-custom :isBack="false">
 			<block slot="content">吃什么呢?૮₍ ˃ ⤙ ˂ ₎ა</block>
 		</cu-custom>
 		<!-- 按钮区开始 -->
 		<view class="choice-bar-wrap">
 			<view class="choice-bar">
-				<view class="choice-btn" :class="{ active: mode === 'random' }" @click="mode = 'random'">
+				<view class="choice-btn" :class="{ active: mode === 'random' }" @click="handleRandomClick()">
 					<image class="choose-icon" src="../../static/餐饮.png"></image>
 					听天由命
 				</view>
@@ -17,11 +31,11 @@
 			</view>
 		</view>
 		<!-- 转盘区域 -->
-		<view class="turntable-box">
+		<view class="turntable-box" style="z-index: 99999;">
 			<view class="turntable-title">
 				{{turntable.title}}
 			</view>
-			<LuckyWheel ref="myLucky" width="700rpx" height="700rpx" offsetDegree=10 :blocks="blocks"
+			<LuckyWheel :default-style="defaultStyle" ref="myLucky" style="font-size: smaller;" width="700rpx" height="700rpx" offsetDegree=10 :blocks="blocks"
 				:prizes="prizeList" :buttons="buttons" :defaultStyle="defaultStyle" :default-config="defaultConfig"
 				@start="startCallBack" @end="endCallBack" />
 			<!-- 结果弹框 -->
@@ -99,19 +113,26 @@
 	import {
 		saveRecordAPI
 	} from "@/apis/rotationRecordApi.js"
+	import {
+		getActiveNoticeAPI
+	} from "@/apis/noticeApi.js"
 	import LuckyWheel from '@/components/@lucky-canvas/uni/lucky-wheel'
-	import mySwiperVue from "../../components/my-swiper.vue"
 	export default {
 		components: {
-			LuckyWheel
+			LuckyWheel,
 		},
 		data() {
 			return {
+				noticeContent:"", // 公告信息
+				modalName:'',
 				typeList: [], // 接口返回的餐类
 				resultEmotionList: ["₍ᐢ..ᐢ₎♡", "૮(˶ᵔ ᵕ ᵔ˶)ა", "૮꒰ ˶• ༝ •˶꒱ა", "꒰ᐢ⸝⸝•༝•⸝⸝ᐢ꒱ ​​", "°꒰๑'ꀾ'๑꒱°", "(ᕑᗢᓫ∗)",
 					"₍ᐢ.ˬ.⑅ᐢ₎", "ଘ(੭ˊ꒳​ˋ)੭ "
 				],
 				resultPrize: null,
+				defaultStyle:{
+					fontSize:16
+				},
 				defaultConfig: {
 					accelerationTime: 2000,
 					decelerationTime: 1600,
@@ -163,7 +184,7 @@
 				pageShowSize:7, // 系统swiper-item每页展示数量
 			}
 		},
-		onLoad() {
+		async onLoad() {
 			this.initAudio()
 			this.luckWheel = this.$refs.myLucky
 		},
@@ -171,7 +192,34 @@
 			this.audioPlay.destroy() // 释放资源
 			this.audioEnd.destroy()
 		},
+		async created() {
+			let noticeRes = await getActiveNoticeAPI()
+			this.noticeContent = noticeRes.data.content
+			this.modalName = "Modal"
+		},
 		methods: {
+			handleRandomClick() {
+			this.mode = 'random';
+			this.modalName = 'Modal';		
+			},
+			hideModal(){
+				this.modalName = ""
+			},
+			open() {
+				console.log("open",this.$refs)
+					this.$refs.myPopup.open()
+					},
+			confirm(value) {
+						// 输入框的值
+						// TODO 做一些其他的事情，手动执行 close 才会关闭对话框
+						// ...
+						this.$refs.popup.close()
+					},
+			close() {
+						// TODO 做一些其他的事情，before-close 为true的情况下，手动执行 close 才会关闭对话框
+						// ...
+						this.$refs.popup.close()
+					},
 			randomEmotion() {
 				const list = this.resultEmotionList;
 				return list[Math.floor(Math.random() * list.length)];
@@ -247,11 +295,12 @@
 				uni.setStorageSync("routing", false)
 				let res = await getUserTurntableInfoAPI()
 				let turntableInfoRes = await getAllSystemTurntableAPI()
-				for(let i = 0;i < Math.round(turntableInfoRes.data.length / this.pageShowSize);i++){
+				for(let i = 0;i < Math.ceil(turntableInfoRes.data.length / this.pageShowSize);i++){
 					this.typeList.push(turntableInfoRes.data.slice(i*this.pageShowSize,i*this.pageShowSize+this.pageShowSize))
 				}
+				
 				this.customTypes = res.data.splice(0, 6) // 只	展示前6个
-				this.getTuratableDetail(1)
+				this.getTuratableDetail(this.selectedType)
 			},
 			checkSetting() {
 				let duration = uni.getStorageSync("roatingDuration")
@@ -289,20 +338,6 @@
 				}
 				this.getTuratableDetail(id)
 			},
-		},
-		watch: {
-			selectedType: {
-				handler(newVal, oldVal) {
-					if (newVal > 7) {
-						let res = this.customTypes.find(item => item.id === newVal)
-						this.turntable = {
-							id: res.id,
-							title: res.title,
-							type: 0
-						}
-					}
-				}
-			}
 		},
 		onShow() {
 			this.init()

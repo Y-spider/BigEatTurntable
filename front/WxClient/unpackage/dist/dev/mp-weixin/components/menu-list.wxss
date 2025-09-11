@@ -1,0 +1,41 @@
+
+.dish-type-box.data-v-09f240be,.dish-item-box.data-v-09f240be{
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 30rpx;
+}
+.dish-type.data-v-09f240be{
+	width: 30vw;
+	height: 100rpx;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	background-color: #f3f3f7;
+}
+.active-item.data-v-09f240be{
+	background-color: #ffa500;
+}
+.dish-box.data-v-09f240be{
+	flex: 1;
+}
+.dish-cover-image.data-v-09f240be{
+	width: 128rpx;
+	height: 128rpx;
+	border-radius: 15rpx;
+}
+.dish-des.data-v-09f240be{
+	  height: 80rpx;
+	  overflow: hidden;
+	  display: -webkit-box;
+	  -webkit-box-orient: vertical;
+	  -webkit-line-clamp: 1;   /* ← 把 2 换成你需要的行数 */
+	  /* 下面两行可要可不要，取决于你是否允许自动折行 */
+	 /* word-break: break-all;
+	  line-height: 1.5; */
+}
+

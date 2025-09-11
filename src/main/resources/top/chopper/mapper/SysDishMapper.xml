@@ -4,7 +4,7 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="top.chopper.mapper.SysDishMapper">
     <update id="updateSetDishType">
-        update sys_dish set type_id = 0 where dish_type = #{dishTypeId}
+        update sys_dish set type_id = 0 where dish_id = #{dishTypeId}
     </update>
 
     <select id="listRandom" resultType="top.chopper.pojo.SysDish">

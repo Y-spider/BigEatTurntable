@@ -1,0 +1,1 @@
+<view><cu-custom vue-id="e26a79c0-1" isBack="{{false}}" bind:__l="__l" vue-slots="{{['content']}}"><view slot="content">烹饪厨房( ˘▽˘)っ♨</view></cu-custom><view style="height:160px;" class="_div"><menu-list-vue vue-id="e26a79c0-2" type-list="{{typeList}}" bind:__l="__l"></menu-list-vue></view></view>

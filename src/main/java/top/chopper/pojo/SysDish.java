@@ -35,7 +35,14 @@ public class SysDish {
     @TableLogic(value = "0", delval = "2") // 逻辑删除字段
     @Schema(name="isDelete",description="采用逻辑删除 0表示未删除 2表示删除")
     private Integer isDelete;
-
+    @Schema(name="coverUrl",description="封面图片URL")
+    private String coverUrl;
+    @Schema(name="dishDes",description="菜品描述")
+    private String dishDes;
+    @Schema(name="openid",description="小程序用户标识")
+    private String openid;
+    @Schema(name="likeCount",description="收藏数")
+    private Integer likeCount;
     @TableField(exist = false)
     private String makeUrl;
     public void autoSetUpdateTime(){

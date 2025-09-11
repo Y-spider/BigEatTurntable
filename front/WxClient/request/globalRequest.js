@@ -1,8 +1,8 @@
 // 正式环境
 // const BASE_URL = "https://www.chopper.love:39001/api/"
 // 开发环境
-// const BASE_URL = "http://127.0.0.1:16378/"
-const BASE_URL = "http://192.168.100.4:16378/"
+const BASE_URL = "http://127.0.0.1:16378/"
+// const BASE_URL = "http://192.168.100.4:16378/"
 
 // 检查是否登录，如果没有登录则进行登录
 function checkLogin(){
@@ -36,14 +36,7 @@ function checkLogin(){
 }
 
 export function httpOFPost(path, params = {}, loading = true,method) {
-	checkLogin().then(()=>{
-	if (false) {
-		uni.showLoading({
-			title: "加载中",	
-			mask: true
-		});
-	};
-
+	return checkLogin().then(()=>{
 	return new Promise((resolve, reject) => {
 		uni.request({
 			header: {
@@ -127,13 +120,6 @@ export function httpOFGet(path,loading = true){
 			})
 		});
 	})
-	// console.log('%c请求拦截：', ' background:orange',path);
-	// if(false){
-	// 	uni.showLoading({
-	// 		title:"加载中",
-	// 		mask:true
-	// 	})
-	// }
 } 
 
 // 封装发送get请求

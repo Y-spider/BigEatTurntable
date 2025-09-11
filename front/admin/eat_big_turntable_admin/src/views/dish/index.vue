@@ -79,6 +79,17 @@
                 <el-form-item label="菜品名称" prop="name">
                     <el-input v-model="dishForm.name" placeholder="请输入菜品名称" />
                 </el-form-item>
+                <el-form-item label="菜品描述" prop="dishDes">
+                    <el-input type="textarea" v-model="dishForm.dishDes" placeholder="请输入菜品描述" />
+                </el-form-item>
+                <el-form-item label="菜品封面" prop="tips" style="flex: 1;">
+                    <el-upload class="avatar-uploader" :action="uploadUrl" :show-file-list="false"
+                        :on-success="handleAvatarSuccess" :before-upload="beforeStepImgUpload">
+                        <img v-if="dishForm.coverUrl" :src="dishForm.coverUrl" class="avatar"
+                            style="width: 128px; height: 128px;">
+                        <i v-else class="el-icon-plus avatar-uploader-icon"></i>
+                    </el-upload>
+                </el-form-item>
                 <el-form-item label="类型" prop="typeId">
                     <el-select v-model="dishForm.typeId" placeholder="请选择类型">
                         <el-option v-for="item in typeOptions" :key="item.id" :label="item.name" :value="item.id" />
@@ -108,10 +119,10 @@
                     <el-input-number v-model="dishForm.endPage" :min="1" :max="999"></el-input-number>
                 </el-form-item>
             </el-form>
-            <el-form v-if="dialogType == 3" v-loading="loading" element-loading-text="菜品上传中，请稍等...">
-                <el-form-item label="请输入分类名称" prop="typeName">
-                    <el-select allow-create @change="handleChange" v-model="dishForm.typeName" filterable remote reserve-keyword placeholder="请输入菜品类别"
-                        :remote-method="remoteMethod" :loading="loading">
+            <el-form v-if="dialogType == 3" v-loading="loading" element-loading-text="菜品信息加载中，请稍等...">
+                <el-form-item label="请选择分类" prop="typeName">
+                    <el-select allow-create @change="handleChange" v-model="dishForm.typeId" filterable remote
+                        reserve-keyword placeholder="请输入菜品类别" :remote-method="remoteMethod" :loading="loading">
                         <el-option v-for="item in options" :key="item.id" :label="item.name" :value="item.name">
                         </el-option>
                     </el-select>
@@ -146,13 +157,14 @@
 
 <script>
 /* eslint-disable */
-import { listDishByPage, getDishType, deleteDishByIds, addDishWithMakeUrl, addDishBySearchName, addDishBySearchType } from '@/api/dish'
+import { listDishByPage, getDishType, deleteDishByIds, addDishWithMakeUrl, addDishBySearchName, addDishBySearchType, updateDish } from '@/api/dish'
 import { searchDishTypeByName } from '@/api/dishType'
 
 export default {
     name: "DishPage",
     data() {
         return {
+            uploadUrl: 'http://127.0.0.1:16378/file/upload',
             addLoading: false,
             dialogType: 1, // 弹框类型
             loading: false,
@@ -204,9 +216,17 @@ export default {
         this.getDishTypeList()
     },
     methods: {
-        handleChange(name){
-            console.log("value",this.options.filter(item => item.name===name))
-           this.dishForm.typeUrl =  this.options.filter(item => item.name===name)[0]?.typeUrl
+        beforeStepImgUpload(file) {
+            const isImg = file.type.startsWith('image/')
+            if (!isImg) this.$message.error('只能上传图片')
+            return isImg
+        },
+        handleAvatarSuccess(res) {
+            this.dishForm.coverUrl = res.data.url
+        },
+        handleChange(name) {
+            console.log("value", this.options.filter(item => item.name === name))
+            this.dishForm.typeUrl = this.options.filter(item => item.name === name)[0]?.typeUrl
         },
         async remoteMethod(inputVal) {
             // 远程搜索
@@ -285,9 +305,11 @@ export default {
             }
         },
         async handleEdit(row) {
+            console.log("row", row)
             this.dialogVisible = true
-            this.dialogType = 3
+            this.dialogType = 1
             this.dishForm = { ...row }
+            console.log("this.dishForm", this.dishForm)
         },
         handleDelete(row) {
             this.$confirm('确认删除该菜品吗？', '提示', {
@@ -295,7 +317,8 @@ export default {
                 cancelButtonText: '取消',
                 type: 'warning'
             }).then(async () => {
-                await deleteDishByIds([row.id])
+                const res = await deleteDishByIds([row.id])
+                if (!res) return;
                 this.$message.success('删除成功')
                 this.getDishList()
             }).catch(() => {
@@ -308,12 +331,19 @@ export default {
                 this.$refs.dishForm.validate(async valid => {
                     if (valid) {
                         // 新增和编辑都用 updateDish，实际可区分接口
-                        let res = await addDishWithMakeUrl(this.dishForm)
+                        let res = undefined;
+                        if(this.dishForm.id){
+                            res = await updateDish(this.dishForm);
+                        }
+                        else{
+                            res = await addDishWithMakeUrl(this.dishForm)
+                        }
+                       
                         if (!res) {
                             this.dialogVisible = false
                             return
                         }
-                        this.$message.success('保存成功')
+                        this.$message.success('操作成功')
                         this.getDishList()
                         this.addLoading = false
                         this.dialogVisible = false

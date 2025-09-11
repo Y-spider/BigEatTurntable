@@ -3,7 +3,7 @@
 		<view class="turntable-title">
 			{{turntable.title}}
 		</view>
-		<LuckyWheel :key="count" ref="myLucky" width="700rpx" height="700rpx" offsetDegree=10 :blocks="blocks"
+		<LuckyWheel  :key="count" ref="myLucky" width="700rpx" height="700rpx" offsetDegree=10 :blocks="blocks"
 			:prizes="prizes" :buttons="buttons" :defaultStyle="defaultStyle" :default-config="defaultConfig"
 			@start="startCallBack" @end="endCallBack" />
 		<!-- 结果弹框 -->
@@ -60,6 +60,9 @@
 				resultPrize: null,
 				count: 0,
 				LuckyWheel: null,
+				defaultStyle:{
+					fontSize:16
+				},
 				defaultConfig: {
 					accelerationTime: 2000,
 					decelerationTime: 1600,

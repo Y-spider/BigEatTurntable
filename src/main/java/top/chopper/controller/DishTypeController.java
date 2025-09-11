@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import top.chopper.Exception.BusinessException;
 import top.chopper.pojo.DishType;
 import top.chopper.pojo.R;
 import top.chopper.service.DishTypeService;
@@ -65,6 +66,9 @@ public class DishTypeController {
    @DeleteMapping("/delete/{id}")
    @Operation(description = "根据id(逻辑删除)菜品类获型",summary = "根据id(逻辑删除)菜品类获型")
    public R deleteDishType(@PathVariable("id") Integer id){
+      if(id==0){
+         throw new BusinessException("不能删除该类型");
+      }
       service.deleteDishById(id);
       return R.SUCCESS();
    }

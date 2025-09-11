@@ -77,6 +77,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
                    expireR.setCode(RCode.EXPIRETOKEN);
                    expireR.setErrMsg("令牌已失效，请重新登录");
                    response.setHeader("Content-Type","application/json;charset=utf-8");
+                   expireR.setCode(RCode.EXPIRETOKEN);
                    response.getWriter().write(JSONUtil.toJsonStr(expireR));
                    response.getWriter().flush();
                    response.getWriter().close();

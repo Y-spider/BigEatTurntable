@@ -40,7 +40,7 @@
 			"path" : "pages/dishMenu/dishMenu",
 			"style" : 
 			{
-				"navigationBarTitleText" : ""
+				"navigationBarTitleText" : "菜品制作"
 			}
 		}
 	],
@@ -61,6 +61,12 @@
 				"selectedIconPath": "static/hot-active.png"
 			},
 			{
+				"pagePath": "pages/dishMenu/dishMenu",
+				"text": "烹饪",
+				"iconPath": "/static/cook.png",
+				"selectedIconPath": "/static/cook-active.png"
+			},
+			{
 				"pagePath": "pages/home/home",
 				"text": "我的",
 				"iconPath": "static/home.png",
@@ -74,7 +80,8 @@
 		"navigationBarTitleText": "uni-app",
 		"navigationBarBackgroundColor": "#F8F8F8",
 		"backgroundColor": "#F8F8F8",
-		"navigationStyle": "custom"
+		"navigationStyle": "custom",
+		"onReachBottomDistance": 300
 	},
 	"uniIdRouter": {}
 }

@@ -82,7 +82,7 @@
 					class="list-item animate__animated animate__fadeInUp">
 					<view class="title">{{ rec.turntableName }}</view>
 					<view class="desc">转动时间：{{ rec.createTime }}</view>
-					<view class="desc">结果：{{ rec.result }}</view>
+					<view class="desc ellipsis">结果：{{ rec.result }}</view>
 				</view>
 				<view v-if="spinLoading" class="empty-tip">加载中...</view>
 				<view v-if="spinFinished && RotationRecords.length" class="empty-tip">没有更多了</view>

@@ -74,7 +74,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="转盘名称">
-          <el-input v-model="dialogTurntableInfo.title" :disabled="dialogType == 'view'"></el-input>
+          <el-input v-model="dialogTurntableInfo.title"  placeholder="请输入转盘名称" :disabled="dialogType == 'view'"></el-input>
         </el-form-item>
         <el-form-item label="转盘排序">
           <el-input type="number" v-model="dialogTurntableInfo.orderNumber" :disabled="dialogType == 'view'"></el-input>

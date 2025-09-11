@@ -1,13 +1,14 @@
 import axios from 'axios'
-import { Message,confirm } from 'element-ui'
+import { Message, confirm } from 'element-ui'
 import store from '@/store/store'
+import router from '@/router'
 
 // 创建axios实例
 const service = axios.create({
   baseURL: process.env.VUE_APP_BASE_URL,
   timeout: 60000  // 60s连接超时
 })
-console.log("baseurl",process.env)
+console.log("baseurl", process.env)
 
 // 请求拦截器
 service.interceptors.request.use(
@@ -29,7 +30,7 @@ service.interceptors.request.use(
 service.interceptors.response.use(
   response => {
     const res = response.data
-    
+
     // 如果返回的状态码不是200，说明接口有问题，把错误信息显示给用户
     if (res.code !== 200) {
       Message({
@@ -39,24 +40,11 @@ service.interceptors.response.use(
       })
 
       // 50008: 非法的token; 50012: 其他客户端登录; 50014: Token过期了;
-      if (res.code === -99 || res.code === 50012 || res.code === 50014) {
+      if (res.code === -99 || res.code === 50012 || res.code === 50014 || res.code === -1) {
         // 这个地方有问题，后续需要进行处理
-        confirm(
-          '您已被登出，可以取消继续留在该页面，或者重新登录',
-          '确定登出',
-          {
-            confirmButtonText: '重新登录',
-            type: 'warning'
-          },
-
-        ).then(() => {
-          store.commit('clearAllStateData').then(() => {
-            location.reload()
-          })
-        })
-        .catch((err)=>{
-          Message.error("系统发送错误" + err)
-          location.reload()
+        store.commit('clearAllStateData')
+        router.push("/login").catch((err)=>{
+            console.log("悌哦安装会失败",err)
         })
       }
       return false

@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import top.chopper.dto.QueryPageDto;
 import top.chopper.mapper.DishMakeMapper;
@@ -64,12 +65,13 @@ public class SysDishController {
     })
     @PostMapping("/delete/batch")
     // 还需要调试
+    @Transactional
     public R delete(@RequestBody ArrayList<Integer> ids){
         LambdaQueryWrapper<DishMake> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.select(DishMake::getId).in(DishMake::getDishId,ids);
         List<Integer> dishMakeIds = dishMakeMapper.selectObjs(queryWrapper);
         dishMakeMapper.deleteByIds(dishMakeIds);
-        return R.SUCCESS(service.removeBatchByIds(ids));
+        return R.SUCCESS(service.removeByIds(ids));
     }
 
     @Operation(description = "修改菜品信息",summary = "修改菜品信息")

@@ -13,7 +13,8 @@
     "navigationBarTitleText": "uni-app",
     "navigationBarBackgroundColor": "#F8F8F8",
     "backgroundColor": "#F8F8F8",
-    "navigationStyle": "custom"
+    "navigationStyle": "custom",
+    "onReachBottomDistance": 300
   },
   "tabBar": {
     "color": "#bfbfbf",
@@ -30,6 +31,12 @@
         "text": "热门转盘",
         "iconPath": "static/hot.png",
         "selectedIconPath": "static/hot-active.png"
+      },
+      {
+        "pagePath": "pages/dishMenu/dishMenu",
+        "text": "烹饪",
+        "iconPath": "/static/cook.png",
+        "selectedIconPath": "/static/cook-active.png"
       },
       {
         "pagePath": "pages/home/home",

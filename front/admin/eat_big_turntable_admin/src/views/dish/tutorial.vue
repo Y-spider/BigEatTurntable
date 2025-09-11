@@ -11,7 +11,7 @@
         <el-row :gutter="32">
           <el-col :span="12">
             <el-form-item label="菜品名称">
-              <el-input v-model="form.name" :disabled="true" />
+              <el-input v-model="form.name" disabled />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -52,7 +52,7 @@
                 <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 6 }" v-model="form.tips"
                   placeholder="贴心小提示" />
               </el-form-item>
-              <el-form-item label="菜品图标" prop="tips" style="flex: 1;">
+              <el-form-item label="菜品封面" prop="tips" style="flex: 1;">
                 <el-upload class="avatar-uploader" :action="uploadUrl"
                   :show-file-list="false" :on-success="handleAvatarSuccess" :before-upload="beforeStepImgUpload">
                   <img v-if="form.coverUrl" :src="form.coverUrl" class="avatar" style="width: 128px; height: 128px;">
@@ -154,10 +154,12 @@ export default {
     async fetchDetail() {
       // 请求接口获取菜品制作信息
       this.loading = true
-      const res = await getDishMake(this.id)
-      this.form = JSON.parse(res.data.content)
-      this.dishMake = res.data
-      this.loading = false
+      const res = await getDishMake(this.id).finally(()=>this.loading = false)
+      if(res.data?.content){
+        this.form = JSON.parse(res.data.content)
+       this.dishMake = res.data   
+      };
+    
     },
     addIngredient() {
       this.form.ingredients.push({ category: '', name: '', amount: '' })

@@ -36,6 +36,7 @@
 
 
 
+
 /*每个页面公共css */
 /*
   ColorUi for uniApp  v2.1.6 | by 文晓港 2019-05-31 10:44:24
@@ -4315,5 +4316,10 @@ scroll-view.cu-steps .cu-item {
 	display: flex;
 	justify-content: space-between;
 	align-items: center;
+}
+.ellipsis {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
 }
 

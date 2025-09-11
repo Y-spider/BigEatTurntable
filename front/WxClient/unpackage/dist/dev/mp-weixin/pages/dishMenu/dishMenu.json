@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "菜品制作",
+  "usingComponents": {
+    "menu-list-vue": "/components/menu-list"
+  }
+}
