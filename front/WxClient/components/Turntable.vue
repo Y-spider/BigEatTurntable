@@ -89,7 +89,7 @@
 						background: '#FFA500',
 						pointer: true,
 						fonts: [{
-							text: '吃货\n开奖',
+							text: '好运\n开奖',
 							top: '-20px'
 						}]
 					},
@@ -180,12 +180,9 @@
 				this.modalName = "DialogModal2"
 			},
 			handConfim() {
-				if(this.turntable.type==0){
-					this.turntable.title += "-自定义"
-				}
 				let saveRecordData = {
 					turntableId: this.turntable.id,
-					turntableName: this.turntable.title,
+					turntableName: this.turntable.type==0 ? this.turntable.title+"-自定义":this.turntable.title,
 					result: this.resultPrize.fonts[0].text,
 					type: this.turntable.type
 				}

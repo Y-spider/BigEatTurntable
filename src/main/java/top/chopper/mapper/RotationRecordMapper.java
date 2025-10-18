@@ -1,7 +1,10 @@
 package top.chopper.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import top.chopper.dto.ShareTurntableRotationRecordDto;
 import top.chopper.pojo.RotationRecord;
+
+import java.util.List;
 
 /*
    @Author:ROBOT
@@ -10,4 +13,5 @@ import top.chopper.pojo.RotationRecord;
    @Description:
    */
 public interface RotationRecordMapper extends BaseMapper<RotationRecord> {
+    List<ShareTurntableRotationRecordDto> listShareTurntableRecordByTurntableId(Long id,String openid);
 }

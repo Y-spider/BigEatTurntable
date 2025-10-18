@@ -14,3 +14,8 @@ export function selectRecordCountAPI(){
 export function saveRecordAPI(data){
 	return httpOFPost("record/add",data,false,"POST")
 }
+
+// 获取单独转盘的转动记录
+export function listSingleTurntableRecordAPI(id){
+	return httpOFGet(`record/list/share/${id}`)
+}

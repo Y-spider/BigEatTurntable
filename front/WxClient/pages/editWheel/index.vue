@@ -148,17 +148,18 @@ export default {
 			this.saveNewTurntable()
 			return;
 		}
-      // 返回并传递数据
+      
       // 进行保存
       let updateData = {
         id: this.id,
         content: JSON.stringify(this.prizeList),
       }
-      if (this.tableInfo.type!=0) {
+      if (this.tableInfo.type!=0 || true) {
         uni.showModal({
-          title: "新转盘名称",
+          title: "转盘名称",
           editable: true,
-          placeholderText: '请输入新转盘名称',
+		  content:this.tableInfo.title,
+          placeholderText: "编辑转盘名称",
           success: (res) => {
             if (res.confirm) {
               if (res.content == "") {
@@ -198,7 +199,15 @@ export default {
 	let res =  await getTurntableDetailAPI(this.id)
 	this.tableInfo = res.data
 	this.tableInfo.content = JSON.parse(this.tableInfo.content)
-  }
+	
+  },
+  async onShow(){
+	  if(this.id){
+		  let res =  await getTurntableDetailAPI(this.id)
+		  this.tableInfo = res.data
+		  this.tableInfo.content = JSON.parse(this.tableInfo.content)
+	  }
+  },
 }
 </script>
 

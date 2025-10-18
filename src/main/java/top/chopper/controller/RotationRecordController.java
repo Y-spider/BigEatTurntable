@@ -6,11 +6,14 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import top.chopper.dto.ShareTurntableRotationRecordDto;
 import top.chopper.pojo.R;
 import top.chopper.pojo.RotationRecord;
 import top.chopper.service.RotationRecordService;
 import top.chopper.utils.SecurityUtil;
 import java.time.LocalDateTime;
+import java.util.List;
+
 /*
    @Author:ROBOT
    @DateTime:2025/7/13 18:29
@@ -51,6 +54,13 @@ public class RotationRecordController {
         record.setOpenid(openid);
         record.setCreateTime(LocalDateTime.now());
         return R.SUCCESS(service.save(record));
+    }
+
+    @Operation(description = "获取单个转盘记录，包含好友")
+    @GetMapping("/list/share/{id}")
+    public R getRecordByTurntableId(@PathVariable("id")Long id){
+        List<ShareTurntableRotationRecordDto> list = service.listShareTurntableRecord(id);
+        return R.SUCCESS(list);
     }
 
 }

@@ -383,17 +383,17 @@ var _default = {
                 _this3.saveNewTurntable();
                 return _context2.abrupt("return");
               case 3:
-                // 返回并传递数据
                 // 进行保存
                 updateData = {
                   id: _this3.id,
                   content: JSON.stringify(_this3.prizeList)
                 };
-                if (_this3.tableInfo.type != 0) {
+                if (_this3.tableInfo.type != 0 || true) {
                   uni.showModal({
-                    title: "新转盘名称",
+                    title: "转盘名称",
                     editable: true,
-                    placeholderText: '请输入新转盘名称',
+                    content: _this3.tableInfo.title,
+                    placeholderText: "编辑转盘名称",
                     success: function success(res) {
                       if (res.confirm) {
                         if (res.content == "") {
@@ -458,6 +458,32 @@ var _default = {
           }
         }
       }, _callee3);
+    }))();
+  },
+  onShow: function onShow() {
+    var _this5 = this;
+    return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee4() {
+      var res;
+      return _regenerator.default.wrap(function _callee4$(_context4) {
+        while (1) {
+          switch (_context4.prev = _context4.next) {
+            case 0:
+              if (!_this5.id) {
+                _context4.next = 6;
+                break;
+              }
+              _context4.next = 3;
+              return (0, _turntableApi.getTurntableDetailAPI)(_this5.id);
+            case 3:
+              res = _context4.sent;
+              _this5.tableInfo = res.data;
+              _this5.tableInfo.content = JSON.parse(_this5.tableInfo.content);
+            case 6:
+            case "end":
+              return _context4.stop();
+          }
+        }
+      }, _callee4);
     }))();
   }
 };

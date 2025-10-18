@@ -1,7 +1,7 @@
 <template>
 	<view class="home-page">
 		<cu-custom :isBack="false">
-			<block slot="content">吃货大转盘</block>
+			<block slot="content">不纠结星球</block>
 		</cu-custom>
 		<!-- 设置区域 -->
 		<view class="cu-modal bottom-modal" :class="modalName=='bottomModal'?'show':''">
@@ -38,7 +38,7 @@
 			<view class="user-info-box animate__animated animate__fadeInDown"
 				style="display: flex;justify-content: space-between;align-items: center;">
 				<view class="user-info">
-					<view class="nickname animate__animated animate__fadeInLeft">吃货{{ userName }}
+					<view class="nickname animate__animated animate__fadeInLeft">星友{{ userName }}
 					</view>
 					<view class="stat animate__animated animate__fadeInRight">
 						<text>我的转盘：<text class="stat-num">{{ createCount }}</text></text>
@@ -233,6 +233,9 @@
 				if (val === 'record') {
 					this.spinFinished = false
 					this.loadSpinRecords(true)
+				}
+				if(val === 'create'){
+					this.init()
 				}
 			}
 		}

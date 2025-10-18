@@ -1,11 +1,15 @@
 package top.chopper.service.impl;
 
-import com.baomidou.mybatisplus.extension.service.IService;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import top.chopper.dto.ShareTurntableRotationRecordDto;
 import top.chopper.mapper.RotationRecordMapper;
 import top.chopper.pojo.RotationRecord;
 import top.chopper.service.RotationRecordService;
+import top.chopper.utils.SecurityUtil;
+
+import java.util.List;
 
 /*
    @Author:ROBOT
@@ -15,4 +19,15 @@ import top.chopper.service.RotationRecordService;
    */
 @Service
 public class RotationRecordImpl extends ServiceImpl<RotationRecordMapper, RotationRecord> implements RotationRecordService {
+    @Autowired
+    private RotationRecordMapper recordMapper;
+    /**
+     * @param id
+     * @return
+     */
+    @Override
+    public List<ShareTurntableRotationRecordDto> listShareTurntableRecord(Long id) {
+        String openid = SecurityUtil.getUserName();
+        return recordMapper.listShareTurntableRecordByTurntableId(id, openid);
+    }
 }

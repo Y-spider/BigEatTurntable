@@ -1,11 +1,15 @@
 package top.chopper.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.chopper.constant.TurnTableType;
+import top.chopper.mapper.RotationRecordMapper;
 import top.chopper.mapper.TurnTableMapper;
+import top.chopper.pojo.RotationRecord;
 import top.chopper.pojo.TurnTable;
 import top.chopper.service.TurnTableService;
 import top.chopper.utils.SecurityUtil;
@@ -19,9 +23,12 @@ import java.time.LocalDateTime;
    @Description:
    */
 @Service
+@Slf4j
 public class TurnTableServiceImpl extends ServiceImpl<TurnTableMapper, TurnTable> implements TurnTableService {
     @Autowired
     private TurnTableMapper mapper;
+    @Autowired
+    private RotationRecordMapper recordMapper;
 
 
     /**
@@ -47,6 +54,15 @@ public class TurnTableServiceImpl extends ServiceImpl<TurnTableMapper, TurnTable
             mapper.insert(oldTurntable);
         } else {
             // 情况2 修改用户自定义转盘
+            if(!oldTurntable.getTitle().equals(turnTable.getTitle())){
+                // 修改记录
+                LambdaUpdateWrapper<RotationRecord> updateWrapper = new LambdaUpdateWrapper<>();
+                updateWrapper.set(RotationRecord::getTurntableName,turnTable.getTitle());
+                updateWrapper.eq(RotationRecord::getTurntableId,turnTable.getId());
+                int updated = recordMapper.update(updateWrapper);
+                log.info("用户:{}修改了转盘oldName={}为newName={},旋转记录受影响条数为={}",SecurityUtil.getUserName(),oldTurntable.getTitle(),turnTable.getTitle(),updated);
+                oldTurntable.setTitle(turnTable.getTitle());
+            }
             oldTurntable.setContent(turnTable.getContent());
             oldTurntable.setUpdateTime(LocalDateTime.now());
             mapper.updateById(oldTurntable);

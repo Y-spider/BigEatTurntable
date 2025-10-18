@@ -3,7 +3,7 @@
 		{
 			"path": "pages/index/index",
 			"style": {
-				"navigationBarTitleText": "今天吃什么?"
+				
 			}
 		},
 		{
@@ -57,7 +57,7 @@
 		"list": [
 			{
 				"pagePath": "pages/index/index",
-				"text": "开饭",
+				"text": "好运来",
 				"iconPath": "static/index.png",
 				"selectedIconPath": "static/index-active.png"
 			},

@@ -198,10 +198,25 @@ var _default = {
     bgImage: {
       type: String,
       default: ''
+    },
+    backUrl: {
+      type: String,
+      default: ''
     }
   },
   methods: {
     BackPage: function BackPage() {
+      if (this.backUrl != '') {
+        // 这里直接就是返回tabvar页面
+        console.log("this.backUrl", this.backUrl);
+        uni.switchTab({
+          url: this.backUrl,
+          fail: function fail(err) {
+            console.log("返回tabbar页面是吧===>", err);
+          }
+        });
+        return;
+      }
       if (getCurrentPages().length < 2 && 'undefined' !== typeof __wxConfig) {
         var url = '/' + __wxConfig.pages[0];
         return uni.redirectTo({

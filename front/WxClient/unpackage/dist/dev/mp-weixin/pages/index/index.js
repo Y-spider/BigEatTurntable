@@ -210,7 +210,7 @@ var _default = {
         background: '#FFA500',
         pointer: true,
         fonts: [{
-          text: '吃货\n开奖',
+          text: '好运\n开奖',
           top: '-20px'
         }]
       }],
@@ -247,8 +247,8 @@ var _default = {
       expireTime: expireTime
     });
     return {
-      title: '吃货大转盘',
-      path: '/pages/index/index',
+      title: this.turntable.title,
+      path: "/pages/detail/detail?id=" + this.turntable.id + "&tableName=" + this.turntable.title + "&backUrl=/pages/index/index",
       withShareTicket: true
     };
   },
@@ -364,12 +364,9 @@ var _default = {
     this.modalName = "";
     uni.setStorageSync("routing", false);
   }), (0, _defineProperty2.default)(_methods, "handConfim", function handConfim() {
-    if (this.turntable.type == 0) {
-      this.turntable.title += "-自定义";
-    }
     var saveRecordData = {
       turntableId: this.turntable.id,
-      turntableName: this.turntable.title,
+      turntableName: this.turntable.type == 0 ? this.turntable.title + "-自定义" : this.turntable.title,
       result: this.resultPrize.fonts[0].text,
       type: this.turntable.type
     };

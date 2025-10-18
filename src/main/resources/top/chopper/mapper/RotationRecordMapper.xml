@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="top.chopper.mapper.RotationRecordMapper">
+
+    <select id="listShareTurntableRecordByTurntableId"
+            resultType="top.chopper.dto.ShareTurntableRotationRecordDto">
+        SELECT
+            rr.id,
+            rr.create_time,
+            rr.result,
+            rr.openid = #{openid} AS is_my,
+            u.`name` AS user_name
+        FROM rotation_record AS rr
+                 JOIN `user` u ON rr.openid = u.openid
+        WHERE rr.turntable_id = #{id} order by create_time desc;
+    </select>
+</mapper>

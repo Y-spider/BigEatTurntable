@@ -1,5 +1,4 @@
 {
-  "navigationBarTitleText": "今天吃什么?",
   "usingComponents": {
     "lucky-wheel": "/components/@lucky-canvas/uni/lucky-wheel",
     "share-pop-dialog": "/components/share_pop_dialog"

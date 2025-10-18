@@ -10179,10 +10179,10 @@ exports.httpOfGetWithNotToken = httpOfGetWithNotToken;
 var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ 40));
 var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ 42));
 // 正式环境
-var BASE_URL = "https://www.sunnygo.chat/turntable/api/";
+// const BASE_URL = "https://www.sunnygo.chat/turntable/api/"
 // 开发环境
 // const BASE_URL = "http://127.0.0.1:16378/"
-// const BASE_URL = "http://192.168.100.4:16378/"
+var BASE_URL = "http://192.168.100.4:16378/";
 
 // 检查是否登录，如果没有登录则进行登录
 function checkLogin() {
@@ -10193,6 +10193,10 @@ function checkLogin() {
     } else {
       uni.login({
         success: function success(res) {
+          uni.showLoading({
+            mask: true,
+            title: "登录中..."
+          });
           uni.request({
             method: "POST",
             url: BASE_URL + "user/client/login",
@@ -10203,11 +10207,15 @@ function checkLogin() {
               console.log("登录成功");
               uni.setStorageSync("token", res.data.data.token);
               uni.setStorageSync("userName", res.data.data.userName);
+              uni.setStorageSync("openMusic", true); // 默认开启音效
               return resolve();
             },
             fail: function fail(failMsg) {
               console.log(failMsg);
               return reject(failMsg);
+            },
+            complete: function complete() {
+              uni.hideLoading();
             }
           });
         }
@@ -10438,6 +10446,7 @@ function httpOfGetWithNotToken(path) {
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+exports.listSingleTurntableRecordAPI = listSingleTurntableRecordAPI;
 exports.listWithPageAPI = listWithPageAPI;
 exports.saveRecordAPI = saveRecordAPI;
 exports.selectRecordCountAPI = selectRecordCountAPI;
@@ -10455,6 +10464,11 @@ function selectRecordCountAPI() {
 // 添加转动记录
 function saveRecordAPI(data) {
   return (0, _globalRequest.httpOFPost)("record/add", data, false, "POST");
+}
+
+// 获取单独转盘的转动记录
+function listSingleTurntableRecordAPI(id) {
+  return (0, _globalRequest.httpOFGet)("record/list/share/".concat(id));
 }
 
 /***/ }),

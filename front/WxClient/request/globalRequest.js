@@ -1,8 +1,8 @@
 // 正式环境
-const BASE_URL = "https://www.sunnygo.chat/turntable/api/"
+// const BASE_URL = "https://www.sunnygo.chat/turntable/api/"
 // 开发环境
 // const BASE_URL = "http://127.0.0.1:16378/"
-// const BASE_URL = "http://192.168.100.4:16378/"
+const BASE_URL = "http://192.168.100.4:16378/"
 
 // 检查是否登录，如果没有登录则进行登录
 function checkLogin(){
@@ -13,6 +13,10 @@ function checkLogin(){
 		}else{
 			uni.login({
 				success(res) {
+					uni.showLoading({
+						mask:true,
+						title:"登录中..."
+					})
 					 uni.request({
 						method:"POST",
 						url:BASE_URL + "user/client/login",
@@ -21,11 +25,15 @@ function checkLogin(){
 							console.log("登录成功")
 							uni.setStorageSync("token",res.data.data.token)
 							uni.setStorageSync("userName",res.data.data.userName)
+							uni.setStorageSync("openMusic",true) // 默认开启音效
 							return resolve()
 						},
 						fail(failMsg){
 							console.log(failMsg)
 							return reject(failMsg)
+						},
+						complete(){
+							uni.hideLoading();
 						}
 					})
 				}

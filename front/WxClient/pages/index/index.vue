@@ -16,14 +16,14 @@
 			</view>
 		</view>
 		<cu-custom :isBack="false">
-			<block slot="content">吃什么呢?૮₍ ˃ ⤙ ˂ ₎ა</block>
+			<block slot="content">好运来૮₍ ˃ ⤙ ˂ ₎ა</block>
 		</cu-custom>
 		<!-- 按钮区开始 -->
 		<view class="choice-bar-wrap">
 			<view class="choice-bar">
 				<view class="choice-btn" :class="{ active: mode === 'random' }" @click="handleRandomClick()">
 					<image class="choose-icon" src="../../static/餐饮.png"></image>
-					听天由命
+					鸿运自来
 				</view>
 				<view class="choice-btn" :class="{ active: mode === 'nearby' }" @click="mode = 'nearby'">
 					<image class="choose-icon" src="../../static/附近餐厅.png"></image>
@@ -55,7 +55,7 @@
 						</view>
 						<view class="cu-bar bg-white">
 							<view class="action margin-0 flex-sub text-yellow " @tap="playAgain()">
-								<text></text>再来一次
+								<text></text>不算~再来一次
 							</view>
 							<view class="action margin-0 flex-sub text-green solid-left">
 								<button open-type="share" class="share-btn">分享</button>
@@ -66,6 +66,10 @@
 					</view>
 				</view>
 				<view class="fun-button" style="display: flex;justify-content: space-between; align-items: center;">
+					<view class="fun-but">
+						<button open-type="share" class="cu-btn bg-gradual-green shadow"> <text
+								class="cuIcon-share" style="margin: 0 10rpx;"></text>分享</button>
+					</view>
 					<view class="fun-but">
 						<button @click="handleShowMake" v-if="isShowMaker" class="cu-btn bg-gradual-green shadow"> <text
 								class="cuIcon-form" style="margin: 0 10rpx;"></text>菜谱</button>
@@ -185,7 +189,7 @@
 						background: '#FFA500',
 						pointer: true,
 						fonts: [{
-							text: '吃货\n开奖',
+							text: '好运\n开奖',
 							top: '-20px'
 						}]
 					},
@@ -222,8 +226,8 @@
 				expireTime
 			})
 			return {
-				title: '吃货大转盘',
-				path: '/pages/index/index',
+				title: this.turntable.title,
+				path: "/pages/detail/detail?id=" + this.turntable.id +"&tableName="+this.turntable.title+"&backUrl=/pages/index/index",
 				withShareTicket: true
 			}
 		},
@@ -293,12 +297,9 @@
 				uni.setStorageSync("routing", false)
 			},
 			handConfim() {
-				if (this.turntable.type == 0) {
-					this.turntable.title += "-自定义"
-				}
 				let saveRecordData = {
 					turntableId: this.turntable.id,
-					turntableName: this.turntable.title,
+					turntableName:this.turntable.type == 0 ? this.turntable.title+"-自定义" : this.turntable.title,
 					result: this.resultPrize.fonts[0].text,
 					type: this.turntable.type
 				}
