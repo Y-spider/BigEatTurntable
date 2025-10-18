@@ -2,11 +2,12 @@ server:
   port: 16378
 spring:
   datasource:
-    type: com.alibaba.druid.pool.DruidDataSource # ????????
+    type: com.alibaba.druid.pool.DruidDataSource # 德鲁伊数据库连接池
     username: root
-    password: 123456
-    url: jdbc:p6spy:mysql://localhost:3306/eat_big_turntable?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
-    driver-class-name: com.p6spy.engine.spy.P6SpyDriver
+    password: 123456 # Yanwenguang123_
+#    url: jdbc:mysql://www.sunnygo.chat:3307/eat_big_turntable?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
+    url: jdbc:mysql://127.0.0.1:3306/eat_big_turntable?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
+    driver-class-name: com.mysql.cj.jdbc.Driver
   servlet:
     multipart:
       enabled: true
@@ -16,20 +17,15 @@ spring:
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true # ????
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
 
 minio:
-  endpoint: http://127.0.0.1:9000 # 连接点地址
-  accessKey: minioadmin  # 账号
-  secretKey: minioadmin  # 密码
+  endpoint: http://118.195.164.246:9000 # 连接点地址
+  accessKey: yan  # 账号
+  secretKey: Yanwenguang123_  # 密码
   bucketName: eat-big-turntable
 
-
-
-
-
-
-
+#=================自定义微信系统属性============
 system:
   jwt:
     secretKey: "tony chopper"
@@ -37,3 +33,24 @@ wexi:  # 微信小程序配置
   appid: "wxfbf664952970b1bb"
   secret: "9a8381b008724997047978c6b8966bf3"
   grant_type: "authorization_code"
+
+#============================腾讯地图访问配置信息==============
+tencent:
+  secret-key: fi7lyF6Ng82zEEXZnhnIuDwpYEEFxTAE
+
+#========================lombook日志配置=====================
+logging:
+  level:
+    root: INFO              # 设置全局日志级别为 INFO，即默认输出 INFO、WARN、ERROR 级别的日志
+    com.example: DEBUG      # 针对包 com.example 设置日志级别为 DEBUG，可输出 DEBUG 及以上级别日志
+  file:
+    name: /www/java_server/eat_bigger_turntable/console.log     # 指定日志输出文件路径，相对路径相对于项目根目录
+  pattern:
+    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+      # 定义日志文件的输出格式：
+      # %d{...} → 日期时间
+      # [%thread] → 当前线程名
+      # %-5level → 日志级别，左对齐，占5个字符
+      # %logger{36} → 输出类名，最多36个字符
+      # %msg → 日志消息内容
+    # %n → 换行符

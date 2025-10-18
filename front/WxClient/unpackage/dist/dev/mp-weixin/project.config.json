@@ -19,7 +19,7 @@
     "condition": false
   },
   "compileType": "miniprogram",
-  "libVersion": "",
+  "libVersion": "3.8.12",
   "appid": "wxfbf664952970b1bb",
   "projectname": "WxClient",
   "condition": {},

@@ -47,7 +47,8 @@ public class SecurityConfig {
                                 "/webjars/**",
                                 "/file/upload",
                                 "/make/add/url",
-                                "/websocket/**"
+                                "/websocket/**",
+                                "/collection/testTaskJob"
                         )
                         .permitAll() // 公开接口
                         .anyRequest() // 其他所有接口

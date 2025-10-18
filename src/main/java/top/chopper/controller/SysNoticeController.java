@@ -48,8 +48,10 @@ public class SysNoticeController {
         sysNotice.setUpdateTime(LocalDateTime.now());
         if(sysNotice.getActive()){
              SysNotice oldActive = (SysNotice) handleGetActive().getData();
-             oldActive.setActive(false);
-             service.updateById(oldActive);
+             if(oldActive!=null){
+                 oldActive.setActive(false);
+                 service.updateById(oldActive);
+             }
         }
         service.updateById(sysNotice);
         return R.SUCCESS();
@@ -59,7 +61,7 @@ public class SysNoticeController {
     @PostMapping("/list/page")
     public R handleListPage(@RequestBody QueryPageDto queryPageDto){
         LambdaQueryWrapper<SysNotice> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.orderByDesc(SysNotice::getUpdateTime);
+        queryWrapper.orderByDesc(SysNotice::getCreateTime);
         Page<SysNotice> page = new Page<>(queryPageDto.getPage(),queryPageDto.getLimit());
         return R.SUCCESS(service.page(page,queryWrapper));
     }
@@ -70,6 +72,14 @@ public class SysNoticeController {
         LambdaQueryWrapper<SysNotice> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(SysNotice::getActive,true);
         return R.SUCCESS(service.getOne(queryWrapper));
+    }
+
+
+    @Operation(description = "删除通知",summary = "删除通知")
+    @DeleteMapping("/delete/{id}")
+    public R handleDelete(@PathVariable("id") Integer id){
+        service.myDeleteNoticeById(id);
+        return R.SUCCESS();
     }
 
 }

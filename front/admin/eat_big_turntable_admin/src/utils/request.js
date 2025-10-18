@@ -5,10 +5,11 @@ import router from '@/router'
 
 // 创建axios实例
 const service = axios.create({
-  baseURL: process.env.VUE_APP_BASE_URL,
+  baseURL: "https://www.sunnygo.chat/turntable/api",
+  // baseURL: "http://127.0.0.1:16378",
   timeout: 60000  // 60s连接超时
 })
-console.log("baseurl", process.env)
+// console.log("baseurl", process.env)
 
 // 请求拦截器
 service.interceptors.request.use(
@@ -40,11 +41,11 @@ service.interceptors.response.use(
       })
 
       // 50008: 非法的token; 50012: 其他客户端登录; 50014: Token过期了;
-      if (res.code === -99 || res.code === 50012 || res.code === 50014 || res.code === -1) {
+      if (res.code === -99 || res.code === 50012 || res.code === 50014) {
         // 这个地方有问题，后续需要进行处理
         store.commit('clearAllStateData')
         router.push("/login").catch((err)=>{
-            console.log("悌哦安装会失败",err)
+            console.log("跳转失败",err)
         })
       }
       return false

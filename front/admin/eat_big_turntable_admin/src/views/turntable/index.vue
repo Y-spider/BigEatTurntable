@@ -213,9 +213,6 @@ export default {
       }))
     },
     handleConfirmAddDishList() {
-      console.log("this.prizeList",this.prizeList)
-      console.log("this.tempAddPrizeList",this.tempAddPrizeList)
-
         this.prizeList = [...this.prizeList,...this.tempAddPrizeList]
         this.dialogVisibleOfDishTransfer = false
     },
@@ -231,7 +228,7 @@ export default {
       filtereds.forEach(filtered => {
         let addPrizeObject = {
           fonts: [{
-            text: filtered.label,
+            text: filtered.label.split("-")[0] || "",
             top: "10%"
           }],
           background: "#" + Math.floor(Math.random() * 0xFFFFFF).toString(16).padStart(6, '0'),

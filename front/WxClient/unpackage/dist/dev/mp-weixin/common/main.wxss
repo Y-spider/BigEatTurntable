@@ -36,7 +36,6 @@
 
 
 
-
 /*每个页面公共css */
 /*
   ColorUi for uniApp  v2.1.6 | by 文晓港 2019-05-31 10:44:24
@@ -3292,6 +3291,11 @@ scroll-view.cu-steps .cu-item {
 .line-red,
 .lines-red {
 	color: #e54d42;
+}
+.text-primary,
+.line-primary,
+.lines-primary {
+	color: #ffa500;
 }
 .text-orange,
 .line-orange,

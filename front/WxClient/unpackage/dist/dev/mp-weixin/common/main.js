@@ -24,7 +24,7 @@ _vue.default.config.productionTip = false;
 _App.default.mpType = 'app';
 var cuCustom = function cuCustom() {
   __webpack_require__.e(/*! require.ensure | colorui/components/cu-custom */ "colorui/components/cu-custom").then((function () {
-    return resolve(__webpack_require__(/*! ./colorui/components/cu-custom.vue */ 86));
+    return resolve(__webpack_require__(/*! ./colorui/components/cu-custom.vue */ 95));
   }).bind(null, __webpack_require__)).catch(__webpack_require__.oe);
 };
 _vue.default.component('cu-custom', cuCustom);
@@ -119,10 +119,9 @@ var _default = {
   },
   onShow: function onShow() {
     console.log('App Show');
-    console.log("this", this.CustomBar);
   },
   onHide: function onHide() {
-    console.log('App Hide');
+    console.log("App Hide");
   }
 };
 exports.default = _default;

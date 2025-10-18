@@ -34,7 +34,11 @@ public class SysDishServiceImpl extends ServiceImpl<SysDishMapper, SysDish> impl
     private DishMakeMapper dishMakeMapper;
     @Override
     public List<SysDish> listRandomDish(Integer count,Integer type) {
-        return mapper.listRandom(count,type);
+        List<SysDish> sysDishes = mapper.listRandom(count, type);
+        for (SysDish sysDish : sysDishes) {
+            sysDish.setName(sysDish.getName().split("-")[0]);
+        }
+        return sysDishes;
     }
 
     @Override

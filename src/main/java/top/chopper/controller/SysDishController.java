@@ -51,7 +51,8 @@ public class SysDishController {
         queryWrapper.like(queryPageDto.queryConditionIsExists("name"),SysDish::getName,queryPageDto.getQueryConditionValue("name"))
                 .eq(queryPageDto.queryConditionIsExists("type"),SysDish::getTypeId,queryPageDto.getQueryConditionValue("type"))
                 .eq(queryPageDto.queryConditionIsExists("isMake"),SysDish::getIsMake,queryPageDto.getQueryConditionValue("isMake"))
-                .orderByDesc(SysDish::getCreateTime);
+                .orderByDesc(SysDish::getCreateTime)
+                .orderByDesc(SysDish::getLikeCount);
         return R.SUCCESS( service.page(page,queryWrapper));
     }
 

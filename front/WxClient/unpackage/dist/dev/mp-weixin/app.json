@@ -5,7 +5,8 @@
     "pages/hot/hot",
     "pages/editWheel/index",
     "pages/detail/detail",
-    "pages/dishMenu/dishMenu"
+    "pages/dishMenu/dishMenu",
+    "pages/dish_detail/dish_detail"
   ],
   "subPackages": [],
   "window": {
@@ -14,7 +15,7 @@
     "navigationBarBackgroundColor": "#F8F8F8",
     "backgroundColor": "#F8F8F8",
     "navigationStyle": "custom",
-    "onReachBottomDistance": 300
+    "onReachBottomDistance": 600
   },
   "tabBar": {
     "color": "#bfbfbf",

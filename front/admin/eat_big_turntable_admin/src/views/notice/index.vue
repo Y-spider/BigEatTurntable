@@ -26,6 +26,7 @@
         <el-table-column label="操作" width="180">
           <template slot-scope="scope">
             <el-button size="mini" @click="openEditDialog(scope.row)">编辑</el-button>
+            <el-button size="mini" type="danger" @click="handleDeleteNotice(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -53,7 +54,7 @@
 </template>
 
 <script>
-import { listNoticeByPage, addNotice, updateNotice } from '@/api/notice'
+import { listNoticeByPage, addNotice, updateNotice, deleteNotive } from '@/api/notice'
 import { VueEditor } from 'vue2-editor'
 import { uploadFile } from "@/api/common"
 export default {
@@ -75,7 +76,6 @@ export default {
         ['blockquote', 'code-block'],
         ['link', 'image', 'video', 'formula'],
         ['clean']
-
       ],
       loading: false,
       noticeList: [],
@@ -116,6 +116,20 @@ export default {
     this.getList()
   },
   methods: {
+    handleDeleteNotice(notice) {
+      this.$confirm('确定删除所选通知？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(async () => {
+        const res = await deleteNotive(notice.id);
+        if (!res) return;
+        this.$message.success("删除成功");
+        this.getList();
+      }).catch(() => {
+      });
+
+    },
     insertText(url) {
       // 插入文本到 
       const quill = this.$refs.myEditor.quill
@@ -123,10 +137,10 @@ export default {
       if (!range) {
         // 如果编辑器还没 focus，默认插到文末
         quill.focus()
-        quill.insertEmbed(quill.getLength(),"image", url)
+        quill.insertEmbed(quill.getLength(), "image", url)
       } else {
         // 3. 在光标处插入
-        quill.insertEmbed(range.index, "image",url)
+        quill.insertEmbed(range.index, "image", url)
         // 4. （可选）把光标挪到新内容的后面
         quill.setSelection(range.index + url.length)
       }
@@ -136,7 +150,7 @@ export default {
       formData.append('file', file)   // 字段名 file，后端用同名接收
       // 2. axios 发 POST，Content-Type 由浏览器自动设为 multipart/form-data
       const res = await uploadFile(formData)
-      if(!res) return
+      if (!res) return
       // this.insertText(`<img src="${res.data.url}" >`)
       this.insertText(res.data.url)
 

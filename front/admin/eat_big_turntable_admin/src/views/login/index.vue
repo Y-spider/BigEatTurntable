@@ -67,8 +67,8 @@ export default {
     }
     return {
       loginForm: {
-        account: '17760580731',
-        password: 'Yanwenguang123_'
+        account: '',
+        password: ''
       },
       loginRules: {
         account: [{ required: true, trigger: 'blur', validator: validateaccount }],

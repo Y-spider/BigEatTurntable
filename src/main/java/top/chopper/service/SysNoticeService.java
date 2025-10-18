@@ -10,4 +10,5 @@ import top.chopper.pojo.SysNotice;
    @Description:
    */
 public interface SysNoticeService extends IService<SysNotice> {
+    int myDeleteNoticeById(Integer id);
 }

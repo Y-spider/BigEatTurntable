@@ -1,6 +1,8 @@
 package top.chopper.utils.xcfspider;
 
 import cn.hutool.core.util.ReUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
 import cn.hutool.http.HttpUtil;
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
@@ -22,6 +24,7 @@ import top.chopper.websocket.WebSocketServer;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.regex.Matcher;
@@ -50,7 +53,10 @@ public class SpiderUtil {
      * @return FootPreparation对象
      */
     public FoodPreparation spiderPreparation(String url) {
-        String pageContent = HttpUtil.get(url);
+        HttpResponse response = HttpRequest.get(url)
+                .setFollowRedirects(true) // 开启自动重定向
+                .execute();
+        String pageContent = response.body();
         // 正则表达式匹配用料名称和用量
         String namePattern = "<td class=\"name\">\\s*(?:<a href=\"[^\"]*\">)?(.*?)(?:</a>)?\\s*</td>";
         String unitPattern = "<td class=\"unit\">\\s*(.*?)\\s*</td>";
@@ -69,7 +75,6 @@ public class SpiderUtil {
             ingredient.setAmount(units.get(i));
             ingredients[i] = ingredient;
         }
-        System.out.println(pageContent);
        // 正则表达式匹配<img>标签中的src属性
         // 提取菜品名称和封面图片
         String titleRes = "<h1[^>]*class=\"page-title\"[^>]*>(.*?)</h1>";
@@ -94,7 +99,7 @@ public class SpiderUtil {
         if(!des.isEmpty()){
             description = des.get(0);
         }
-        String regex = "<li\\b[^>]*class=\"container\"[^>]*>\\s*<p\\b[^>]*>([^<]+)</p>\\s*<img\\b[^>]*src=\"(?:<url\\b[^>]*>)?([^\"\\s]+)(?:</url>)?\"[^>]*>";
+        String regex = "<li\\b[^>]*class=\"container\"[^>]*>\\s*<p\\b[^>]*>([\\s\\S]*?)<\\/p>\\s*<img\\b[^>]*src=\"([^\"\\s]+)\"[^>]*>\n";
         List<String> imagesUrl = ReUtil.findAll(regex, pageContent, 2);
         List<String> stepDes = ReUtil.findAll(regex, pageContent, 1);
         Step[] steps = new Step[imagesUrl.size()];
@@ -129,87 +134,112 @@ public class SpiderUtil {
      * @return 返回上传成功菜单的名称列表
      * tips: 如果在检索的菜品中有重名的 可能会造成有一部分的菜品遗漏检查不到
      */
-    public void spiderFoodPreparationBySearch(String searchName,Integer aimCount,Integer startPage,String aimUrl,Integer endPage,Integer typeCode){
-        if(aimCount == null){
-            aimCount = 1;
+    public List<String> spiderFoodPreparationBySearch(
+            String searchName, Integer aimCount, Integer startPage,
+            String aimUrl, Integer endPage, Integer typeCode) {
+
+        if (aimCount == null || aimCount <= 0) {
+            return Collections.emptyList(); // 不需要再抓
         }
-        if(startPage==null){
+        if (startPage == null) {
             startPage = 1;
         }
-        if(endPage==null){
-            endPage = 15;
+        if (endPage == null) {
+            endPage = 99;
         }
-        if(searchName != null && !searchName.isEmpty()){
+        if (searchName != null && !searchName.isEmpty()) {
             typeCode = SysConstant.DISH_DEFAULT_TYPE;
         }
-        int uploadedCount = 0;
-        String url = "https://www.xiachufang.com/search/?keyword="+searchName+"&cat=1001&page="+startPage;
-        if(aimUrl!=null){
-            url = aimUrl+"?page=" + startPage;
+
+        List<String> uploadedNames = new ArrayList<>();
+
+        String url = "https://www.xiachufang.com/search/?keyword=" + searchName + "&cat=1001&page=" + startPage;
+        if (aimUrl != null && !aimUrl.contains("?")) {
+            url = aimUrl + "?page=" + startPage;
         }
-        log.info("请求网址为===>{}",url);
+        log.info("请求网址为===>{}", url);
         String htmlContent = HttpUtil.get(url);
-        if("redirect".equals(htmlContent)){
-            throw new BusinessException("网址==>redirect，请稍后再试");
+        if ("redirect".equals(htmlContent) || htmlContent.contains("301")) {
+            throw new BusinessException("网址" + url + "==>重定向，请稍后再试");
         }
+        if(htmlContent.contains("请滑动完成验证")){
+            throw new BusinessException("网址" + url + "==>触发滑动验证，请稍后再试");
+        }
+
         String reg = "<div class=\"info pure-u\">.*?<a href=\"([^\"]+)\"[^>]*>(.*?)<\\/a>";
         List<String> uri = ReUtil.findAll(reg, htmlContent, 1);
         List<String> dish = ReUtil.findAll(reg, htmlContent, 2);
-        if(uri.isEmpty() || startPage>=endPage){
-            log.info("未找到目标菜品==>{}制作教程",searchName);
-            return;
+        if (uri.isEmpty() || startPage >= endPage) {
+            log.info("未找到目标菜品==>{}制作教程", searchName);
+           throw new BusinessException("未找到目标菜品==>"+searchName+"制作教程");
         }
-        for (int i = 0; i < uri.size(); i++) {
-            LambdaQueryWrapper<SysDish> queryWrapper = new LambdaQueryWrapper<>();
+
+        int uploadedCount = 0;
+
+        for (int i = 0; i < uri.size() && uploadedCount < aimCount; i++) {
             ArrayList<String> searchDishNames = new ArrayList<>();
             ArrayList<String> targetUris = new ArrayList<>();
-            for(int j = i;j < i + aimCount && j < uri.size();j++){
-                searchDishNames.add(dish.get(j).replaceAll("\\s+", "") + "-" + startPage + "-"+ (j+1));
+            for (int j = i; j < i + aimCount && j < uri.size(); j++) {
+                searchDishNames.add(dish.get(j).replaceAll("\\s+", "") + "-" + startPage + "-" + (j + 1));
                 targetUris.add(uri.get(j));
             }
-            queryWrapper.in(SysDish::getName,searchDishNames);
-            List<SysDish> sysDishes = sysDishMapper.selectList(queryWrapper);
-            if(sysDishes.isEmpty()){ // 这里找到是数量有可能是不满足要求上传的count数量的
-                // 说明找到目标
-               for (int l = 0;l<searchDishNames.size();l++,uploadedCount++){
-                   // 添加菜品信息
-                   // 水面1s 免得被屏蔽掉ip
-                   try {
-                       Thread.sleep(500);
-                   } catch ( InterruptedException e ) {
-                       throw new RuntimeException(e);
-                   }
-                   SysDish sysDish = new SysDish();
-                   sysDish.setCreateTime(LocalDateTime.now());
-                   sysDish.setIsDelete(SysConstant.ALIVE);
-                   sysDish.setIsMake(true);
-                   sysDish.setUpdateTime(LocalDateTime.now());
-                   sysDish.setName(searchDishNames.get(l));
-                   sysDish.setTypeId(typeCode);
-                   // 开始添加菜品制作流程信息
-                   DishMake dishMake = new DishMake();
-                   dishMake.setIsDelete(SysConstant.ALIVE);
-                   dishMake.setCreateTime(LocalDateTime.now());
-                   String detailUrl = "https://www.xiachufang.com" + targetUris.get(l);
-                   FoodPreparation foodPreparation = spiderPreparation(detailUrl);
-                   dishMake.setContent(JSONUtil.toJsonStr(foodPreparation));
-                   sysDish.setCoverUrl(foodPreparation.getCoverUrl());
-                   sysDish.setDishDes(foodPreparation.getDesc());
-                   sysDishMapper.insert(sysDish);
-                   dishMake.setDishId(sysDish.getId());
-                   dishMakeMapper.insert(dishMake);
-                   sendSocketMessage(searchDishNames.get(l));
-               }
-                log.info("添加菜品==>{}成功", searchDishNames);
 
-               if(uploadedCount < aimCount){
-                   spiderFoodPreparationBySearch(searchName,aimCount-uploadedCount,++startPage,aimUrl,endPage,typeCode);
-               }
-               return ;
+            // 去数据库查重
+            LambdaQueryWrapper<SysDish> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.in(SysDish::getName, searchDishNames);
+            queryWrapper.eq(SysDish::getIsDelete,false);
+            List<SysDish> sysDishes = sysDishMapper.selectList(queryWrapper);
+
+            if (sysDishes.isEmpty()) {
+                for (int l = 0; l < searchDishNames.size() && uploadedCount < aimCount; l++, uploadedCount++) {
+                    try {
+                        Thread.sleep(1000);
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+
+                    SysDish sysDish = new SysDish();
+                    sysDish.setCreateTime(LocalDateTime.now());
+                    sysDish.setIsDelete(SysConstant.ALIVE);
+                    sysDish.setIsMake(true);
+                    sysDish.setUpdateTime(LocalDateTime.now());
+                    sysDish.setName(searchDishNames.get(l));
+                    sysDish.setTypeId(typeCode);
+
+                    DishMake dishMake = new DishMake();
+                    dishMake.setIsDelete(SysConstant.ALIVE);
+                    dishMake.setCreateTime(LocalDateTime.now());
+                    String detailUrl = "https://www.xiachufang.com" + targetUris.get(l);
+                    FoodPreparation foodPreparation = spiderPreparation(detailUrl);
+
+                    dishMake.setContent(JSONUtil.toJsonStr(foodPreparation));
+                    sysDish.setCoverUrl(foodPreparation.getCoverUrl());
+                    sysDish.setDishDes(foodPreparation.getDesc());
+
+                    sysDishMapper.insert(sysDish);
+                    dishMake.setDishId(sysDish.getId());
+                    dishMakeMapper.insert(dishMake);
+                    log.info("成功添加菜品==>{}",searchDishNames.get(l));
+                    sendSocketMessage(searchDishNames.get(l));
+                    uploadedNames.add(searchDishNames.get(l));
+                }
             }
         }
-        spiderFoodPreparationBySearch(searchName,aimCount-uploadedCount,++startPage,aimUrl,endPage,typeCode);
+
+        // ✅ 如果还没满足数量，递归翻页继续
+        if (uploadedNames.size() < aimCount) {
+            uploadedNames.addAll(
+                    spiderFoodPreparationBySearch(
+                            searchName, aimCount - uploadedNames.size(),
+                            startPage + 1, aimUrl, endPage, typeCode
+                    )
+            );
+        }
+
+        return uploadedNames;
     }
+
+
 
 
     /**

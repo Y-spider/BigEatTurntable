@@ -28,6 +28,10 @@
       <i class="el-icon-message-solid menu-icon"></i>
       <span class="menu-title">公告管理</span>
     </el-menu-item>
+    <el-menu-item index="/apply">
+      <i class="el-icon-s-promotion menu-icon"></i>
+      <span class="menu-title">申请管理</span>
+    </el-menu-item>
     
   </el-menu>
 </template>

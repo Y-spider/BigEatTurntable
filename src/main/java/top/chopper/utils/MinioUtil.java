@@ -61,7 +61,7 @@ public class MinioUtil {
             throw new BusinessException("文件操作失败" + e);
         }
         // 访问url
-        String fileUrl = minioProp.getEndpoint() + "/" + minioProp.getBucketName() + "/" + fileName;
+        String fileUrl = "https://www.sunnygo.chat/images" + "/" + minioProp.getBucketName() + "/" + fileName;
         data.put("url",fileUrl);
         data.put("timestamp", String.valueOf(System.currentTimeMillis()));
         return data;
@@ -87,7 +87,7 @@ public class MinioUtil {
                     .object(fileName)
                     .bucket(minioProp.getBucketName())
                     .build());
-            String fileUrl = minioProp.getEndpoint() + "/" + minioProp.getBucketName() + "/" + fileName;
+            String fileUrl = "https://www.sunnygo.chat/images" + "/" + minioProp.getBucketName() + "/" + fileName;
             data.put("url",fileUrl);
             data.put("timestamp", String.valueOf(System.currentTimeMillis()));
             data.put("fileName",fileName);

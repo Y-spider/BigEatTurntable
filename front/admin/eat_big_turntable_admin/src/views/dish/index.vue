@@ -121,7 +121,7 @@
             </el-form>
             <el-form v-if="dialogType == 3" v-loading="loading" element-loading-text="菜品信息加载中，请稍等...">
                 <el-form-item label="请选择分类" prop="typeName">
-                    <el-select allow-create @change="handleChange" v-model="dishForm.typeId" filterable remote
+                    <el-select allow-create @change="handleChange" v-model="dishForm.typeName" filterable remote
                         reserve-keyword placeholder="请输入菜品类别" :remote-method="remoteMethod" :loading="loading">
                         <el-option v-for="item in options" :key="item.id" :label="item.name" :value="item.name">
                         </el-option>
@@ -164,7 +164,7 @@ export default {
     name: "DishPage",
     data() {
         return {
-            uploadUrl: 'http://127.0.0.1:16378/file/upload',
+            uploadUrl: "https://www.sunnygo.chat/turntable/api/file/upload",
             addLoading: false,
             dialogType: 1, // 弹框类型
             loading: false,
@@ -199,7 +199,8 @@ export default {
                 typeUrl: "",
                 count: 1,
                 startPage: 2,
-                endPage: 5
+                endPage: 5,
+                dishName:""
             },
             dishRules: {
                 name: [{ required: true, message: '请输入菜品名称', trigger: 'blur' }],
@@ -287,7 +288,7 @@ export default {
             this.dialogType = type
             if (this.dialogType == 1) {
                 this.dialogTitle = '新增菜品'
-                this.dishForm = { id: null, name: '', typeId: '', isMake: false, hot: 0, makeId: '', makeUrl: '' }
+                this.dishForm = { id: null, name: '', typeId: '', isMake: false, hot: 0, makeId: '', makeUrl: '',coverUrl:'' }
                 this.dialogVisible = true
             }
             else if (this.dialogType == 2) {
@@ -383,7 +384,7 @@ export default {
             this.$router.push({ name: 'EditDishTutorial', params: { id: row.id, isEdit: true } })
         },
         initWebSocket() {
-            const ws = new WebSocket(`ws://127.0.0.1:16378/websocket?sid=17760580731`)
+            const ws = new WebSocket(`wss://www.sunnygo.chat/turntable/api/websocket?sid=17760580731`)
             if (ws) {
                 this.webSocket = ws
                 this.webSocket.onopen = this.onWebSocketOpen; // WebSocket连接打开时的处理函数

@@ -5,6 +5,11 @@ export function listDishWithPageAPI(data){
 	return httpOFPost("sysDish/list/page",data,false,"POST")
 }
 
+/** 随机获取菜品*/
+export function listDishRandomAPI(count,dishType){
+	return httpOFGet(`sysDish/list/random/${count}/${dishType}`)
+}
+
 // 根据菜品id获取制作教程
 
 export function getDishMakeByIdAPI(id){

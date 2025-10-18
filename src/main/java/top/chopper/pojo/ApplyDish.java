@@ -2,6 +2,7 @@ package top.chopper.pojo;
 
 import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -14,6 +15,7 @@ import java.time.LocalDateTime;
    @Description:
    */
 @Data
+@TableName("apply_dish")
 public class ApplyDish  {
     @TableId(type = IdType.AUTO)
     @Schema(name="id",description="主键id")
@@ -30,4 +32,6 @@ public class ApplyDish  {
     private String remark;
     @Schema(name="userId",description="用户ID")
     private Integer userId;
+    @Schema(name="applyDishName",description="上传菜品名称")
+    private String applyDishName;
 }

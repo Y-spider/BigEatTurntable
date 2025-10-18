@@ -13,7 +13,6 @@ export default {
        }
     },
     created(){
-        console.log("创建页面")
     },
 }
 </script>

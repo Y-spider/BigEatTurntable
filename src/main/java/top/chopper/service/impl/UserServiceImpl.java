@@ -61,10 +61,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             claimMap.put("identity",user.getAccount());
             claimMap.put("role","admin");
             claimMap.put("createTime",LocalDateTime.now().toString());
-            String jwtToken = JWTUtil.createJWTWitExpire(claimMap, secretKey,1);
+            String jwtToken = JWTUtil.createJWTWitExpire(claimMap, secretKey,2);
             Token token = tokenMapper.selectById(user.getId());
-            token.setToken(jwtToken);
-            tokenMapper.updateById(token);
+            if(token==null){
+                token = new Token();
+                token.setToken(jwtToken);
+                token.setId(user.getId());
+                tokenMapper.insert(token);
+            }else{
+                token.setToken(jwtToken);
+                tokenMapper.updateById(token);
+            }
+
             user.setUpdateTime(LocalDateTime.now());
             userMapper.updateById(user);
             return R.SUCCESS(jwtToken);

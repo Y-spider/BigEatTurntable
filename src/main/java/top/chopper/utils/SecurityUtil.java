@@ -1,6 +1,5 @@
 package top.chopper.utils;
 
-import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 
 /*
@@ -15,8 +14,6 @@ public class SecurityUtil {
      * @return
      */
     public static String getUserName(){
-        SecurityContext context = SecurityContextHolder.getContext();
-        System.out.println(context.getAuthentication());
         return SecurityContextHolder.getContext().getAuthentication().getPrincipal().toString();
     }
 

@@ -2,15 +2,22 @@ import Vue from 'vue'
 import App from './App.vue'
 import router from './router'
 import store from './store/store'
-import resetCss from "reset-css"
-import VueLuckyCanvas from '@lucky-canvas/vue' // 大转盘依赖
 
-// 引入Element UI
+// reset-css 是样式库，直接引入即可
+import "reset-css"
+
+// lucky-canvas
+import { LuckyWheel, LuckyGrid } from '@lucky-canvas/vue'
+
+// ElementUI
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
 Vue.use(ElementUI)
-Vue.use(resetCss)
-Vue.use(VueLuckyCanvas)
+
+// 注册组件（而不是 Vue.use）
+Vue.component('LuckyWheel', LuckyWheel)
+Vue.component('LuckyGrid', LuckyGrid)
+
 Vue.config.productionTip = false
 
 new Vue({
@@ -18,4 +25,3 @@ new Vue({
   store,
   render: h => h(App)
 }).$mount('#app')
-

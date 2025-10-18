@@ -1,6 +1,7 @@
 {
   "navigationBarTitleText": "",
   "usingComponents": {
-    "turntable": "/components/Turntable"
+    "turntable": "/components/Turntable",
+    "share-pop-dialog": "/components/share_pop_dialog"
   }
 }

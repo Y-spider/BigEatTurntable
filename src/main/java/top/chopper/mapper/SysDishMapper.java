@@ -1,6 +1,8 @@
 package top.chopper.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import org.apache.ibatis.annotations.Param;
 import top.chopper.pojo.SysDish;
 
 import java.util.List;
@@ -15,4 +17,8 @@ public interface SysDishMapper extends BaseMapper<SysDish> {
 
     // 设置dishtypeId为默认id=0
     int updateSetDishType(Integer dishTypeId);
+    // 获取当前用户收藏菜品信息
+    Page<SysDish> selectCollectedDishPage(Page<SysDish> page, @Param("openid") String openid);
+
+    int updateCollectionCount(Integer id,Integer increment);
 }

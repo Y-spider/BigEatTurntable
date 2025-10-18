@@ -102,8 +102,8 @@ var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  var m0 = _vm.randomEmotion()
-  var g0 = _vm.customTypes.length
+  var m0 = _vm.mode != "nearby" ? _vm.randomEmotion() : null
+  var g0 = _vm.mode != "nearby" ? _vm.customTypes.length : null
   if (!_vm._isMounted) {
     _vm.e0 = function ($event) {
       _vm.mode = "nearby"
@@ -159,27 +159,31 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.default = void 0;
 var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ 40));
-var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ 42));
 var _defineProperty2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/defineProperty */ 11));
+var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ 42));
 var _turntableApi = __webpack_require__(/*! @/apis/turntableApi.js */ 43);
 var _rotationRecordApi = __webpack_require__(/*! @/apis/rotationRecordApi.js */ 45);
 var _noticeApi = __webpack_require__(/*! @/apis/noticeApi.js */ 46);
 var _methods;
 var LuckyWheel = function LuckyWheel() {
   Promise.all(/*! require.ensure | components/@lucky-canvas/uni/lucky-wheel */[__webpack_require__.e("common/vendor"), __webpack_require__.e("components/@lucky-canvas/uni/lucky-wheel")]).then((function () {
-    return resolve(__webpack_require__(/*! @/components/@lucky-canvas/uni/lucky-wheel */ 93));
+    return resolve(__webpack_require__(/*! @/components/@lucky-canvas/uni/lucky-wheel */ 102));
+  }).bind(null, __webpack_require__)).catch(__webpack_require__.oe);
+};
+var sharePopDialog = function sharePopDialog() {
+  __webpack_require__.e(/*! require.ensure | components/share_pop_dialog */ "components/share_pop_dialog").then((function () {
+    return resolve(__webpack_require__(/*! ../../components/share_pop_dialog.vue */ 111));
   }).bind(null, __webpack_require__)).catch(__webpack_require__.oe);
 };
 var _default = {
   components: {
-    LuckyWheel: LuckyWheel
+    LuckyWheel: LuckyWheel,
+    sharePopDialog: sharePopDialog
   },
   data: function data() {
-    var _ref;
-    return _ref = {
+    return {
       noticeContent: "",
       // 公告信息
-      modalName: '',
       typeList: [],
       // 接口返回的餐类
       resultEmotionList: ["₍ᐢ..ᐢ₎♡", "૮(˶ᵔ ᵕ ᵔ˶)ა", "૮꒰ ˶• ༝ •˶꒱ა", "꒰ᐢ⸝⸝•༝•⸝⸝ᐢ꒱ ​​", "°꒰๑'ꀾ'๑꒱°", "(ᕑᗢᓫ∗)", "₍ᐢ.ˬ.⑅ᐢ₎", "ଘ(੭ˊ꒳​ˋ)੭ "],
@@ -209,16 +213,44 @@ var _default = {
           text: '吃货\n开奖',
           top: '-20px'
         }]
-      }]
-    }, (0, _defineProperty2.default)(_ref, "modalName", ""), (0, _defineProperty2.default)(_ref, "isShowMaker", false), (0, _defineProperty2.default)(_ref, "selectedItem", null), (0, _defineProperty2.default)(_ref, "mode", 'random'), (0, _defineProperty2.default)(_ref, "selectedType", 1), (0, _defineProperty2.default)(_ref, "prizeList", [
-      // { fonts: [{ text: '炒饭', top: '10%' }], background: '#e9e8fe',range:1 },
-    ]), (0, _defineProperty2.default)(_ref, "customTypes", [
-      // {title:"xxx",id:1}
-    ]), (0, _defineProperty2.default)(_ref, "turntable", {
-      "id": 1,
-      "title": "早餐",
-      type: 1
-    }), (0, _defineProperty2.default)(_ref, "audioPlay", null), (0, _defineProperty2.default)(_ref, "audioEnd", null), (0, _defineProperty2.default)(_ref, "openMusic", true), (0, _defineProperty2.default)(_ref, "roatingDuration", 2), (0, _defineProperty2.default)(_ref, "luckWheel", null), (0, _defineProperty2.default)(_ref, "isCheckMenu", true), (0, _defineProperty2.default)(_ref, "pageShowSize", 7), _ref;
+      }],
+      modalName: "",
+      isShowMaker: false,
+      selectedItem: null,
+      mode: 'random',
+      selectedType: 1,
+      // 当前选中的固定类型，默认选中早餐菜单
+      prizeList: [
+        // { fonts: [{ text: '炒饭', top: '10%' }], background: '#e9e8fe',range:1 },
+      ],
+      customTypes: [
+        // {title:"xxx",id:1}
+      ],
+      turntable: {
+        "id": 1,
+        "title": "早餐",
+        type: 1
+      },
+      audioPlay: null,
+      audioEnd: null,
+      openMusic: true,
+      roatingDuration: 2,
+      luckWheel: null,
+      isCheckMenu: true,
+      pageShowSize: 9 // 系统swiper-item每页展示数量
+    };
+  },
+  // 分享逻辑
+  onShareAppMessage: function onShareAppMessage() {
+    var expireTime = Date.now() + 30 * 60 * 1000;
+    uni.setStorageSync("hasPermissionCheckDetail", {
+      expireTime: expireTime
+    });
+    return {
+      title: '吃货大转盘',
+      path: '/pages/index/index',
+      withShareTicket: true
+    };
   },
   onLoad: function onLoad() {
     var _this = this;
@@ -244,18 +276,12 @@ var _default = {
   created: function created() {
     var _this2 = this;
     return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
-      var noticeRes;
       return _regenerator.default.wrap(function _callee2$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
-              _context2.next = 2;
-              return (0, _noticeApi.getActiveNoticeAPI)();
-            case 2:
-              noticeRes = _context2.sent;
-              _this2.noticeContent = noticeRes.data.content;
-              _this2.modalName = "Modal";
-            case 5:
+              _this2.initActiveNotice();
+            case 1:
             case "end":
               return _context2.stop();
           }
@@ -264,15 +290,59 @@ var _default = {
     }))();
   },
   methods: (_methods = {
+    previewImage: function previewImage() {
+      uni.previewImage({
+        urls: ["/static/公众号.jpg"]
+      });
+    },
+    handleShowMake: function handleShowMake() {
+      // 查看菜品制作页面
+      var checkPermision = uni.getStorageSync("hasPermissionCheckDetail");
+      if (!checkPermision || (checkPermision === null || checkPermision === void 0 ? void 0 : checkPermision.expireTime) <= Date.now()) {
+        this.$refs.sharePopDialogRef.open();
+      } else {
+        uni.navigateTo({
+          url: "/pages/dish_detail/dish_detail?id=" + this.resultPrize.id
+        });
+      }
+    },
+    initActiveNotice: function initActiveNotice() {
+      var _this3 = this;
+      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3() {
+        var _noticeRes$data;
+        var noticeRes;
+        return _regenerator.default.wrap(function _callee3$(_context3) {
+          while (1) {
+            switch (_context3.prev = _context3.next) {
+              case 0:
+                _context3.next = 2;
+                return (0, _noticeApi.getActiveNoticeAPI)();
+              case 2:
+                noticeRes = _context3.sent;
+                _this3.noticeContent = ((_noticeRes$data = noticeRes.data) === null || _noticeRes$data === void 0 ? void 0 : _noticeRes$data.content) || "暂无公告信息 ₍ᐢ.ˬ.⑅ᐢ₎";
+                if (!(_this3.noticeContent == '暂无公告信息 ₍ᐢ.ˬ.⑅ᐢ₎')) {
+                  _context3.next = 6;
+                  break;
+                }
+                return _context3.abrupt("return");
+              case 6:
+                _this3.modalName = "Modal";
+              case 7:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3);
+      }))();
+    },
     handleRandomClick: function handleRandomClick() {
       this.mode = 'random';
-      this.modalName = 'Modal';
+      this.initActiveNotice();
     },
     hideModal: function hideModal() {
       this.modalName = "";
     },
     open: function open() {
-      console.log("open", this.$refs);
       this.$refs.myPopup.open();
     },
     confirm: function confirm(value) {
@@ -294,6 +364,9 @@ var _default = {
     this.modalName = "";
     uni.setStorageSync("routing", false);
   }), (0, _defineProperty2.default)(_methods, "handConfim", function handConfim() {
+    if (this.turntable.type == 0) {
+      this.turntable.title += "-自定义";
+    }
     var saveRecordData = {
       turntableId: this.turntable.id,
       turntableName: this.turntable.title,
@@ -313,7 +386,7 @@ var _default = {
     }
     this.modalName = "DialogModal2";
   }), (0, _defineProperty2.default)(_methods, "startCallBack", function startCallBack() {
-    var _this3 = this;
+    var _this4 = this;
     this.isShowMaker = false;
     // 先开始旋转
     this.isCheckMenu = false;
@@ -330,7 +403,7 @@ var _default = {
     uni.setStorageSync("routing", true);
     setTimeout(function () {
       // 调用stop停止旋转并传递中奖奖品  不传入小标则可以使用range 权重了
-      _this3.$refs.myLucky.stop();
+      _this4.$refs.myLucky.stop();
     }, this.roatingDuration * 1000);
   }), (0, _defineProperty2.default)(_methods, "playAgain", function playAgain() {
     // 再来一次
@@ -338,66 +411,68 @@ var _default = {
     uni.setStorageSync("routing", false);
     this.startCallBack();
   }), (0, _defineProperty2.default)(_methods, "getTuratableDetail", function getTuratableDetail(id) {
-    var _this4 = this;
-    return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3() {
-      var _this4$$refs$myLucky, _this4$$refs$myLucky$, _this4$$refs$myLucky2, _this4$$refs$myLucky3;
-      var res;
-      return _regenerator.default.wrap(function _callee3$(_context3) {
-        while (1) {
-          switch (_context3.prev = _context3.next) {
-            case 0:
-              if (!uni.getStorageSync("routing")) {
-                _context3.next = 2;
-                break;
-              }
-              return _context3.abrupt("return");
-            case 2:
-              _this4.selectedType = id;
-              _context3.next = 5;
-              return (0, _turntableApi.getTurntableDetailAPI)(id);
-            case 5:
-              res = _context3.sent;
-              _this4.prizeList = JSON.parse(res.data.content);
-              _this4.turntable = res.data;
-              // 下面是为了强制刷新轮盘内容
-              _this4.isCheckMenu = true;
-              (_this4$$refs$myLucky = _this4.$refs.myLucky) === null || _this4$$refs$myLucky === void 0 ? void 0 : (_this4$$refs$myLucky$ = _this4$$refs$myLucky.play) === null || _this4$$refs$myLucky$ === void 0 ? void 0 : _this4$$refs$myLucky$.call(_this4$$refs$myLucky);
-              (_this4$$refs$myLucky2 = _this4.$refs.myLucky) === null || _this4$$refs$myLucky2 === void 0 ? void 0 : (_this4$$refs$myLucky3 = _this4$$refs$myLucky2.stop) === null || _this4$$refs$myLucky3 === void 0 ? void 0 : _this4$$refs$myLucky3.call(_this4$$refs$myLucky2, -1);
-            case 11:
-            case "end":
-              return _context3.stop();
-          }
-        }
-      }, _callee3);
-    }))();
-  }), (0, _defineProperty2.default)(_methods, "init", function init() {
     var _this5 = this;
     return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee4() {
-      var res, turntableInfoRes, i;
+      var _this5$$refs$myLucky, _this5$$refs$myLucky$, _this5$$refs$myLucky2, _this5$$refs$myLucky3;
+      var res;
       return _regenerator.default.wrap(function _callee4$(_context4) {
         while (1) {
           switch (_context4.prev = _context4.next) {
             case 0:
-              uni.setStorageSync("routing", false);
-              _context4.next = 3;
-              return (0, _turntableApi.getUserTurntableInfoAPI)();
-            case 3:
-              res = _context4.sent;
-              _context4.next = 6;
-              return (0, _turntableApi.getAllSystemTurntableAPI)();
-            case 6:
-              turntableInfoRes = _context4.sent;
-              for (i = 0; i < Math.ceil(turntableInfoRes.data.length / _this5.pageShowSize); i++) {
-                _this5.typeList.push(turntableInfoRes.data.slice(i * _this5.pageShowSize, i * _this5.pageShowSize + _this5.pageShowSize));
+              if (!uni.getStorageSync("routing")) {
+                _context4.next = 2;
+                break;
               }
-              _this5.customTypes = res.data.splice(0, 6); // 只	展示前6个
-              _this5.getTuratableDetail(_this5.selectedType);
-            case 10:
+              return _context4.abrupt("return");
+            case 2:
+              _this5.selectedType = id;
+              _context4.next = 5;
+              return (0, _turntableApi.getTurntableDetailAPI)(id);
+            case 5:
+              res = _context4.sent;
+              _this5.prizeList = JSON.parse(res.data.content);
+              _this5.turntable = res.data;
+              // 下面是为了强制刷新轮盘内容
+              _this5.isCheckMenu = true;
+              (_this5$$refs$myLucky = _this5.$refs.myLucky) === null || _this5$$refs$myLucky === void 0 ? void 0 : (_this5$$refs$myLucky$ = _this5$$refs$myLucky.play) === null || _this5$$refs$myLucky$ === void 0 ? void 0 : _this5$$refs$myLucky$.call(_this5$$refs$myLucky);
+              (_this5$$refs$myLucky2 = _this5.$refs.myLucky) === null || _this5$$refs$myLucky2 === void 0 ? void 0 : (_this5$$refs$myLucky3 = _this5$$refs$myLucky2.stop) === null || _this5$$refs$myLucky3 === void 0 ? void 0 : _this5$$refs$myLucky3.call(_this5$$refs$myLucky2, -1);
+            case 11:
             case "end":
               return _context4.stop();
           }
         }
       }, _callee4);
+    }))();
+  }), (0, _defineProperty2.default)(_methods, "init", function init() {
+    var _this6 = this;
+    return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee5() {
+      var res, turntableInfoRes, i;
+      return _regenerator.default.wrap(function _callee5$(_context5) {
+        while (1) {
+          switch (_context5.prev = _context5.next) {
+            case 0:
+              uni.setStorageSync("routing", false);
+              _context5.next = 3;
+              return (0, _turntableApi.getUserTurntableInfoAPI)();
+            case 3:
+              res = _context5.sent;
+              _context5.next = 6;
+              return (0, _turntableApi.getAllSystemTurntableAPI)();
+            case 6:
+              turntableInfoRes = _context5.sent;
+              _this6.typeList = []; // 先清空
+              _this6.selectedType = turntableInfoRes.data[0].id;
+              for (i = 0; i < Math.ceil(turntableInfoRes.data.length / _this6.pageShowSize); i++) {
+                _this6.$set(_this6.typeList, i, turntableInfoRes.data.slice(i * _this6.pageShowSize, (i + 1) * _this6.pageShowSize));
+              }
+              _this6.customTypes = res.data.splice(0, 6); // 只	展示前6个
+              _this6.getTuratableDetail(_this6.selectedType);
+            case 12:
+            case "end":
+              return _context5.stop();
+          }
+        }
+      }, _callee5);
     }))();
   }), (0, _defineProperty2.default)(_methods, "checkSetting", function checkSetting() {
     var duration = uni.getStorageSync("roatingDuration");
@@ -411,7 +486,7 @@ var _default = {
     this.audioEnd = uni.createInnerAudioContext({
       useWebAudioImplement: true
     });
-    this.audioPlay.src = "/static/audio/audioPlayForce_1.mp3"; // 本地或网络音频
+    this.audioPlay.src = "https://www.sunnygo.chat/images/eat-big-turntable/audioPlayForce_1.MP3"; // 本地或网络音频
     this.audioPlay.loop = true;
     this.audioEnd.src = "/static/audio/audioEnd.mp3";
   }), (0, _defineProperty2.default)(_methods, "goEdit", function goEdit() {

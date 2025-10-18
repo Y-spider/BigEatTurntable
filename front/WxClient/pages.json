@@ -42,6 +42,13 @@
 			{
 				"navigationBarTitleText" : "菜品制作"
 			}
+		},
+		{
+			"path" : "pages/dish_detail/dish_detail",
+			"style" : 
+			{
+				"navigationBarTitleText" : "菜品详细页面"
+			}
 		}
 	],
 	"tabBar": {
@@ -81,7 +88,7 @@
 		"navigationBarBackgroundColor": "#F8F8F8",
 		"backgroundColor": "#F8F8F8",
 		"navigationStyle": "custom",
-		"onReachBottomDistance": 300
+		"onReachBottomDistance": 600
 	},
 	"uniIdRouter": {}
 }

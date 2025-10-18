@@ -11,7 +11,7 @@
         <el-row :gutter="32">
           <el-col :span="12">
             <el-form-item label="菜品名称">
-              <el-input v-model="form.name" disabled />
+              <el-input v-model="form.name" />
             </el-form-item>
           </el-col>
           <el-col :span="12">
@@ -128,9 +128,9 @@ export default {
       },
       isEdit: true,
       rules: {
-        desc: [{ required: true, message: '请输入菜品描述', trigger: 'blur' }]
+        // desc: [{ required: true, message: '请输入菜品描述', trigger: 'blur' }]
       },
-      uploadUrl: 'http://127.0.0.1:16378/file/upload',
+      uploadUrl: 'https://www.sunnygo.chat/turntable/api/file/upload',
       urlDialogVisible: false,
       urlInput: '',
       urlStepIdx: null,

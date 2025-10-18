@@ -82,6 +82,10 @@ export const constantRoutes = [
         component: () => import('@/views/dish/dishType'),
         name: 'dishType',
        
+      },{
+        path: 'apply',
+        component: () => import('@/views/apply/index'),
+        name: 'aaply',
       }
     ]
   }

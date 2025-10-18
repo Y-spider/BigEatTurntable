@@ -28,11 +28,10 @@
 
 		onShow: function() {
 			console.log('App Show')
-			console.log("this",this.CustomBar )
 		},
 		onHide: function() {
-			console.log('App Hide')
-		}
+			console.log("App Hide");
+		},
 	}
 </script>
 

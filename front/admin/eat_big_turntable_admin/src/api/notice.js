@@ -20,4 +20,9 @@ export function getActiveNotice() {
   return request.get('/notice/active')
 }
 
+// 删除通知
+export function deleteNotive(id){
+  return request.delete(`/notice/delete/${id}`)
+}
+
 // 激活/取消激活通知（直接复用updateNotice，active字段控制）

@@ -26,7 +26,7 @@
         <el-table-column label="操作" width="180">
           <template slot-scope="scope">
             <el-button size="mini" @click="openEditDialog(scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
+            <el-button v-if="scope.row.id!=-1 && scope.row.id!=0" size="mini" type="danger" @click="handleDelete(scope.row)">删除</el-button>
           </template>
         </el-table-column>
       </el-table>

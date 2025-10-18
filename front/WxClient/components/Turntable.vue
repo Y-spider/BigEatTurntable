@@ -146,7 +146,7 @@
 				this.audioEnd = uni.createInnerAudioContext({
 					useWebAudioImplement: true
 				});
-				this.audioPlay.src = "/static/audio/audioPlayForce_1.mp3"; // 本地或网络音频
+				this.audioPlay.src = "https://www.sunnygo.chat/images/eat-big-turntable/audioPlayForce_1.MP3"; // 本地或网络音频
 				this.audioPlay.loop = true
 				this.audioEnd.src = "/static/audio/audioEnd.mp3"
 				// this.LuckyWheel = this.$refs.myLucky
@@ -180,6 +180,9 @@
 				this.modalName = "DialogModal2"
 			},
 			handConfim() {
+				if(this.turntable.type==0){
+					this.turntable.title += "-自定义"
+				}
 				let saveRecordData = {
 					turntableId: this.turntable.id,
 					turntableName: this.turntable.title,
@@ -187,7 +190,7 @@
 					type: this.turntable.type
 				}
 				saveRecordAPI(saveRecordData)
-				this.$emit("routeDone", this.resultPrize.fonts[0])
+				this.$emit("routeDone", this.resultPrize)
 				this.modalName = ""
 				uni.setStorageSync("routing", false)
 			}

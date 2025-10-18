@@ -10179,9 +10179,9 @@ exports.httpOfGetWithNotToken = httpOfGetWithNotToken;
 var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ 40));
 var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ 42));
 // 正式环境
-// const BASE_URL = "https://www.chopper.love:39001/api/"
+var BASE_URL = "https://www.sunnygo.chat/turntable/api/";
 // 开发环境
-var BASE_URL = "http://127.0.0.1:16378/";
+// const BASE_URL = "http://127.0.0.1:16378/"
 // const BASE_URL = "http://192.168.100.4:16378/"
 
 // 检查是否登录，如果没有登录则进行登录
@@ -10230,32 +10230,52 @@ function httpOFPost(path) {
         data: params,
         success: function success(res) {
           return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
-            var _res$data, _res$data2;
+            var _res$data, _res$data2, _res$data3;
             return _regenerator.default.wrap(function _callee$(_context) {
               while (1) {
                 switch (_context.prev = _context.next) {
                   case 0:
+                    if (!(((_res$data = res.data) === null || _res$data === void 0 ? void 0 : _res$data.code) == -1)) {
+                      _context.next = 6;
+                      break;
+                    }
+                    uni.showToast({
+                      icon: "error",
+                      duration: 2000,
+                      title: res.data.errMsg
+                    });
+                    reject(res.data);
+                    return _context.abrupt("return", false);
+                  case 6:
+                    if (!(((_res$data2 = res.data) === null || _res$data2 === void 0 ? void 0 : _res$data2.code) == -99)) {
+                      _context.next = 13;
+                      break;
+                    }
+                    uni.removeStorageSync("token");
+                    uni.showToast({
+                      icon: "error",
+                      duration: 2000,
+                      title: "令牌失效"
+                    });
+                    reject(res.data);
+                    return _context.abrupt("return", false);
+                  case 13:
+                    if (!(((_res$data3 = res.data) === null || _res$data3 === void 0 ? void 0 : _res$data3.code) !== 200)) {
+                      _context.next = 17;
+                      break;
+                    }
+                    uni.showToast({
+                      icon: "error",
+                      duration: 2000,
+                      title: "系统错误"
+                    });
+                    reject(res.data);
+                    return _context.abrupt("return", false);
+                  case 17:
                     // uni.hideLoading();
                     resolve(res.data);
-                    // res.data?.code表示先判断res.data是否为null或undefined，
-                    //如果不是，则访问其code属性。这样可以有效避免在对象为null或undefined时造成的错误
-                    if (((_res$data = res.data) === null || _res$data === void 0 ? void 0 : _res$data.code) == -1) {
-                      uni.showToast({
-                        icon: "error",
-                        duration: 2000,
-                        title: res.data.errMsg
-                      });
-                      reject(res.data);
-                    } else if (((_res$data2 = res.data) === null || _res$data2 === void 0 ? void 0 : _res$data2.code) == -99) {
-                      uni.removeStorageSync("token");
-                      uni.showToast({
-                        icon: "error",
-                        duration: 2000,
-                        title: "令牌失效"
-                      });
-                      reject(res.data);
-                    }
-                  case 2:
+                    return _context.abrupt("return", true);
+                  case 19:
                   case "end":
                     return _context.stop();
                 }
@@ -10265,6 +10285,7 @@ function httpOFPost(path) {
         },
         fail: function fail(err) {
           reject(err);
+          return false;
         },
         complete: function complete() {
           // uni.hideLoading();    // 在showToast之前执行会受影响
@@ -10289,28 +10310,50 @@ function httpOFGet(path) {
         timeout: 60000,
         success: function success(res) {
           return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
-            var _res$data3, _res$data4;
+            var _res$data4, _res$data5, _res$data6;
             return _regenerator.default.wrap(function _callee2$(_context2) {
               while (1) {
                 switch (_context2.prev = _context2.next) {
                   case 0:
-                    resolve(res.data); // 将响应数据返回
-                    if (((_res$data3 = res.data) === null || _res$data3 === void 0 ? void 0 : _res$data3.code) == -1) {
-                      uni.showToast({
-                        icon: "fail",
-                        title: res.data.errMsg,
-                        duration: 2000
-                      });
-                    } else if (((_res$data4 = res.data) === null || _res$data4 === void 0 ? void 0 : _res$data4.code) == -99) {
-                      uni.removeStorageSync("token");
-                      uni.showToast({
-                        icon: "error",
-                        duration: 2000,
-                        title: "令牌失效"
-                      });
-                      reject(res.data);
+                    if (!(((_res$data4 = res.data) === null || _res$data4 === void 0 ? void 0 : _res$data4.code) == -1)) {
+                      _context2.next = 5;
+                      break;
                     }
-                  case 2:
+                    uni.showToast({
+                      icon: "fail",
+                      title: res.data.errMsg,
+                      duration: 2000
+                    });
+                    return _context2.abrupt("return", false);
+                  case 5:
+                    if (!(((_res$data5 = res.data) === null || _res$data5 === void 0 ? void 0 : _res$data5.code) == -99)) {
+                      _context2.next = 12;
+                      break;
+                    }
+                    uni.removeStorageSync("token");
+                    uni.showToast({
+                      icon: "error",
+                      duration: 2000,
+                      title: "令牌失效"
+                    });
+                    reject(res.data);
+                    return _context2.abrupt("return", false);
+                  case 12:
+                    if (!(((_res$data6 = res.data) === null || _res$data6 === void 0 ? void 0 : _res$data6.code) !== 200)) {
+                      _context2.next = 16;
+                      break;
+                    }
+                    uni.showToast({
+                      icon: "error",
+                      duration: 2000,
+                      title: "系统错误"
+                    });
+                    reject(res.data);
+                    return _context2.abrupt("return", false);
+                  case 16:
+                    resolve(res.data); // 将响应数据返回
+                    return _context2.abrupt("return", true);
+                  case 18:
                   case "end":
                     return _context2.stop();
                 }
@@ -10325,6 +10368,7 @@ function httpOFGet(path) {
             duration: 1200
           });
           reject(err);
+          return false;
         }
       });
     });
@@ -10343,14 +10387,14 @@ function httpOfGetWithNotToken(path) {
       timeout: 1000 * 30,
       success: function success(res) {
         return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3() {
-          var _res$data5;
+          var _res$data7;
           return _regenerator.default.wrap(function _callee3$(_context3) {
             while (1) {
               switch (_context3.prev = _context3.next) {
                 case 0:
                   // uni.hideLoading()
                   resolve(res.data); // 将响应数据返回
-                  if (((_res$data5 = res.data) === null || _res$data5 === void 0 ? void 0 : _res$data5.code) == -1) {
+                  if (((_res$data7 = res.data) === null || _res$data7 === void 0 ? void 0 : _res$data7.code) == -1) {
                     uni.showToast({
                       icon: "fail",
                       title: res.data.errMsg,
@@ -10467,13 +10511,7 @@ function getActiveNoticeAPI() {
 /* 76 */,
 /* 77 */,
 /* 78 */,
-/* 79 */,
-/* 80 */,
-/* 81 */,
-/* 82 */,
-/* 83 */,
-/* 84 */,
-/* 85 */
+/* 79 */
 /*!*********************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/apis/dishApi.js ***!
   \*********************************************************************************************/
@@ -10488,11 +10526,17 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.getAllDishTypeAPI = getAllDishTypeAPI;
 exports.getDishMakeByIdAPI = getDishMakeByIdAPI;
+exports.listDishRandomAPI = listDishRandomAPI;
 exports.listDishWithPageAPI = listDishWithPageAPI;
 var _globalRequest = __webpack_require__(/*! @/request/globalRequest.js */ 44);
 /** 分页获取菜品信息*/
 function listDishWithPageAPI(data) {
   return (0, _globalRequest.httpOFPost)("sysDish/list/page", data, false, "POST");
+}
+
+/** 随机获取菜品*/
+function listDishRandomAPI(count, dishType) {
+  return (0, _globalRequest.httpOFGet)("sysDish/list/random/".concat(count, "/").concat(dishType));
 }
 
 // 根据菜品id获取制作教程
@@ -10507,19 +10551,67 @@ function getAllDishTypeAPI() {
 }
 
 /***/ }),
+/* 80 */,
+/* 81 */,
+/* 82 */,
+/* 83 */,
+/* 84 */,
+/* 85 */,
 /* 86 */,
 /* 87 */,
 /* 88 */,
 /* 89 */,
 /* 90 */,
 /* 91 */,
-/* 92 */,
+/* 92 */
+/*!*******************************************************************************************************!*\
+  !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/apis/dishCollectionApi.js ***!
+  \*******************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.cancelAPI = cancelAPI;
+exports.collectionAPI = collectionAPI;
+exports.listAPI = listAPI;
+exports.queryAPI = queryAPI;
+var _globalRequest = __webpack_require__(/*! @/request/globalRequest.js */ 44);
+// 菜品收藏相关API
+
+function collectionAPI(id) {
+  return (0, _globalRequest.httpOFGet)("collection/add?dishId=".concat(id));
+}
+function cancelAPI(id) {
+  return (0, _globalRequest.httpOFGet)("collection/cancel?dishId=".concat(id));
+}
+function queryAPI(id) {
+  return (0, _globalRequest.httpOFGet)("collection/query?dishId=".concat(id));
+}
+function listAPI(queryParams) {
+  return (0, _globalRequest.httpOFPost)("collection/list", queryParams, false, 'POST');
+}
+
+/***/ }),
 /* 93 */,
 /* 94 */,
 /* 95 */,
 /* 96 */,
 /* 97 */,
-/* 98 */
+/* 98 */,
+/* 99 */,
+/* 100 */,
+/* 101 */,
+/* 102 */,
+/* 103 */,
+/* 104 */,
+/* 105 */,
+/* 106 */,
+/* 107 */
 /*!*******************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/components/@lucky-canvas/uni/utils.js ***!
   \*******************************************************************************************************************/
@@ -10647,7 +10739,7 @@ function getImage(canvasId, canvas) {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
 
 /***/ }),
-/* 99 */
+/* 108 */
 /*!***********************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/components/lucky-canvas/dist/index.esm.js ***!
   \***********************************************************************************************************************/
@@ -12358,15 +12450,6 @@ exports.LuckyGrid = W;
 exports.LuckyWheel = T;
 
 /***/ }),
-/* 100 */,
-/* 101 */,
-/* 102 */,
-/* 103 */,
-/* 104 */,
-/* 105 */,
-/* 106 */,
-/* 107 */,
-/* 108 */,
 /* 109 */,
 /* 110 */,
 /* 111 */,
@@ -12386,7 +12469,21 @@ exports.LuckyWheel = T;
 /* 125 */,
 /* 126 */,
 /* 127 */,
-/* 128 */
+/* 128 */,
+/* 129 */,
+/* 130 */,
+/* 131 */,
+/* 132 */,
+/* 133 */,
+/* 134 */,
+/* 135 */,
+/* 136 */,
+/* 137 */,
+/* 138 */,
+/* 139 */,
+/* 140 */,
+/* 141 */,
+/* 142 */
 /*!************************************************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/uni_modules/uni-search-bar/components/uni-search-bar/i18n/index.js ***!
   \************************************************************************************************************************************************/
@@ -12401,9 +12498,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
-var _en = _interopRequireDefault(__webpack_require__(/*! ./en.json */ 129));
-var _zhHans = _interopRequireDefault(__webpack_require__(/*! ./zh-Hans.json */ 130));
-var _zhHant = _interopRequireDefault(__webpack_require__(/*! ./zh-Hant.json */ 131));
+var _en = _interopRequireDefault(__webpack_require__(/*! ./en.json */ 143));
+var _zhHans = _interopRequireDefault(__webpack_require__(/*! ./zh-Hans.json */ 144));
+var _zhHant = _interopRequireDefault(__webpack_require__(/*! ./zh-Hant.json */ 145));
 var _default = {
   en: _en.default,
   'zh-Hans': _zhHans.default,
@@ -12412,7 +12509,7 @@ var _default = {
 exports.default = _default;
 
 /***/ }),
-/* 129 */
+/* 143 */
 /*!***********************************************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/uni_modules/uni-search-bar/components/uni-search-bar/i18n/en.json ***!
   \***********************************************************************************************************************************************/
@@ -12422,7 +12519,7 @@ exports.default = _default;
 module.exports = JSON.parse("{\"uni-search-bar.cancel\":\"cancel\",\"uni-search-bar.placeholder\":\"Search enter content\"}");
 
 /***/ }),
-/* 130 */
+/* 144 */
 /*!****************************************************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/uni_modules/uni-search-bar/components/uni-search-bar/i18n/zh-Hans.json ***!
   \****************************************************************************************************************************************************/
@@ -12432,7 +12529,7 @@ module.exports = JSON.parse("{\"uni-search-bar.cancel\":\"cancel\",\"uni-search-
 module.exports = JSON.parse("{\"uni-search-bar.cancel\":\"取消\",\"uni-search-bar.placeholder\":\"请输入搜索内容\"}");
 
 /***/ }),
-/* 131 */
+/* 145 */
 /*!****************************************************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/uni_modules/uni-search-bar/components/uni-search-bar/i18n/zh-Hant.json ***!
   \****************************************************************************************************************************************************/
@@ -12442,14 +12539,41 @@ module.exports = JSON.parse("{\"uni-search-bar.cancel\":\"取消\",\"uni-search-
 module.exports = JSON.parse("{\"uni-search-bar.cancel\":\"取消\",\"uni-search-bar.placeholder\":\"請輸入搜索內容\"}");
 
 /***/ }),
-/* 132 */,
-/* 133 */,
-/* 134 */,
-/* 135 */,
-/* 136 */,
-/* 137 */,
-/* 138 */,
-/* 139 */
+/* 146 */,
+/* 147 */,
+/* 148 */,
+/* 149 */,
+/* 150 */,
+/* 151 */,
+/* 152 */,
+/* 153 */
+/*!**************************************************************************************************!*\
+  !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/apis/applyDishApi.js ***!
+  \**************************************************************************************************/
+/*! no static exports found */
+/***/ (function(module, exports, __webpack_require__) {
+
+"use strict";
+
+
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.addApplyDishAPI = addApplyDishAPI;
+var _globalRequest = __webpack_require__(/*! @/request/globalRequest.js */ 44);
+function addApplyDishAPI(data) {
+  return (0, _globalRequest.httpOFPost)("apply/dish/add", data, false, "POST");
+}
+
+/***/ }),
+/* 154 */,
+/* 155 */,
+/* 156 */,
+/* 157 */,
+/* 158 */,
+/* 159 */,
+/* 160 */,
+/* 161 */
 /*!*********************************************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/uni_modules/uni-icons/components/uni-icons/uniicons_file_vue.js ***!
   \*********************************************************************************************************************************************/

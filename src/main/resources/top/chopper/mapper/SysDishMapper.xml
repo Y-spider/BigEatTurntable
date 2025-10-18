@@ -6,13 +6,22 @@
     <update id="updateSetDishType">
         update sys_dish set type_id = 0 where dish_id = #{dishTypeId}
     </update>
+    <update id="updateCollectionCount">
+        update sys_dish set like_count = like_count + #{increment} where id = #{id}
+    </update>
 
     <select id="listRandom" resultType="top.chopper.pojo.SysDish">
         select * from `sys_dish` where is_delete = 0
-                               <if test="type!=null and type > 0">
+                               <if test="type!=null">
                                    and type_id = #{type}
                                </if>
                                order by rand() limit #{count}
+    </select>
+    <select id="selectCollectedDishPage" resultType="top.chopper.pojo.SysDish">
+        SELECT d.*
+        FROM dish_collection dc
+                 JOIN sys_dish d ON dc.dish_id = d.id
+        WHERE dc.openid = #{openid}
     </select>
 
 

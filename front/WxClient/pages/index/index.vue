@@ -4,13 +4,14 @@
 		<view class="cu-modal" :class="modalName=='Modal'?'show':''" style="z-index: 9999999 !important;">
 			<view class="cu-dialog">
 				<view class="cu-bar bg-white justify-end">
-					<view class="content" style="font-size: large;font-weight: bold;color:#ffa500;">ฅ( ̳• · • ̳ฅ)公告</view>
+					<view class="content" style="font-size: large;font-weight: bold;color:#ffa500;">ฅ( ̳• · • ̳ฅ)公告
+					</view>
 					<view class="action" @tap="hideModal">
 						<text class="cuIcon-close text-red"></text>
-					</view> 
+					</view>
 				</view>
 				<view class="padding-xl" v-html="noticeContent">
-					
+
 				</view>
 			</view>
 		</view>
@@ -26,80 +27,109 @@
 				</view>
 				<view class="choice-btn" :class="{ active: mode === 'nearby' }" @click="mode = 'nearby'">
 					<image class="choose-icon" src="../../static/附近餐厅.png"></image>
-					附近餐饮
+					百宝袋
 				</view>
 			</view>
 		</view>
 		<!-- 转盘区域 -->
-		<view class="turntable-box" style="z-index: 99999;">
-			<view class="turntable-title">
-				{{turntable.title}}
-			</view>
-			<LuckyWheel :default-style="defaultStyle" ref="myLucky" style="font-size: smaller;" width="700rpx" height="700rpx" offsetDegree=10 :blocks="blocks"
-				:prizes="prizeList" :buttons="buttons" :defaultStyle="defaultStyle" :default-config="defaultConfig"
-				@start="startCallBack" @end="endCallBack" />
-			<!-- 结果弹框 -->
-			<view class="cu-modal" :class="modalName=='DialogModal2'?'show':''">
-				<view class="cu-dialog">
-					<view class="cu-bar bg-white justify-end">
-						<view class="content">抽奖结果</view>
-						<view class="action" @tap="hideModal">
-							<text class="cuIcon-close text-red"></text>
+		<view v-if="mode!='nearby'">
+			<view class="turntable-box" style="z-index: 99999;">
+				<view class="turntable-title">
+					{{turntable.title}}
+				</view>
+				<LuckyWheel :default-style="defaultStyle" ref="myLucky" style="font-size: smaller;" width="700rpx"
+					height="700rpx" offsetDegree=10 :blocks="blocks" :prizes="prizeList" :buttons="buttons"
+					:defaultStyle="defaultStyle" :default-config="defaultConfig" @start="startCallBack"
+					@end="endCallBack" />
+				<!-- 结果弹框 -->
+				<view class="cu-modal" :class="modalName=='DialogModal2'?'show':''">
+					<view class="cu-dialog">
+						<view class="cu-bar bg-white justify-end">
+							<view class="content">抽奖结果</view>
+							<view class="action" @tap="hideModal">
+								<text class="cuIcon-close text-red"></text>
+							</view>
+						</view>
+						<view class="padding-xl">
+							{{randomEmotion()}}{{resultPrize.fonts[0].text}}
+						</view>
+						<view class="cu-bar bg-white">
+							<view class="action margin-0 flex-sub text-yellow " @tap="playAgain()">
+								<text></text>再来一次
+							</view>
+							<view class="action margin-0 flex-sub text-green solid-left">
+								<button open-type="share" class="share-btn">分享</button>
+								<text>分享</text>
+							</view>
+							<view class="action margin-0 flex-sub text-red solid-left" @tap="handConfim()">确定</view>
 						</view>
 					</view>
-					<view class="padding-xl">
-						{{randomEmotion()}}{{resultPrize.fonts[0].text}}
+				</view>
+				<view class="fun-button" style="display: flex;justify-content: space-between; align-items: center;">
+					<view class="fun-but">
+						<button @click="handleShowMake" v-if="isShowMaker" class="cu-btn bg-gradual-green shadow"> <text
+								class="cuIcon-form" style="margin: 0 10rpx;"></text>菜谱</button>
 					</view>
-					<view class="cu-bar bg-white">
-						<view class="action margin-0 flex-sub text-yellow " @tap="playAgain()">
-							<text></text>再来一次
-						</view>
-						<view class="action margin-0 flex-sub text-green solid-left">
-							<button open-type="share" class="share-btn">分享</button>
-							<text>分享</text>
-						</view>
-						<view class="action margin-0 flex-sub text-red solid-left" @tap="handConfim()">确定</view>
+					<view class="fun-but">
+						<button class="cu-btn bg-red shadow" @click="goEdit"> <text class="cuIcon-edit"
+								style="margin: 0 10rpx;"></text> 编辑</button>
 					</view>
 				</view>
 			</view>
-			<view class="fun-button" style="display: flex;justify-content: space-between; align-items: center;">
-				<view class="fun-but">
-					<button v-if="isShowMaker" class="cu-btn bg-gradual-green shadow"> <text class="cuIcon-form"
-							style="margin: 0 10rpx;"></text>菜谱</button>
+			<!-- 固定类型 -->
+			<view style="width: 100vw;position: relative; top: 50rpx;">
+				<swiper class="swiper" circular :duration="500">
+					<swiper-item v-for="types,index in typeList" :key="index">
+						<!-- 按钮容器：横向排列、自动换行、居中、等间距 -->
+						<view class="btn-wrapper"
+							style="display: flex;gap: 15rpx;justify-content: space-evenly;flex-wrap: wrap;">
+							<button v-for="item in types" :key="item.id" class="cu-btn round shadow" style="width: 30%;"
+								:class="selectedType === item.id ? 'bg-yellow' : 'bg-gray'"
+								@click="selectType(item.id,item)">
+								{{ item.title }}
+								<view class="cu-tag sm bg-red radius tag" style="position: relative;left: 15px;">系统
+								</view>
+							</button>
+						</view>
+					</swiper-item>
+				</swiper>
+			</view>
+			<!-- 自定义菜单区域 -->
+			<view class="custom-select-area">
+				<view v-if="customTypes.length > 0" class="custom-tip">
+					自定义转盘
 				</view>
-				<view class="fun-but">
-					<button class="cu-btn bg-red shadow" @click="goEdit"> <text class="cuIcon-edit"
-							style="margin: 0 10rpx;"></text> 编辑</button>
+				<view class="custom-btn-list">
+					<button v-for="item in customTypes" :key="item.id" class="cu-btn round shadow custom-btn"
+						:class="selectedType === item.id ? 'bg-yellow' : 'bg-gray'"
+						@click="getTuratableDetail(item.id)">
+						{{ item.title }}
+						<view class='cu-tag sm bg-orange radius' style="margin-left: 10rpx;">自定义</view>
+					</button>
 				</view>
 			</view>
+			<!-- 分享弹框 -->
+			<share-pop-dialog ref="sharePopDialogRef" />
 		</view>
-		<!-- 固定类型 -->
-		<view style="width: 100vw;position: relative; top: 50rpx;">
-			<swiper class="swiper" circular :duration="500">
-				<swiper-item v-for="types,index in typeList" :key="index">
-					<!-- 按钮容器：横向排列、自动换行、居中、等间距 -->
-					<view  class="btn-wrapper" style="display: flex;gap: 15rpx;justify-content: space-evenly;flex-wrap: wrap;">
-						<button v-for="item in types" :key="item.id" class="cu-btn round shadow" style="width: 30%;"
-							:class="selectedType === item.id ? 'bg-yellow' : 'bg-gray'" @click="selectType(item.id,item)">
-							{{ item.title }}
-							<view class="cu-tag sm bg-red radius tag" style="position: relative;left: 15px;">系统</view>
-						</button>
+		<!-- 百宝袋区域 -->
+		<view v-else>
+			<view class="pocket-item">
+				<view class="box-left">
+					<view class="icon-box">
+						<image style="width: 64rpx; height: 64rpx;" src="/static/转盘使用教程.png" />
 					</view>
-				</swiper-item>
-			</swiper>
-		</view>
-		<!-- 自定义菜单区域 -->
-		<view class="custom-select-area">
-			<view v-if="customTypes.length > 0" class="custom-tip">
-				自定义菜单
+					<view class="content">
+						<view class="content-title">不纠结星球使用教程</view>
+						<view class="content-des">关注公众号，发现更多精彩</view>
+					</view>
+				</view>
+				<view class="box-right">
+					<view class="icon-box">
+						<image style="width: 168rpx; height: 168rpx;" @click="previewImage" src="/static/公众号.jpg" />
+					</view>
+				</view>
 			</view>
-			<view class="custom-btn-list">
-				<button v-for="item in customTypes" :key="item.id" class="cu-btn round shadow custom-btn"
-					:class="selectedType === item.id ? 'bg-yellow' : 'bg-gray'" @click="getTuratableDetail(item.id)">
-					{{ item.title }}
-					<view class='cu-tag sm bg-orange radius' style="margin-left: 10rpx;">自定义</view>
-				</button>
-			</view>
+
 		</view>
 	</view>
 </template>
@@ -116,22 +146,23 @@
 	import {
 		getActiveNoticeAPI
 	} from "@/apis/noticeApi.js"
-	import LuckyWheel from '@/components/@lucky-canvas/uni/lucky-wheel'
+	import LuckyWheel from '@/components/@lucky-canvas/uni/lucky-wheel';
+	import sharePopDialog from "../../components/share_pop_dialog.vue";
 	export default {
 		components: {
 			LuckyWheel,
+			sharePopDialog
 		},
 		data() {
 			return {
-				noticeContent:"", // 公告信息
-				modalName:'',
+				noticeContent: "", // 公告信息
 				typeList: [], // 接口返回的餐类
 				resultEmotionList: ["₍ᐢ..ᐢ₎♡", "૮(˶ᵔ ᵕ ᵔ˶)ა", "૮꒰ ˶• ༝ •˶꒱ა", "꒰ᐢ⸝⸝•༝•⸝⸝ᐢ꒱ ​​", "°꒰๑'ꀾ'๑꒱°", "(ᕑᗢᓫ∗)",
 					"₍ᐢ.ˬ.⑅ᐢ₎", "ଘ(੭ˊ꒳​ˋ)੭ "
 				],
 				resultPrize: null,
-				defaultStyle:{
-					fontSize:16
+				defaultStyle: {
+					fontSize: 16
 				},
 				defaultConfig: {
 					accelerationTime: 2000,
@@ -181,7 +212,19 @@
 				roatingDuration: 2,
 				luckWheel: null,
 				isCheckMenu: true,
-				pageShowSize:7, // 系统swiper-item每页展示数量
+				pageShowSize: 9, // 系统swiper-item每页展示数量
+			}
+		},
+		// 分享逻辑
+		onShareAppMessage() {
+			let expireTime = Date.now() + 30 * 60 * 1000;
+			uni.setStorageSync("hasPermissionCheckDetail", {
+				expireTime
+			})
+			return {
+				title: '吃货大转盘',
+				path: '/pages/index/index',
+				withShareTicket: true
 			}
 		},
 		async onLoad() {
@@ -193,33 +236,54 @@
 			this.audioEnd.destroy()
 		},
 		async created() {
-			let noticeRes = await getActiveNoticeAPI()
-			this.noticeContent = noticeRes.data.content
-			this.modalName = "Modal"
+			this.initActiveNotice();
 		},
 		methods: {
-			handleRandomClick() {
-			this.mode = 'random';
-			this.modalName = 'Modal';		
+			previewImage(){
+				uni.previewImage({
+					urls:["/static/公众号.jpg"]
+				})
 			},
-			hideModal(){
+			handleShowMake() {
+				// 查看菜品制作页面
+				const checkPermision = uni.getStorageSync("hasPermissionCheckDetail");
+				if (!checkPermision || checkPermision?.expireTime <= Date.now()) {
+					this.$refs.sharePopDialogRef.open();
+				} else {
+					uni.navigateTo({
+						url: "/pages/dish_detail/dish_detail?id=" + this.resultPrize.id
+					})
+				}
+			},
+			async initActiveNotice() {
+				let noticeRes = await getActiveNoticeAPI()
+				this.noticeContent = noticeRes.data?.content || "暂无公告信息 ₍ᐢ.ˬ.⑅ᐢ₎"
+				if(this.noticeContent == '暂无公告信息 ₍ᐢ.ˬ.⑅ᐢ₎'){
+					return;
+				}
+				this.modalName = "Modal"
+			},
+			handleRandomClick() {
+				this.mode = 'random';
+				this.initActiveNotice();
+			},
+			hideModal() {
 				this.modalName = ""
 			},
 			open() {
-				console.log("open",this.$refs)
-					this.$refs.myPopup.open()
-					},
+				this.$refs.myPopup.open()
+			},
 			confirm(value) {
-						// 输入框的值
-						// TODO 做一些其他的事情，手动执行 close 才会关闭对话框
-						// ...
-						this.$refs.popup.close()
-					},
+				// 输入框的值
+				// TODO 做一些其他的事情，手动执行 close 才会关闭对话框
+				// ...
+				this.$refs.popup.close()
+			},
 			close() {
-						// TODO 做一些其他的事情，before-close 为true的情况下，手动执行 close 才会关闭对话框
-						// ...
-						this.$refs.popup.close()
-					},
+				// TODO 做一些其他的事情，before-close 为true的情况下，手动执行 close 才会关闭对话框
+				// ...
+				this.$refs.popup.close()
+			},
 			randomEmotion() {
 				const list = this.resultEmotionList;
 				return list[Math.floor(Math.random() * list.length)];
@@ -229,6 +293,9 @@
 				uni.setStorageSync("routing", false)
 			},
 			handConfim() {
+				if (this.turntable.type == 0) {
+					this.turntable.title += "-自定义"
+				}
 				let saveRecordData = {
 					turntableId: this.turntable.id,
 					turntableName: this.turntable.title,
@@ -295,10 +362,13 @@
 				uni.setStorageSync("routing", false)
 				let res = await getUserTurntableInfoAPI()
 				let turntableInfoRes = await getAllSystemTurntableAPI()
-				for(let i = 0;i < Math.ceil(turntableInfoRes.data.length / this.pageShowSize);i++){
-					this.typeList.push(turntableInfoRes.data.slice(i*this.pageShowSize,i*this.pageShowSize+this.pageShowSize))
+				this.typeList = []; // 先清空
+				this.selectedType = turntableInfoRes.data[0].id
+				for (let i = 0; i < Math.ceil(turntableInfoRes.data.length / this.pageShowSize); i++) {
+					this.$set(this.typeList, i, turntableInfoRes.data.slice(i * this.pageShowSize, (i + 1) * this
+						.pageShowSize));
 				}
-				
+
 				this.customTypes = res.data.splice(0, 6) // 只	展示前6个
 				this.getTuratableDetail(this.selectedType)
 			},
@@ -315,7 +385,7 @@
 				this.audioEnd = uni.createInnerAudioContext({
 					useWebAudioImplement: true
 				});
-				this.audioPlay.src = "/static/audio/audioPlayForce_1.mp3"; // 本地或网络音频
+				this.audioPlay.src = "https://www.sunnygo.chat/images/eat-big-turntable/audioPlayForce_1.MP3"; // 本地或网络音频
 				this.audioPlay.loop = true
 				this.audioEnd.src = "/static/audio/audioEnd.mp3"
 			},
@@ -325,14 +395,15 @@
 					url: `/pages/editWheel/index?id=${this.selectedType}`
 				})
 			},
-			selectType(id,type) {
+			selectType(id, type) {
 				if (uni.getStorageSync("routing")) {
 					// 当前正在转动无法切换
 					return;
 				}
 				this.selectedType = type;
 				this.turntable = {
-					"id": id,type,
+					"id": id,
+					type,
 					"title": type.title,
 					type: 1
 				}
@@ -455,5 +526,38 @@
 	.share-btn {
 		opacity: 0;
 		position: absolute;
+	}
+	/* 百宝袋样式 */
+	.pocket-item{
+		display: flex;
+		margin: 15rpx 20rpx;
+		background-color: #e5e5e5;
+		border-radius: 15rpx;
+		justify-content: space-between;
+		align-items: center;
+		padding: 30rpx;
+	}
+	.box-left{
+		display: flex;
+		gap: 30rpx;
+	}
+	.content{
+		display: flex;
+		flex-direction: column;
+		gap: 15rpx;
+		justify-content: center;
+	}
+	.content-title{
+		font-weight: bold;
+		font-size: medium;
+	}
+	.content-des{
+		font-size: small;
+	}
+	.box-right{
+		display: flex;
+		justify-content: center;
+		align-items: center;
+		font-size: 40rpx !important;
 	}
 </style>

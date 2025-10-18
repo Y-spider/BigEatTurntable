@@ -97,3 +97,37 @@
 	position: absolute;
 }
 
+/* 百宝袋样式 */
+.pocket-item.data-v-57280228{
+	display: flex;
+	margin: 15rpx 20rpx;
+	background-color: #e5e5e5;
+	border-radius: 15rpx;
+	justify-content: space-between;
+	align-items: center;
+	padding: 30rpx;
+}
+.box-left.data-v-57280228{
+	display: flex;
+	gap: 30rpx;
+}
+.content.data-v-57280228{
+	display: flex;
+	flex-direction: column;
+	gap: 15rpx;
+	justify-content: center;
+}
+.content-title.data-v-57280228{
+	font-weight: bold;
+	font-size: medium;
+}
+.content-des.data-v-57280228{
+	font-size: small;
+}
+.box-right.data-v-57280228{
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	font-size: 40rpx !important;
+}
+

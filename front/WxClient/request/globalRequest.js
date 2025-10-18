@@ -1,7 +1,7 @@
 // 正式环境
-// const BASE_URL = "https://www.chopper.love:39001/api/"
+const BASE_URL = "https://www.sunnygo.chat/turntable/api/"
 // 开发环境
-const BASE_URL = "http://127.0.0.1:16378/"
+// const BASE_URL = "http://127.0.0.1:16378/"
 // const BASE_URL = "http://192.168.100.4:16378/"
 
 // 检查是否登录，如果没有登录则进行登录
@@ -46,8 +46,6 @@ export function httpOFPost(path, params = {}, loading = true,method) {
 			method:method,
 			data: params,
 			async success(res) {
-				// uni.hideLoading();
-				resolve(res.data);
 				// res.data?.code表示先判断res.data是否为null或undefined，
 				//如果不是，则访问其code属性。这样可以有效避免在对象为null或undefined时造成的错误
 				if (res.data?.code == -1) {
@@ -57,6 +55,7 @@ export function httpOFPost(path, params = {}, loading = true,method) {
 						title: res.data.errMsg
 					});
 					reject(res.data)
+					return false;
 				}
 				else if(res.data?.code == -99){
 					uni.removeStorageSync("token")
@@ -66,10 +65,24 @@ export function httpOFPost(path, params = {}, loading = true,method) {
 						title: "令牌失效"
 					});
 					reject(res.data)
+					return false;
 				}
+				else if(res.data?.code !== 200){
+					uni.showToast({
+						icon: "error",
+						duration: 2000,
+						title: "系统错误"
+					});
+					reject(res.data)
+					return false;
+				}
+				// uni.hideLoading();
+				resolve(res.data);
+				return true;
 			},
 			fail(err) {
 				reject(err);
+				return false;
 			},
 			complete() {
 				// uni.hideLoading();    // 在showToast之前执行会受影响
@@ -91,13 +104,13 @@ export function httpOFGet(path,loading = true){
 				},
 				timeout:60000,
 				async success(res){
-					resolve(res.data) // 将响应数据返回
 					if(res.data?.code == -1){
 						uni.showToast({
 							icon:"fail",
 							title:res.data.errMsg,
 							duration:2000
 						});
+						return false;
 					}
 					else if(res.data?.code == -99){
 						uni.removeStorageSync("token")
@@ -107,7 +120,19 @@ export function httpOFGet(path,loading = true){
 							title: "令牌失效"
 						});
 						reject(res.data)
+						return false;
 					}
+					else if(res.data?.code !== 200){
+						uni.showToast({
+							icon: "error",
+							duration: 2000,
+							title: "系统错误"
+						});
+						reject(res.data)
+						return false;
+					}
+					resolve(res.data) // 将响应数据返回
+					return true;
 				},
 				fail(err){
 					uni.showToast({
@@ -116,6 +141,7 @@ export function httpOFGet(path,loading = true){
 						duration:1200
 					})
 					reject(err);
+					return false;
 				},
 			})
 		});
