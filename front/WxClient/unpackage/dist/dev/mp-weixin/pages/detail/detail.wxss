@@ -1,0 +1,60 @@
+
+.record-container.data-v-3e159eb4 {
+	margin: 40rpx 30rpx 0;
+}
+.record-title.data-v-3e159eb4 {
+	font-weight: bold;
+	font-size: 30rpx;
+	margin-bottom: 20rpx;
+}
+.record-scroll.data-v-3e159eb4 {
+	max-height: 300rpx;
+	/* 可自调高度，比如 300~500rpx */
+	overflow-y: scroll;
+}
+.record-empty.data-v-3e159eb4 {
+	text-align: center;
+	color: #888;
+	font-size: 26rpx;
+	padding: 30rpx 0;
+}
+.record-item.data-v-3e159eb4 {
+	padding: 20rpx 0;
+	border-bottom: 1px solid #f0f0f0;
+}
+.record-top.data-v-3e159eb4 {
+	display: flex;
+	justify-content: space-between;
+	font-size: 28rpx;
+}
+.record-time.data-v-3e159eb4 {
+	color: #888;
+	font-size: 24rpx;
+	margin-top: 8rpx;
+}
+
+/* 刷新按钮 */
+.record-header.data-v-3e159eb4 {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	margin-bottom: 20rpx;
+}
+.refresh-btn.data-v-3e159eb4 {
+	font-size: 26rpx;
+	color: #2e8b57;
+	padding: 10rpx 20rpx;
+	border: 1px solid #2e8b57;
+	border-radius: 8rpx;
+	display: flex;
+	align-items: center;
+}
+.refresh-btn text.data-v-3e159eb4 {
+	margin-right: 8rpx;
+}
+.my-record.data-v-3e159eb4 {
+	color: #ff9800; /* 你的小程序主题色 */
+	font-weight: bold;
+}
+
+
