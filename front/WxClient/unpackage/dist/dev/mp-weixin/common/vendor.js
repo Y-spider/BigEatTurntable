@@ -10179,10 +10179,10 @@ exports.httpOfGetWithNotToken = httpOfGetWithNotToken;
 var _regenerator = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/regenerator */ 40));
 var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/runtime/helpers/asyncToGenerator */ 42));
 // 正式环境
-// const BASE_URL = "https://www.sunnygo.chat/turntable/api/"
+var BASE_URL = "https://www.sunnygo.chat/turntable/api/";
 // 开发环境
 // const BASE_URL = "http://127.0.0.1:16378/"
-var BASE_URL = "http://192.168.100.4:16378/";
+// const BASE_URL = "http://192.168.100.4:16378/"
 
 // 检查是否登录，如果没有登录则进行登录
 function checkLogin() {
@@ -10577,7 +10577,9 @@ function getAllDishTypeAPI() {
 /* 89 */,
 /* 90 */,
 /* 91 */,
-/* 92 */
+/* 92 */,
+/* 93 */,
+/* 94 */
 /*!*******************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/apis/dishCollectionApi.js ***!
   \*******************************************************************************************************/
@@ -10611,8 +10613,6 @@ function listAPI(queryParams) {
 }
 
 /***/ }),
-/* 93 */,
-/* 94 */,
 /* 95 */,
 /* 96 */,
 /* 97 */,
@@ -10625,7 +10625,9 @@ function listAPI(queryParams) {
 /* 104 */,
 /* 105 */,
 /* 106 */,
-/* 107 */
+/* 107 */,
+/* 108 */,
+/* 109 */
 /*!*******************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/components/@lucky-canvas/uni/utils.js ***!
   \*******************************************************************************************************************/
@@ -10753,7 +10755,7 @@ function getImage(canvasId, canvas) {
 /* WEBPACK VAR INJECTION */}.call(this, __webpack_require__(/*! ./node_modules/@dcloudio/uni-mp-weixin/dist/index.js */ 2)["default"]))
 
 /***/ }),
-/* 108 */
+/* 110 */
 /*!***********************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/components/lucky-canvas/dist/index.esm.js ***!
   \***********************************************************************************************************************/
@@ -12464,8 +12466,6 @@ exports.LuckyGrid = W;
 exports.LuckyWheel = T;
 
 /***/ }),
-/* 109 */,
-/* 110 */,
 /* 111 */,
 /* 112 */,
 /* 113 */,
@@ -12497,7 +12497,9 @@ exports.LuckyWheel = T;
 /* 139 */,
 /* 140 */,
 /* 141 */,
-/* 142 */
+/* 142 */,
+/* 143 */,
+/* 144 */
 /*!************************************************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/uni_modules/uni-search-bar/components/uni-search-bar/i18n/index.js ***!
   \************************************************************************************************************************************************/
@@ -12512,9 +12514,9 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.default = void 0;
-var _en = _interopRequireDefault(__webpack_require__(/*! ./en.json */ 143));
-var _zhHans = _interopRequireDefault(__webpack_require__(/*! ./zh-Hans.json */ 144));
-var _zhHant = _interopRequireDefault(__webpack_require__(/*! ./zh-Hant.json */ 145));
+var _en = _interopRequireDefault(__webpack_require__(/*! ./en.json */ 145));
+var _zhHans = _interopRequireDefault(__webpack_require__(/*! ./zh-Hans.json */ 146));
+var _zhHant = _interopRequireDefault(__webpack_require__(/*! ./zh-Hant.json */ 147));
 var _default = {
   en: _en.default,
   'zh-Hans': _zhHans.default,
@@ -12523,7 +12525,7 @@ var _default = {
 exports.default = _default;
 
 /***/ }),
-/* 143 */
+/* 145 */
 /*!***********************************************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/uni_modules/uni-search-bar/components/uni-search-bar/i18n/en.json ***!
   \***********************************************************************************************************************************************/
@@ -12533,7 +12535,7 @@ exports.default = _default;
 module.exports = JSON.parse("{\"uni-search-bar.cancel\":\"cancel\",\"uni-search-bar.placeholder\":\"Search enter content\"}");
 
 /***/ }),
-/* 144 */
+/* 146 */
 /*!****************************************************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/uni_modules/uni-search-bar/components/uni-search-bar/i18n/zh-Hans.json ***!
   \****************************************************************************************************************************************************/
@@ -12543,7 +12545,7 @@ module.exports = JSON.parse("{\"uni-search-bar.cancel\":\"cancel\",\"uni-search-
 module.exports = JSON.parse("{\"uni-search-bar.cancel\":\"取消\",\"uni-search-bar.placeholder\":\"请输入搜索内容\"}");
 
 /***/ }),
-/* 145 */
+/* 147 */
 /*!****************************************************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/uni_modules/uni-search-bar/components/uni-search-bar/i18n/zh-Hant.json ***!
   \****************************************************************************************************************************************************/
@@ -12553,14 +12555,14 @@ module.exports = JSON.parse("{\"uni-search-bar.cancel\":\"取消\",\"uni-search-
 module.exports = JSON.parse("{\"uni-search-bar.cancel\":\"取消\",\"uni-search-bar.placeholder\":\"請輸入搜索內容\"}");
 
 /***/ }),
-/* 146 */,
-/* 147 */,
 /* 148 */,
 /* 149 */,
 /* 150 */,
 /* 151 */,
 /* 152 */,
-/* 153 */
+/* 153 */,
+/* 154 */,
+/* 155 */
 /*!**************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/apis/applyDishApi.js ***!
   \**************************************************************************************************/
@@ -12580,14 +12582,14 @@ function addApplyDishAPI(data) {
 }
 
 /***/ }),
-/* 154 */,
-/* 155 */,
 /* 156 */,
 /* 157 */,
 /* 158 */,
 /* 159 */,
 /* 160 */,
-/* 161 */
+/* 161 */,
+/* 162 */,
+/* 163 */
 /*!*********************************************************************************************************************************************!*\
   !*** D:/typora/EatBigTurntable/server/EatBigTurntableServer/front/WxClient/uni_modules/uni-icons/components/uni-icons/uniicons_file_vue.js ***!
   \*********************************************************************************************************************************************/

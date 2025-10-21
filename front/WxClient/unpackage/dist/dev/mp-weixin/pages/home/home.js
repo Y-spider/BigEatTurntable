@@ -471,6 +471,9 @@ var _default = {
         this.spinFinished = false;
         this.loadSpinRecords(true);
       }
+      if (val === 'create') {
+        this.init();
+      }
     }
   }
 };

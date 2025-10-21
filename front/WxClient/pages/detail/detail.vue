@@ -105,7 +105,7 @@
 		onShow() {
 			this.init()
 			if(this.turntableInfo.type==0){
-				this.startAutoRefresh();
+				this.startAutoRefresh(this.refreshInterval);
 			}
 		},
 		onShareAppMessage() {
@@ -232,7 +232,7 @@
 			this.isShare = option.isShare? option.isShare : this.isShare
 			// TODO: 将当前分享的转盘好友也可以保存在自己的账户
 			// TODO: 好友可以互相在线编辑 websocket编辑
-			console.log("backUrl",this.backUrl)
+
 		}
 
 	}

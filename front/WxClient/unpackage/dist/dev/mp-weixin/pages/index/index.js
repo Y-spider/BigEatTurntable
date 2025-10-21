@@ -167,12 +167,12 @@ var _noticeApi = __webpack_require__(/*! @/apis/noticeApi.js */ 46);
 var _methods;
 var LuckyWheel = function LuckyWheel() {
   Promise.all(/*! require.ensure | components/@lucky-canvas/uni/lucky-wheel */[__webpack_require__.e("common/vendor"), __webpack_require__.e("components/@lucky-canvas/uni/lucky-wheel")]).then((function () {
-    return resolve(__webpack_require__(/*! @/components/@lucky-canvas/uni/lucky-wheel */ 102));
+    return resolve(__webpack_require__(/*! @/components/@lucky-canvas/uni/lucky-wheel */ 104));
   }).bind(null, __webpack_require__)).catch(__webpack_require__.oe);
 };
 var sharePopDialog = function sharePopDialog() {
   __webpack_require__.e(/*! require.ensure | components/share_pop_dialog */ "components/share_pop_dialog").then((function () {
-    return resolve(__webpack_require__(/*! ../../components/share_pop_dialog.vue */ 111));
+    return resolve(__webpack_require__(/*! ../../components/share_pop_dialog.vue */ 113));
   }).bind(null, __webpack_require__)).catch(__webpack_require__.oe);
 };
 var _default = {
