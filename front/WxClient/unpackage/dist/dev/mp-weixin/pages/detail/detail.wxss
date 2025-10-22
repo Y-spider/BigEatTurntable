@@ -53,8 +53,8 @@
 	margin-right: 8rpx;
 }
 .my-record.data-v-3e159eb4 {
-	color: #ff9800; /* 你的小程序主题色 */
+	color: #ff9800;
+	/* 你的小程序主题色 */
 	font-weight: bold;
 }
-
 

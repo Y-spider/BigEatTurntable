@@ -160,7 +160,7 @@ export default {
           editable: true,
 		  content:this.tableInfo.title,
           placeholderText: "编辑转盘名称",
-          success: (res) => {
+          success: async (res) => {
             if (res.confirm) {
               if (res.content == "") {
                 uni.showToast({
@@ -171,7 +171,7 @@ export default {
                 return;
               }
               updateData.title = res.content
-              updateTurntableAPI(updateData)
+              await updateTurntableAPI(updateData)
               uni.setStorageSync('editPrizeList', this.prizeList)
               uni.navigateBack()
             }

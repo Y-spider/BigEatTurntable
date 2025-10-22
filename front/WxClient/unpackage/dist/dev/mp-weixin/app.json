@@ -5,8 +5,8 @@
     "pages/hot/hot",
     "pages/editWheel/index",
     "pages/detail/detail",
-    "pages/dishMenu/dishMenu",
-    "pages/dish_detail/dish_detail"
+    "pages/tools/tools",
+    "pages/tools-components/timer-tool/timer-tool"
   ],
   "subPackages": [],
   "window": {
@@ -29,15 +29,15 @@
       },
       {
         "pagePath": "pages/hot/hot",
-        "text": "热门转盘",
+        "text": "热门话题",
         "iconPath": "static/hot.png",
         "selectedIconPath": "static/hot-active.png"
       },
       {
-        "pagePath": "pages/dishMenu/dishMenu",
-        "text": "烹饪",
-        "iconPath": "/static/cook.png",
-        "selectedIconPath": "/static/cook-active.png"
+        "pagePath": "pages/tools/tools",
+        "text": "工具箱",
+        "iconPath": "/static/tool-box.png",
+        "selectedIconPath": "/static/tool-box-active.png"
       },
       {
         "pagePath": "pages/home/home",

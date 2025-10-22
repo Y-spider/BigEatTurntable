@@ -51,7 +51,7 @@
 			</view>
 			<view class="switch-bar animate__animated animate__fadeInUp">
 				<button class="cu-btn" :class="{ 'bg-orange': showType === 'create' }"
-					@click="showType = 'create'">我创建的转盘</button>
+					@click="showType = 'create'">我的转盘</button>
 				<view class="cuIcon-question" @click="showTips"></view>
 				<button class="cu-btn" :class="{ 'bg-orange': showType === 'record' }"
 					@click="showType = 'record'">转动记录</button>
@@ -65,11 +65,8 @@
 					:key="item.id" class="row-between list-item animate__animated animate__fadeInUp">
 					<view>
 						<view class="title">{{ item.title }}
-							<view style="margin: 0 10rpx;" class="cu-tag radius sm bg-red">
-								{{item.type==0?"自定义":(item.type==1?"系统":"热门")}}
-							</view>
 						</view>
-						<view class="desc">创建时间：{{ item.createTime }}</view>
+						<view class="desc">更新时间：{{ item.updateTime }}</view>
 					</view>
 					<view class="arrow">
 						<view class="cuIcon-right arrow"></view>
@@ -164,7 +161,7 @@
 				let that = this
 				uni.showModal({
 					title: "警告",
-					content: `是否删除转盘[${item.title}]`,
+					content: `是否删除转盘[${item.title}](记录也会随之删除！)`,
 					async success(res) {
 						if (res.confirm) {
 							let res = await deleteTurntableByIdAPI(item.id)
@@ -179,7 +176,7 @@
 				uni.showModal({
 					title: "提示",
 					showCancel: false,
-					content: "长按可删除轮盘!"
+					content: "长按可删除轮盘\n注意同时相关记录也会删除！"
 				})
 			},
 			gotoCreate() {

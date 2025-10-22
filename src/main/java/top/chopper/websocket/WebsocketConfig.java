@@ -1,7 +1,5 @@
 package top.chopper.websocket;
 
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.web.socket.server.standard.ServerEndpointExporter;
 
 /*
@@ -10,10 +8,11 @@ import org.springframework.web.socket.server.standard.ServerEndpointExporter;
    @Version:1.0.0
    @Description:
    */
-@Configuration
+//@Configuration
+//@ConditionalOnWebApplication(type = ConditionalOnWebApplication.Type.SERVLET)
 public class WebsocketConfig {
     //    websocket依赖
-    @Bean
+//    @Bean
     public ServerEndpointExporter serverEndpointExporter(){
         return  new ServerEndpointExporter();
     }

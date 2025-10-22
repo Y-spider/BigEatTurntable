@@ -12,4 +12,6 @@ import top.chopper.pojo.TurnTable;
 public interface TurnTableService extends IService<TurnTable> {
     void updateTurnTable(TurnTable turnTable);
 
+    void myDeleteTurntableById(Integer id);
+
 }

@@ -34,4 +34,6 @@ public class User {
     private LocalDateTime updateTime;
     @Schema(name = "name",description = "微信登录用户名称")
     private String name;
+    @Schema(name = "inviter",description = "邀请人，只有第一次生效")
+    private String inviter;
 }

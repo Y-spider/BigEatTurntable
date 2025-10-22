@@ -3,12 +3,14 @@ const BASE_URL = "https://www.sunnygo.chat/turntable/api/"
 // 开发环境
 // const BASE_URL = "http://127.0.0.1:16378/"
 // const BASE_URL = "http://192.168.100.4:16378/"
-
+let isCheckLogin = false
 // 检查是否登录，如果没有登录则进行登录
 function checkLogin(){
 	return new Promise((resolve, reject) => {
+		isCheckLogin = true;
 		let token = uni.getStorageSync("token")
 		if(token){
+			isCheckLogin = false
 			return resolve(token);
 		}else{
 			uni.login({
@@ -17,10 +19,14 @@ function checkLogin(){
 						mask:true,
 						title:"登录中..."
 					})
+					let postData = {"code":res.code}
+					if(uni.getStorageSync("shareOpenid")){
+						postData.shareOpenid = uni.getStorageSync("shareOpenid");
+					}
 					 uni.request({
 						method:"POST",
 						url:BASE_URL + "user/client/login",
-						data:{"code":res.code},
+						data:postData,
 						success(res){
 							console.log("登录成功")
 							uni.setStorageSync("token",res.data.data.token)
@@ -33,6 +39,7 @@ function checkLogin(){
 							return reject(failMsg)
 						},
 						complete(){
+							isCheckLogin = false;
 							uni.hideLoading();
 						}
 					})
@@ -40,7 +47,6 @@ function checkLogin(){
 			})
 		}
 	})
-	
 }
 
 export function httpOFPost(path, params = {}, loading = true,method) {

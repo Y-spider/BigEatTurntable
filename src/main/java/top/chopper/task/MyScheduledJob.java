@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import top.chopper.mapper.ApplyDishLogMapper;
 import top.chopper.pojo.ApplyDishLog;
@@ -32,7 +31,7 @@ public class MyScheduledJob {
      * 0 0 1 ? * MON  -> 表示每周一 01:00:00 执行
      */
 
-    @Scheduled(cron = "0 0 1 ? * MON")
+//    @Scheduled(cron = "0 0 1 ? * MON")
     public void weeklyJob() {
         log.info("周一凌晨一点执行为文档更新~~~~");
 

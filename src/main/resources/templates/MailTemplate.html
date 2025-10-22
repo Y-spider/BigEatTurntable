@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="zh" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>不纠结星球昨日总结汇总</title>
+    <style>
+        body {
+            font-family: "Microsoft YaHei", sans-serif;
+            background: linear-gradient(135deg, #f8f9fb, #eef3f7);
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 6px 15px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #6C63FF, #A393FF);
+            color: white;
+            text-align: center;
+            padding: 24px 16px;
+        }
+
+        .header h1 {
+            margin: 0;
+            font-size: 22px;
+            letter-spacing: 1px;
+        }
+
+        .content {
+            padding: 28px 40px;
+        }
+
+        .stat-box {
+            background-color: #f7f8fc;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+
+        .stat-box:hover {
+            background-color: #eef0fb;
+            transform: translateY(-3px);
+        }
+
+        .stat-title {
+            font-size: 16px;
+            color: #666;
+        }
+
+        .stat-value {
+            font-size: 36px;
+            font-weight: bold;
+            color: #6C63FF;
+            margin-top: 6px;
+        }
+
+        .footer {
+            text-align: center;
+            padding: 16px 0 24px;
+            font-size: 13px;
+            color: #888;
+        }
+
+        .planet {
+            font-weight: bold;
+            color: #6C63FF;
+        }
+    </style>
+</head>
+
+<body>
+<div class="container">
+    <div class="header">
+        <h1>🌌 不纠结星球昨日总结汇总</h1>
+    </div>
+    <div class="content">
+        <div class="stat-box">
+            <div class="stat-title">昨日新注册用户</div>
+            <div class="stat-value" th:text="${newUserCount}">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-title">昨日受邀请新用户统计数</div>
+            <div class="stat-value" th:text="${todayShareUserCount}">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-title">昨日转动次数统计</div>
+            <div class="stat-value" th:text="${spinCount}">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-title">昨日新建转盘统计</div>
+            <div class="stat-value" th:text="${newTurntable}">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-title">累计注册人数</div>
+            <div class="stat-value" th:text="${totalUser}">0</div>
+        </div>
+        <div class="stat-box">
+            <div class="stat-title">累计转盘统计</div>
+            <div class="stat-value" th:text="${totalSpinCount}">0</div>
+        </div>
+    </div>
+    <div class="footer">
+        <p>由 <span class="planet">不纠结星球</span> 系统自动生成 · 愿每次转动都有好运 🌠</p>
+    </div>
+</div>
+</body>
+</html>

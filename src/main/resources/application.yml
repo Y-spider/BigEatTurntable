@@ -13,11 +13,25 @@ spring:
       enabled: true
       max-file-size: 100MB
       max-request-size: 30MB
-
+  # =========================邮件服务=======================
+  mail:
+    host: smtp.qq.com # qq的smtp邮件发送服务器地址
+    username: 3267585160@qq.com
+    password: xkmjqtuozzmocida # 第三方密码服务授权码
+    properties:  # 下面设置属性，开启ssl连接，因为服务器需要使用ssl进行连接
+      mail:
+        smtp:
+          ssl:
+            enable: true
+    port: 465
+    custom-to: 3267585160@qq.com # 自定义发送汇总信息给指定邮箱
+  thymeleaf:
+    cache: false # 开发环境关闭缓存 生产环境打开缓存
+# ================= mybatis-plus服务=================
 mybatis-plus:
   configuration:
     map-underscore-to-camel-case: true # ????
-    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl  # org.apache.ibatis.logging.nologging.NoLoggingImpl
 
 minio:
   endpoint: http://118.195.164.246:9000 # 连接点地址
@@ -54,3 +68,5 @@ logging:
       # %logger{36} → 输出类名，最多36个字符
       # %msg → 日志消息内容
     # %n → 换行符
+
+

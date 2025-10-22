@@ -25,10 +25,6 @@
 					<image class="choose-icon" src="../../static/餐饮.png"></image>
 					鸿运自来
 				</view>
-				<view class="choice-btn" :class="{ active: mode === 'nearby' }" @click="mode = 'nearby'">
-					<image class="choose-icon" src="../../static/附近餐厅.png"></image>
-					百宝袋
-				</view>
 			</view>
 		</view>
 		<!-- 转盘区域 -->
@@ -67,8 +63,8 @@
 				</view>
 				<view class="fun-button" style="display: flex;justify-content: space-between; align-items: center;">
 					<view class="fun-but">
-						<button open-type="share" class="cu-btn bg-gradual-green shadow"> <text
-								class="cuIcon-share" style="margin: 0 10rpx;"></text>分享</button>
+						<button open-type="share" class="cu-btn bg-gradual-green shadow"> <text class="cuIcon-share"
+								style="margin: 0 10rpx;"></text>分享</button>
 					</view>
 					<view class="fun-but">
 						<button @click="handleShowMake" v-if="isShowMaker" class="cu-btn bg-gradual-green shadow"> <text
@@ -82,17 +78,20 @@
 			</view>
 			<!-- 固定类型 -->
 			<view style="width: 100vw;position: relative; top: 50rpx;">
+				<view class="section-title-system">
+					系统转盘
+				</view>
 				<swiper class="swiper" circular :duration="500">
 					<swiper-item v-for="types,index in typeList" :key="index">
 						<!-- 按钮容器：横向排列、自动换行、居中、等间距 -->
 						<view class="btn-wrapper"
 							style="display: flex;gap: 15rpx;justify-content: space-evenly;flex-wrap: wrap;">
 							<button v-for="item in types" :key="item.id" class="cu-btn round shadow" style="width: 30%;"
-								:class="selectedType === item.id ? 'bg-yellow' : 'bg-gray'"
+								:class="selectedType === item.id ? 'bg-red' : 'bg-gray'"
 								@click="selectType(item.id,item)">
 								{{ item.title }}
-								<view class="cu-tag sm bg-red radius tag" style="position: relative;left: 15px;">系统
-								</view>
+								<!-- <view class="cu-tag sm bg-red radius tag" style="position: relative;left: 15px;">系统
+								</view> -->
 							</button>
 						</view>
 					</swiper-item>
@@ -100,7 +99,7 @@
 			</view>
 			<!-- 自定义菜单区域 -->
 			<view class="custom-select-area">
-				<view v-if="customTypes.length > 0" class="custom-tip">
+				<view v-if="customTypes.length > 0" class="section-title-custom">
 					自定义转盘
 				</view>
 				<view class="custom-btn-list">
@@ -108,32 +107,12 @@
 						:class="selectedType === item.id ? 'bg-yellow' : 'bg-gray'"
 						@click="getTuratableDetail(item.id)">
 						{{ item.title }}
-						<view class='cu-tag sm bg-orange radius' style="margin-left: 10rpx;">自定义</view>
+						<!-- <view class='cu-tag sm bg-orange radius' style="margin-left: 10rpx;">自定义</view> -->
 					</button>
 				</view>
 			</view>
 			<!-- 分享弹框 -->
 			<share-pop-dialog ref="sharePopDialogRef" />
-		</view>
-		<!-- 百宝袋区域 -->
-		<view v-else>
-			<view class="pocket-item">
-				<view class="box-left">
-					<view class="icon-box">
-						<image style="width: 64rpx; height: 64rpx;" src="/static/转盘使用教程.png" />
-					</view>
-					<view class="content">
-						<view class="content-title">不纠结星球使用教程</view>
-						<view class="content-des">关注公众号，发现更多精彩</view>
-					</view>
-				</view>
-				<view class="box-right">
-					<view class="icon-box">
-						<image style="width: 168rpx; height: 168rpx;" @click="previewImage" src="/static/公众号.jpg" />
-					</view>
-				</view>
-			</view>
-
 		</view>
 	</view>
 </template>
@@ -149,7 +128,10 @@
 	} from "@/apis/rotationRecordApi.js"
 	import {
 		getActiveNoticeAPI
-	} from "@/apis/noticeApi.js"
+	} from "@/apis/noticeApi.js";
+	import {
+		getOpenidAPI
+	} from "@/apis/userApi.js";
 	import LuckyWheel from '@/components/@lucky-canvas/uni/lucky-wheel';
 	import sharePopDialog from "../../components/share_pop_dialog.vue";
 	export default {
@@ -217,23 +199,33 @@
 				luckWheel: null,
 				isCheckMenu: true,
 				pageShowSize: 9, // 系统swiper-item每页展示数量
+				openid: null,
 			}
 		},
 		// 分享逻辑
-		onShareAppMessage() {
+		async onShareAppMessage() {
 			let expireTime = Date.now() + 30 * 60 * 1000;
 			uni.setStorageSync("hasPermissionCheckDetail", {
 				expireTime
 			})
+			if (!this.openid) {
+				const res = await getOpenidAPI();
+				this.openid = res.data;
+			}
 			return {
 				title: this.turntable.title,
-				path: "/pages/detail/detail?id=" + this.turntable.id +"&tableName="+this.turntable.title+"&backUrl=/pages/index/index",
+				path: "/pages/detail/detail?id=" + this.turntable.id + "&tableName=" + this.turntable.title +
+					"&backUrl=/pages/index/index&shareOpenid=" + this.openid,
 				withShareTicket: true
 			}
 		},
-		async onLoad() {
+		async onLoad(option) {
 			this.initAudio()
 			this.luckWheel = this.$refs.myLucky
+			if(option.shareOpenid){
+				// 表示当前用户为用户邀请的用户(也可能是老用户,只管传递至于新老用户由后端判断)
+				uni.setStorageSync("shareOpenid",option.shareOpenid);
+			}
 		},
 		destroyed() {
 			this.audioPlay.destroy() // 释放资源
@@ -243,11 +235,7 @@
 			this.initActiveNotice();
 		},
 		methods: {
-			previewImage(){
-				uni.previewImage({
-					urls:["/static/公众号.jpg"]
-				})
-			},
+
 			handleShowMake() {
 				// 查看菜品制作页面
 				const checkPermision = uni.getStorageSync("hasPermissionCheckDetail");
@@ -262,7 +250,7 @@
 			async initActiveNotice() {
 				let noticeRes = await getActiveNoticeAPI()
 				this.noticeContent = noticeRes.data?.content || "暂无公告信息 ₍ᐢ.ˬ.⑅ᐢ₎"
-				if(this.noticeContent == '暂无公告信息 ₍ᐢ.ˬ.⑅ᐢ₎'){
+				if (this.noticeContent == '暂无公告信息 ₍ᐢ.ˬ.⑅ᐢ₎') {
 					return;
 				}
 				this.modalName = "Modal"
@@ -299,7 +287,7 @@
 			handConfim() {
 				let saveRecordData = {
 					turntableId: this.turntable.id,
-					turntableName:this.turntable.type == 0 ? this.turntable.title+"-自定义" : this.turntable.title,
+					turntableName: this.turntable.type == 0 ? this.turntable.title + "-自定义" : this.turntable.title,
 					result: this.resultPrize.fonts[0].text,
 					type: this.turntable.type
 				}
@@ -418,6 +406,26 @@
 </script>
 
 <style scoped>
+	.section-title-system {
+		font-size: 34rpx;
+		font-weight: 700;
+		color: #333;
+		margin: 20rpx 0 30rpx 40rpx;
+		padding-left: 20rpx;
+		border-left: 8rpx solid #ff5a5f;
+		letter-spacing: 2rpx;
+	}
+
+	.section-title-custom {
+		font-size: 34rpx;
+		font-weight: 700;
+		color: #333;
+		margin: 20rpx 0 30rpx 40rpx;
+		padding-left: 20rpx;
+		border-left: 8rpx solid #fbbd08;
+		letter-spacing: 2rpx;
+	}
+
 	.choice-bar-wrap {
 		background-color: #FFA500;
 		width: 100%;
@@ -500,18 +508,24 @@
 		align-items: flex-start;
 		/* 保证左对齐 */
 		justify-content: flex-start;
+		gap: 10rpx;
 		width: 100vw;
 		padding-left: 24rpx;
 		box-sizing: border-box;
+		margin: 0rpx 5rpx;
 	}
 
 	.custom-btn {
 		margin-right: 20rpx;
 		margin-bottom: 16rpx;
 		/* 保证按钮宽度自适应内容 */
-		min-width: 120rpx;
-		max-width: 60vw;
+		width: 28vw;
 		white-space: nowrap;
+		overflow: hidden;
+		text-overflow: ellipsis;
+		text-align: center;
+		padding: 0 10rpx;
+		box-sizing: border-box;
 	}
 
 	,
@@ -527,38 +541,5 @@
 	.share-btn {
 		opacity: 0;
 		position: absolute;
-	}
-	/* 百宝袋样式 */
-	.pocket-item{
-		display: flex;
-		margin: 15rpx 20rpx;
-		background-color: #e5e5e5;
-		border-radius: 15rpx;
-		justify-content: space-between;
-		align-items: center;
-		padding: 30rpx;
-	}
-	.box-left{
-		display: flex;
-		gap: 30rpx;
-	}
-	.content{
-		display: flex;
-		flex-direction: column;
-		gap: 15rpx;
-		justify-content: center;
-	}
-	.content-title{
-		font-weight: bold;
-		font-size: medium;
-	}
-	.content-des{
-		font-size: small;
-	}
-	.box-right{
-		display: flex;
-		justify-content: center;
-		align-items: center;
-		font-size: 40rpx !important;
 	}
 </style>

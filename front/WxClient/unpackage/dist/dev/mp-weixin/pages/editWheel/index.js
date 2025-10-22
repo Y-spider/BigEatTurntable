@@ -101,7 +101,7 @@ var components
 try {
   components = {
     uniNumberBox: function () {
-      return __webpack_require__.e(/*! import() | uni_modules/uni-number-box/components/uni-number-box/uni-number-box */ "uni_modules/uni-number-box/components/uni-number-box/uni-number-box").then(__webpack_require__.bind(null, /*! @/uni_modules/uni-number-box/components/uni-number-box/uni-number-box.vue */ 118))
+      return __webpack_require__.e(/*! import() | uni_modules/uni-number-box/components/uni-number-box/uni-number-box */ "uni_modules/uni-number-box/components/uni-number-box/uni-number-box").then(__webpack_require__.bind(null, /*! @/uni_modules/uni-number-box/components/uni-number-box/uni-number-box.vue */ 117))
     },
   }
 } catch (e) {
@@ -370,18 +370,18 @@ var _default = {
     },
     finishEdit: function finishEdit() {
       var _this3 = this;
-      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
+      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3() {
         var updateData;
-        return _regenerator.default.wrap(function _callee2$(_context2) {
+        return _regenerator.default.wrap(function _callee3$(_context3) {
           while (1) {
-            switch (_context2.prev = _context2.next) {
+            switch (_context3.prev = _context3.next) {
               case 0:
                 if (!_this3.isCreate) {
-                  _context2.next = 3;
+                  _context3.next = 3;
                   break;
                 }
                 _this3.saveNewTurntable();
-                return _context2.abrupt("return");
+                return _context3.abrupt("return");
               case 3:
                 // 进行保存
                 updateData = {
@@ -394,22 +394,45 @@ var _default = {
                     editable: true,
                     content: _this3.tableInfo.title,
                     placeholderText: "编辑转盘名称",
-                    success: function success(res) {
-                      if (res.confirm) {
-                        if (res.content == "") {
-                          uni.showToast({
-                            icon: "error",
-                            title: "名称不能为空!!",
-                            duration: 2000
-                          });
-                          return;
-                        }
-                        updateData.title = res.content;
-                        (0, _turntableApi.updateTurntableAPI)(updateData);
-                        uni.setStorageSync('editPrizeList', _this3.prizeList);
-                        uni.navigateBack();
+                    success: function () {
+                      var _success = (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2(res) {
+                        return _regenerator.default.wrap(function _callee2$(_context2) {
+                          while (1) {
+                            switch (_context2.prev = _context2.next) {
+                              case 0:
+                                if (!res.confirm) {
+                                  _context2.next = 9;
+                                  break;
+                                }
+                                if (!(res.content == "")) {
+                                  _context2.next = 4;
+                                  break;
+                                }
+                                uni.showToast({
+                                  icon: "error",
+                                  title: "名称不能为空!!",
+                                  duration: 2000
+                                });
+                                return _context2.abrupt("return");
+                              case 4:
+                                updateData.title = res.content;
+                                _context2.next = 7;
+                                return (0, _turntableApi.updateTurntableAPI)(updateData);
+                              case 7:
+                                uni.setStorageSync('editPrizeList', _this3.prizeList);
+                                uni.navigateBack();
+                              case 9:
+                              case "end":
+                                return _context2.stop();
+                            }
+                          }
+                        }, _callee2);
+                      }));
+                      function success(_x) {
+                        return _success.apply(this, arguments);
                       }
-                    }
+                      return success;
+                    }()
                   });
                 } else {
                   (0, _turntableApi.updateTurntableAPI)(updateData);
@@ -418,72 +441,72 @@ var _default = {
                 }
               case 5:
               case "end":
-                return _context2.stop();
+                return _context3.stop();
             }
           }
-        }, _callee2);
+        }, _callee3);
       }))();
     }
   },
   onLoad: function onLoad(option) {
     var _this4 = this;
-    return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3() {
+    return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee4() {
       var list, res;
-      return _regenerator.default.wrap(function _callee3$(_context3) {
+      return _regenerator.default.wrap(function _callee4$(_context4) {
         while (1) {
-          switch (_context3.prev = _context3.next) {
+          switch (_context4.prev = _context4.next) {
             case 0:
               if (!(option.id == 0)) {
-                _context3.next = 3;
+                _context4.next = 3;
                 break;
               }
               // 表示是创建键盘
               _this4.isCreate = true;
-              return _context3.abrupt("return");
+              return _context4.abrupt("return");
             case 3:
               list = uni.getStorageSync('editPrizeList');
               if (list && Array.isArray(list)) {
                 _this4.prizeList = list;
               }
               _this4.id = option.id;
-              _context3.next = 8;
+              _context4.next = 8;
               return (0, _turntableApi.getTurntableDetailAPI)(_this4.id);
             case 8:
-              res = _context3.sent;
+              res = _context4.sent;
               _this4.tableInfo = res.data;
               _this4.tableInfo.content = JSON.parse(_this4.tableInfo.content);
             case 11:
-            case "end":
-              return _context3.stop();
-          }
-        }
-      }, _callee3);
-    }))();
-  },
-  onShow: function onShow() {
-    var _this5 = this;
-    return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee4() {
-      var res;
-      return _regenerator.default.wrap(function _callee4$(_context4) {
-        while (1) {
-          switch (_context4.prev = _context4.next) {
-            case 0:
-              if (!_this5.id) {
-                _context4.next = 6;
-                break;
-              }
-              _context4.next = 3;
-              return (0, _turntableApi.getTurntableDetailAPI)(_this5.id);
-            case 3:
-              res = _context4.sent;
-              _this5.tableInfo = res.data;
-              _this5.tableInfo.content = JSON.parse(_this5.tableInfo.content);
-            case 6:
             case "end":
               return _context4.stop();
           }
         }
       }, _callee4);
+    }))();
+  },
+  onShow: function onShow() {
+    var _this5 = this;
+    return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee5() {
+      var res;
+      return _regenerator.default.wrap(function _callee5$(_context5) {
+        while (1) {
+          switch (_context5.prev = _context5.next) {
+            case 0:
+              if (!_this5.id) {
+                _context5.next = 6;
+                break;
+              }
+              _context5.next = 3;
+              return (0, _turntableApi.getTurntableDetailAPI)(_this5.id);
+            case 3:
+              res = _context5.sent;
+              _this5.tableInfo = res.data;
+              _this5.tableInfo.content = JSON.parse(_this5.tableInfo.content);
+            case 6:
+            case "end":
+              return _context5.stop();
+          }
+        }
+      }, _callee5);
     }))();
   }
 };

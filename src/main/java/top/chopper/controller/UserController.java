@@ -3,13 +3,11 @@ package top.chopper.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import top.chopper.dto.AdminUserLoginDto;
 import top.chopper.pojo.R;
 import top.chopper.service.UserService;
+import top.chopper.utils.SecurityUtil;
 
 import java.util.HashMap;
 
@@ -35,7 +33,12 @@ public class UserController {
     @Operation(description = "微信小程序用户登录",summary = "微信小程序用户登录")
     @PostMapping("/client/login")
     public R clientLogin(@RequestBody HashMap<String,String> params){
-        return userService.wxClientLogin(params.get("code"));
+        return userService.wxClientLogin(params);
+    }
+
+    @GetMapping("/get/userId")
+    public R handleGetCurrentUserOpenid(){
+        return R.SUCCESS(SecurityUtil.getUserName());
     }
 
 }

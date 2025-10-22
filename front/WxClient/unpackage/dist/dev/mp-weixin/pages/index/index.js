@@ -104,11 +104,6 @@ var render = function () {
   var _c = _vm._self._c || _h
   var m0 = _vm.mode != "nearby" ? _vm.randomEmotion() : null
   var g0 = _vm.mode != "nearby" ? _vm.customTypes.length : null
-  if (!_vm._isMounted) {
-    _vm.e0 = function ($event) {
-      _vm.mode = "nearby"
-    }
-  }
   _vm.$mp.data = Object.assign(
     {},
     {
@@ -164,15 +159,16 @@ var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/r
 var _turntableApi = __webpack_require__(/*! @/apis/turntableApi.js */ 43);
 var _rotationRecordApi = __webpack_require__(/*! @/apis/rotationRecordApi.js */ 45);
 var _noticeApi = __webpack_require__(/*! @/apis/noticeApi.js */ 46);
+var _userApi = __webpack_require__(/*! @/apis/userApi.js */ 132);
 var _methods;
 var LuckyWheel = function LuckyWheel() {
   Promise.all(/*! require.ensure | components/@lucky-canvas/uni/lucky-wheel */[__webpack_require__.e("common/vendor"), __webpack_require__.e("components/@lucky-canvas/uni/lucky-wheel")]).then((function () {
-    return resolve(__webpack_require__(/*! @/components/@lucky-canvas/uni/lucky-wheel */ 104));
+    return resolve(__webpack_require__(/*! @/components/@lucky-canvas/uni/lucky-wheel */ 103));
   }).bind(null, __webpack_require__)).catch(__webpack_require__.oe);
 };
 var sharePopDialog = function sharePopDialog() {
   __webpack_require__.e(/*! require.ensure | components/share_pop_dialog */ "components/share_pop_dialog").then((function () {
-    return resolve(__webpack_require__(/*! ../../components/share_pop_dialog.vue */ 113));
+    return resolve(__webpack_require__(/*! ../../components/share_pop_dialog.vue */ 112));
   }).bind(null, __webpack_require__)).catch(__webpack_require__.oe);
 };
 var _default = {
@@ -237,31 +233,40 @@ var _default = {
       roatingDuration: 2,
       luckWheel: null,
       isCheckMenu: true,
-      pageShowSize: 9 // 系统swiper-item每页展示数量
+      pageShowSize: 9,
+      // 系统swiper-item每页展示数量
+      openid: null
     };
   },
   // 分享逻辑
   onShareAppMessage: function onShareAppMessage() {
-    var expireTime = Date.now() + 30 * 60 * 1000;
-    uni.setStorageSync("hasPermissionCheckDetail", {
-      expireTime: expireTime
-    });
-    return {
-      title: this.turntable.title,
-      path: "/pages/detail/detail?id=" + this.turntable.id + "&tableName=" + this.turntable.title + "&backUrl=/pages/index/index",
-      withShareTicket: true
-    };
-  },
-  onLoad: function onLoad() {
     var _this = this;
     return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
+      var expireTime, res;
       return _regenerator.default.wrap(function _callee$(_context) {
         while (1) {
           switch (_context.prev = _context.next) {
             case 0:
-              _this.initAudio();
-              _this.luckWheel = _this.$refs.myLucky;
-            case 2:
+              expireTime = Date.now() + 30 * 60 * 1000;
+              uni.setStorageSync("hasPermissionCheckDetail", {
+                expireTime: expireTime
+              });
+              if (_this.openid) {
+                _context.next = 7;
+                break;
+              }
+              _context.next = 5;
+              return (0, _userApi.getOpenidAPI)();
+            case 5:
+              res = _context.sent;
+              _this.openid = res.data;
+            case 7:
+              return _context.abrupt("return", {
+                title: _this.turntable.title,
+                path: "/pages/detail/detail?id=" + _this.turntable.id + "&tableName=" + _this.turntable.title + "&backUrl=/pages/index/index&shareOpenid=" + _this.openid,
+                withShareTicket: true
+              });
+            case 8:
             case "end":
               return _context.stop();
           }
@@ -269,19 +274,20 @@ var _default = {
       }, _callee);
     }))();
   },
-  destroyed: function destroyed() {
-    this.audioPlay.destroy(); // 释放资源
-    this.audioEnd.destroy();
-  },
-  created: function created() {
+  onLoad: function onLoad(option) {
     var _this2 = this;
     return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
       return _regenerator.default.wrap(function _callee2$(_context2) {
         while (1) {
           switch (_context2.prev = _context2.next) {
             case 0:
-              _this2.initActiveNotice();
-            case 1:
+              _this2.initAudio();
+              _this2.luckWheel = _this2.$refs.myLucky;
+              if (option.shareOpenid) {
+                // 表示当前用户为用户邀请的用户(也可能是老用户,只管传递至于新老用户由后端判断)
+                uni.setStorageSync("shareOpenid", option.shareOpenid);
+              }
+            case 3:
             case "end":
               return _context2.stop();
           }
@@ -289,12 +295,27 @@ var _default = {
       }, _callee2);
     }))();
   },
+  destroyed: function destroyed() {
+    this.audioPlay.destroy(); // 释放资源
+    this.audioEnd.destroy();
+  },
+  created: function created() {
+    var _this3 = this;
+    return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3() {
+      return _regenerator.default.wrap(function _callee3$(_context3) {
+        while (1) {
+          switch (_context3.prev = _context3.next) {
+            case 0:
+              _this3.initActiveNotice();
+            case 1:
+            case "end":
+              return _context3.stop();
+          }
+        }
+      }, _callee3);
+    }))();
+  },
   methods: (_methods = {
-    previewImage: function previewImage() {
-      uni.previewImage({
-        urls: ["/static/公众号.jpg"]
-      });
-    },
     handleShowMake: function handleShowMake() {
       // 查看菜品制作页面
       var checkPermision = uni.getStorageSync("hasPermissionCheckDetail");
@@ -307,32 +328,32 @@ var _default = {
       }
     },
     initActiveNotice: function initActiveNotice() {
-      var _this3 = this;
-      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3() {
+      var _this4 = this;
+      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee4() {
         var _noticeRes$data;
         var noticeRes;
-        return _regenerator.default.wrap(function _callee3$(_context3) {
+        return _regenerator.default.wrap(function _callee4$(_context4) {
           while (1) {
-            switch (_context3.prev = _context3.next) {
+            switch (_context4.prev = _context4.next) {
               case 0:
-                _context3.next = 2;
+                _context4.next = 2;
                 return (0, _noticeApi.getActiveNoticeAPI)();
               case 2:
-                noticeRes = _context3.sent;
-                _this3.noticeContent = ((_noticeRes$data = noticeRes.data) === null || _noticeRes$data === void 0 ? void 0 : _noticeRes$data.content) || "暂无公告信息 ₍ᐢ.ˬ.⑅ᐢ₎";
-                if (!(_this3.noticeContent == '暂无公告信息 ₍ᐢ.ˬ.⑅ᐢ₎')) {
-                  _context3.next = 6;
+                noticeRes = _context4.sent;
+                _this4.noticeContent = ((_noticeRes$data = noticeRes.data) === null || _noticeRes$data === void 0 ? void 0 : _noticeRes$data.content) || "暂无公告信息 ₍ᐢ.ˬ.⑅ᐢ₎";
+                if (!(_this4.noticeContent == '暂无公告信息 ₍ᐢ.ˬ.⑅ᐢ₎')) {
+                  _context4.next = 6;
                   break;
                 }
-                return _context3.abrupt("return");
+                return _context4.abrupt("return");
               case 6:
-                _this3.modalName = "Modal";
+                _this4.modalName = "Modal";
               case 7:
               case "end":
-                return _context3.stop();
+                return _context4.stop();
             }
           }
-        }, _callee3);
+        }, _callee4);
       }))();
     },
     handleRandomClick: function handleRandomClick() {
@@ -383,7 +404,7 @@ var _default = {
     }
     this.modalName = "DialogModal2";
   }), (0, _defineProperty2.default)(_methods, "startCallBack", function startCallBack() {
-    var _this4 = this;
+    var _this5 = this;
     this.isShowMaker = false;
     // 先开始旋转
     this.isCheckMenu = false;
@@ -400,7 +421,7 @@ var _default = {
     uni.setStorageSync("routing", true);
     setTimeout(function () {
       // 调用stop停止旋转并传递中奖奖品  不传入小标则可以使用range 权重了
-      _this4.$refs.myLucky.stop();
+      _this5.$refs.myLucky.stop();
     }, this.roatingDuration * 1000);
   }), (0, _defineProperty2.default)(_methods, "playAgain", function playAgain() {
     // 再来一次
@@ -408,68 +429,68 @@ var _default = {
     uni.setStorageSync("routing", false);
     this.startCallBack();
   }), (0, _defineProperty2.default)(_methods, "getTuratableDetail", function getTuratableDetail(id) {
-    var _this5 = this;
-    return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee4() {
-      var _this5$$refs$myLucky, _this5$$refs$myLucky$, _this5$$refs$myLucky2, _this5$$refs$myLucky3;
-      var res;
-      return _regenerator.default.wrap(function _callee4$(_context4) {
-        while (1) {
-          switch (_context4.prev = _context4.next) {
-            case 0:
-              if (!uni.getStorageSync("routing")) {
-                _context4.next = 2;
-                break;
-              }
-              return _context4.abrupt("return");
-            case 2:
-              _this5.selectedType = id;
-              _context4.next = 5;
-              return (0, _turntableApi.getTurntableDetailAPI)(id);
-            case 5:
-              res = _context4.sent;
-              _this5.prizeList = JSON.parse(res.data.content);
-              _this5.turntable = res.data;
-              // 下面是为了强制刷新轮盘内容
-              _this5.isCheckMenu = true;
-              (_this5$$refs$myLucky = _this5.$refs.myLucky) === null || _this5$$refs$myLucky === void 0 ? void 0 : (_this5$$refs$myLucky$ = _this5$$refs$myLucky.play) === null || _this5$$refs$myLucky$ === void 0 ? void 0 : _this5$$refs$myLucky$.call(_this5$$refs$myLucky);
-              (_this5$$refs$myLucky2 = _this5.$refs.myLucky) === null || _this5$$refs$myLucky2 === void 0 ? void 0 : (_this5$$refs$myLucky3 = _this5$$refs$myLucky2.stop) === null || _this5$$refs$myLucky3 === void 0 ? void 0 : _this5$$refs$myLucky3.call(_this5$$refs$myLucky2, -1);
-            case 11:
-            case "end":
-              return _context4.stop();
-          }
-        }
-      }, _callee4);
-    }))();
-  }), (0, _defineProperty2.default)(_methods, "init", function init() {
     var _this6 = this;
     return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee5() {
-      var res, turntableInfoRes, i;
+      var _this6$$refs$myLucky, _this6$$refs$myLucky$, _this6$$refs$myLucky2, _this6$$refs$myLucky3;
+      var res;
       return _regenerator.default.wrap(function _callee5$(_context5) {
         while (1) {
           switch (_context5.prev = _context5.next) {
             case 0:
-              uni.setStorageSync("routing", false);
-              _context5.next = 3;
-              return (0, _turntableApi.getUserTurntableInfoAPI)();
-            case 3:
-              res = _context5.sent;
-              _context5.next = 6;
-              return (0, _turntableApi.getAllSystemTurntableAPI)();
-            case 6:
-              turntableInfoRes = _context5.sent;
-              _this6.typeList = []; // 先清空
-              _this6.selectedType = turntableInfoRes.data[0].id;
-              for (i = 0; i < Math.ceil(turntableInfoRes.data.length / _this6.pageShowSize); i++) {
-                _this6.$set(_this6.typeList, i, turntableInfoRes.data.slice(i * _this6.pageShowSize, (i + 1) * _this6.pageShowSize));
+              if (!uni.getStorageSync("routing")) {
+                _context5.next = 2;
+                break;
               }
-              _this6.customTypes = res.data.splice(0, 6); // 只	展示前6个
-              _this6.getTuratableDetail(_this6.selectedType);
-            case 12:
+              return _context5.abrupt("return");
+            case 2:
+              _this6.selectedType = id;
+              _context5.next = 5;
+              return (0, _turntableApi.getTurntableDetailAPI)(id);
+            case 5:
+              res = _context5.sent;
+              _this6.prizeList = JSON.parse(res.data.content);
+              _this6.turntable = res.data;
+              // 下面是为了强制刷新轮盘内容
+              _this6.isCheckMenu = true;
+              (_this6$$refs$myLucky = _this6.$refs.myLucky) === null || _this6$$refs$myLucky === void 0 ? void 0 : (_this6$$refs$myLucky$ = _this6$$refs$myLucky.play) === null || _this6$$refs$myLucky$ === void 0 ? void 0 : _this6$$refs$myLucky$.call(_this6$$refs$myLucky);
+              (_this6$$refs$myLucky2 = _this6.$refs.myLucky) === null || _this6$$refs$myLucky2 === void 0 ? void 0 : (_this6$$refs$myLucky3 = _this6$$refs$myLucky2.stop) === null || _this6$$refs$myLucky3 === void 0 ? void 0 : _this6$$refs$myLucky3.call(_this6$$refs$myLucky2, -1);
+            case 11:
             case "end":
               return _context5.stop();
           }
         }
       }, _callee5);
+    }))();
+  }), (0, _defineProperty2.default)(_methods, "init", function init() {
+    var _this7 = this;
+    return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee6() {
+      var res, turntableInfoRes, i;
+      return _regenerator.default.wrap(function _callee6$(_context6) {
+        while (1) {
+          switch (_context6.prev = _context6.next) {
+            case 0:
+              uni.setStorageSync("routing", false);
+              _context6.next = 3;
+              return (0, _turntableApi.getUserTurntableInfoAPI)();
+            case 3:
+              res = _context6.sent;
+              _context6.next = 6;
+              return (0, _turntableApi.getAllSystemTurntableAPI)();
+            case 6:
+              turntableInfoRes = _context6.sent;
+              _this7.typeList = []; // 先清空
+              _this7.selectedType = turntableInfoRes.data[0].id;
+              for (i = 0; i < Math.ceil(turntableInfoRes.data.length / _this7.pageShowSize); i++) {
+                _this7.$set(_this7.typeList, i, turntableInfoRes.data.slice(i * _this7.pageShowSize, (i + 1) * _this7.pageShowSize));
+              }
+              _this7.customTypes = res.data.splice(0, 6); // 只	展示前6个
+              _this7.getTuratableDetail(_this7.selectedType);
+            case 12:
+            case "end":
+              return _context6.stop();
+          }
+        }
+      }, _callee6);
     }))();
   }), (0, _defineProperty2.default)(_methods, "checkSetting", function checkSetting() {
     var duration = uni.getStorageSync("roatingDuration");

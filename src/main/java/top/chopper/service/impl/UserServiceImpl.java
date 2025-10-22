@@ -1,4 +1,5 @@
 package top.chopper.service.impl;
+import cn.hutool.core.util.StrUtil;
 import com.alibaba.druid.support.json.JSONUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -26,6 +27,7 @@ import java.net.URL;
 import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
+import java.util.Map;
 
 /*
    @Author:ROBOT
@@ -84,13 +86,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 微信小程序用户登录处理
-     * @param code 获取openid 时的随机码
+     * @param params 参数map
      * @return
      */
     @Override
     @Transactional
-    public R wxClientLogin(String code) {
-        String openid = getOpenid(code);
+    public R wxClientLogin(Map params) {
+        String openid = getOpenid(params.get("code").toString());
+        Object inviter = params.get("shareOpenid"); // 邀请人
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(User::getOpenid,openid);
         User user = userMapper.selectOne(queryWrapper);
@@ -100,8 +103,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             user.setOpenid(openid);
             user.setRemark("client");
             user.setName(openid.substring(openid.length()-6));
+            if(inviter!=null && !StrUtil.isEmpty(inviter.toString())){
+                user.setInviter(inviter.toString());
+            }
             userMapper.insert(user);
-            Integer id = user.getId();
             HashMap<String, String> claimMap = new HashMap<>();
             claimMap.put("identity",openid); // 记录openid和account的
             claimMap.put("role","client"); // 标记当前用户所属角色
@@ -124,9 +129,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             claimMap.put("createTime",LocalDateTime.now().toString());
             String jwtToken = JWTUtil.createJWT(claimMap, secretKey);
             Token token = tokenMapper.selectById(user.getId());
-            token.setToken(jwtToken);
-            token.setUpdateTime(LocalDateTime.now());
-            tokenMapper.updateById(token);
+            if(token==null){ // 数据库删除用户token ，前端强制重新登录
+                token = new Token();
+                token.setId(user.getId());
+                token.setToken(jwtToken);
+                token.setCreateTime(LocalDateTime.now());
+                tokenMapper.insert(token);
+            }
+            else{
+                token.setToken(jwtToken);
+                token.setUpdateTime(LocalDateTime.now());
+                tokenMapper.updateById(token);
+            }
             user.setUpdateTime(LocalDateTime.now());
             userMapper.updateById(user);
             HashMap<String, String> resMap = new HashMap<>();

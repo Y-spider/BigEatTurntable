@@ -180,9 +180,12 @@
 				this.modalName = "DialogModal2"
 			},
 			handConfim() {
+				console.log("this.turntable",this.turntable)
+				const turntableName = this.turntable.type==0 ? this.turntable.title+"-自定义":(this.turntable.type==2 ? this.turntable.title+"-热门":this.turntable.title);
+				
 				let saveRecordData = {
 					turntableId: this.turntable.id,
-					turntableName: this.turntable.type==0 ? this.turntable.title+"-自定义":this.turntable.title,
+					turntableName: turntableName,
 					result: this.resultPrize.fonts[0].text,
 					type: this.turntable.type
 				}

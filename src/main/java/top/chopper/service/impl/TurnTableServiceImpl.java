@@ -1,5 +1,6 @@
 package top.chopper.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
@@ -68,5 +69,19 @@ public class TurnTableServiceImpl extends ServiceImpl<TurnTableMapper, TurnTable
             mapper.updateById(oldTurntable);
         }
 
+    }
+
+    /**
+     * @param id
+     */
+    @Override
+    @Transactional
+    public void myDeleteTurntableById(Integer id) {
+        LambdaQueryWrapper<RotationRecord> recordLambdaQueryWrapper = new LambdaQueryWrapper<>();
+        recordLambdaQueryWrapper.eq(RotationRecord::getTurntableId,id);
+        TurnTable turnTable = mapper.selectById(id);
+        int deleted = recordMapper.delete(recordLambdaQueryWrapper);
+        mapper.deleteById(id);
+        log.info("成功删除用户==>{}自定义转盘==》{}旋转记录受影响条数为:{}",SecurityUtil.getUserName(),turnTable.getTitle(),deleted);
     }
 }

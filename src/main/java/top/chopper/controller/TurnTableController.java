@@ -37,9 +37,9 @@ public class TurnTableController {
     public R listByOpenid(){
         String openid = SecurityUtil.getUserName();
         LambdaQueryWrapper<TurnTable> queryWrapper = new LambdaQueryWrapper<TurnTable>()
-                .select(TurnTable::getId,TurnTable::getTitle,TurnTable::getCreateTime,TurnTable::getType)
+                .select(TurnTable::getId,TurnTable::getTitle,TurnTable::getCreateTime,TurnTable::getUpdateTime,TurnTable::getType)
                 .eq(TurnTable::getOpenid, openid)
-                .orderByDesc(TurnTable::getOrderNumber)
+                .orderByDesc(TurnTable::getUpdateTime)
                 .orderByDesc(TurnTable::getCreateTime);
         return R.SUCCESS(service.list(queryWrapper));
     }
@@ -87,12 +87,14 @@ public class TurnTableController {
     @Operation(description = "删除轮盘信息根据id",summary = "删除轮盘信息根据id")
     @DeleteMapping("/delete/{id}")
     public R handleDeleteById(@PathVariable("id") Integer id){
-        return R.SUCCESS(service.removeById(id));
+        service.myDeleteTurntableById(id);
+        return R.SUCCESS();
     }
 
     @Operation(description = "修改轮盘信息根据轮盘id",summary = "修改轮盘信息根据轮盘id")
     @PutMapping("/update")
     public R handleUpdateTurntable(@RequestBody TurnTable turnTable){
+        turnTable.setUpdateTime(LocalDateTime.now());
         service.updateTurnTable(turnTable);
         return R.SUCCESS();
     }
@@ -109,9 +111,10 @@ public class TurnTableController {
     public R handleAddTurntableClinet(@RequestBody TurnTable turnTable){
         // 这里需要判断具体的添加的角色，来进行一些信息的填充
         turnTable.setOpenid(SecurityUtil.getUserName());
-        turnTable.setUpdateTime(LocalDateTime.now());
+        LocalDateTime now = LocalDateTime.now();
+        turnTable.setUpdateTime(now);
         turnTable.setType(TurnTableType.TURN_TABLE_TYPE_OPT);
-        turnTable.setCreateTime(LocalDateTime.now());
+        turnTable.setCreateTime(now);
         return R.SUCCESS(service.save(turnTable));
     }
 

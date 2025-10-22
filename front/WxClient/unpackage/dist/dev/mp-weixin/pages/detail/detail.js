@@ -102,7 +102,7 @@ var render = function () {
   var _vm = this
   var _h = _vm.$createElement
   var _c = _vm._self._c || _h
-  var g0 = _vm.turntableInfo.type == 0 ? _vm.spinRecords.length : null
+  var g0 = _vm.spinRecords.length
   _vm.$mp.data = Object.assign(
     {},
     {
@@ -156,14 +156,15 @@ var _asyncToGenerator2 = _interopRequireDefault(__webpack_require__(/*! @babel/r
 var _turntableApi = __webpack_require__(/*! @/apis/turntableApi.js */ 43);
 var _dishApi = __webpack_require__(/*! @/apis/dishApi.js */ 79);
 var _rotationRecordApi = __webpack_require__(/*! @/apis/rotationRecordApi.js */ 45);
+var _userApi = __webpack_require__(/*! @/apis/userApi.js */ 132);
 var Turntable = function Turntable() {
   __webpack_require__.e(/*! require.ensure | components/Turntable */ "components/Turntable").then((function () {
-    return resolve(__webpack_require__(/*! @/components/Turntable.vue */ 125));
+    return resolve(__webpack_require__(/*! @/components/Turntable.vue */ 124));
   }).bind(null, __webpack_require__)).catch(__webpack_require__.oe);
 };
 var sharePopDialog = function sharePopDialog() {
   __webpack_require__.e(/*! require.ensure | components/share_pop_dialog */ "components/share_pop_dialog").then((function () {
-    return resolve(__webpack_require__(/*! @/components/share_pop_dialog.vue */ 113));
+    return resolve(__webpack_require__(/*! @/components/share_pop_dialog.vue */ 112));
   }).bind(null, __webpack_require__)).catch(__webpack_require__.oe);
 };
 var _default = {
@@ -187,7 +188,10 @@ var _default = {
       refreshTimer: null,
       isShare: false,
       // 标识是否是分享操作
-      refreshInterval: 1000 * 10 // 每隔10s刷新一次或者手动刷新
+      refreshInterval: 1000 * 3,
+      // 每隔3s刷新一次或者手动刷新
+      openid: null,
+      isSuccessGetTurntableInfo: false
     };
   },
   onHide: function onHide() {
@@ -198,35 +202,71 @@ var _default = {
   },
   onShow: function onShow() {
     this.init();
-    if (this.turntableInfo.type == 0) {
-      this.startAutoRefresh(this.refreshInterval);
-    }
   },
   onShareAppMessage: function onShareAppMessage() {
-    var expireTime = Date.now() + 30 * 60 * 1000;
-    uni.setStorageSync("hasPermissionCheckDetail", {
-      expireTime: expireTime
-    });
-    return {
-      title: this.tableName,
-      path: "/pages/detail/detail?id=".concat(this.id, "&tableName=").concat(this.tableName, "&backUrl=/pages/index/index"),
-      withShareTicket: true
-    };
+    var _this = this;
+    return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
+      var expireTime, res;
+      return _regenerator.default.wrap(function _callee$(_context) {
+        while (1) {
+          switch (_context.prev = _context.next) {
+            case 0:
+              expireTime = Date.now() + 30 * 60 * 1000;
+              uni.setStorageSync("hasPermissionCheckDetail", {
+                expireTime: expireTime
+              });
+              if (_this.openid) {
+                _context.next = 7;
+                break;
+              }
+              _context.next = 5;
+              return (0, _userApi.getOpenidAPI)();
+            case 5:
+              res = _context.sent;
+              _this.openid = res.data;
+            case 7:
+              return _context.abrupt("return", {
+                title: _this.tableName,
+                path: "/pages/detail/detail?id=".concat(_this.id, "&tableName=").concat(_this.tableName, "&backUrl=/pages/index/index&shareOpenid=").concat(_this.openid),
+                withShareTicket: true
+              });
+            case 8:
+            case "end":
+              return _context.stop();
+          }
+        }
+      }, _callee);
+    }))();
   },
   methods: {
+    handleExportData: function handleExportData() {
+      var content = "";
+      this.prizeList.forEach(function (prize) {
+        content += prize.fonts[0].text + "\n";
+      });
+      uni.setClipboardData({
+        data: content,
+        success: function success(res) {
+          uni.showToast({
+            duration: 1200,
+            title: "导出到剪切板"
+          });
+        }
+      });
+    },
     // ✅ 新增刷新操作
     refreshSpinRecords: function refreshSpinRecords() {
-      var _this = this;
-      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
-        return _regenerator.default.wrap(function _callee$(_context) {
+      var _this2 = this;
+      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
+        return _regenerator.default.wrap(function _callee2$(_context2) {
           while (1) {
-            switch (_context.prev = _context.next) {
+            switch (_context2.prev = _context2.next) {
               case 0:
                 uni.showLoading({
                   title: "加载中..."
                 });
-                _context.next = 3;
-                return _this.loadSpinRecords();
+                _context2.next = 3;
+                return _this2.loadSpinRecords();
               case 3:
                 uni.hideLoading();
                 uni.showToast({
@@ -235,19 +275,22 @@ var _default = {
                 });
               case 5:
               case "end":
-                return _context.stop();
+                return _context2.stop();
             }
           }
-        }, _callee);
+        }, _callee2);
       }))();
     },
     // ✅ 新增：启动自动刷新
     startAutoRefresh: function startAutoRefresh(interval) {
-      var _this2 = this;
+      var _this3 = this;
       // 先清理旧定时器，避免重复
       this.clearAutoRefresh();
+      if (!this.isSuccessGetTurntableInfo) {
+        this.init();
+      }
       this.refreshTimer = setInterval(function () {
-        _this2.loadSpinRecords();
+        _this3.loadSpinRecords();
       }, interval);
     },
     // ✅ 新增：清除定时器
@@ -259,49 +302,53 @@ var _default = {
     },
     // ✅ 新增：调用后端接口获取记录
     loadSpinRecords: function loadSpinRecords() {
-      var _this3 = this;
-      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee2() {
-        var res;
-        return _regenerator.default.wrap(function _callee2$(_context2) {
-          while (1) {
-            switch (_context2.prev = _context2.next) {
-              case 0:
-                _context2.next = 2;
-                return (0, _rotationRecordApi.listSingleTurntableRecordAPI)(_this3.id);
-              case 2:
-                res = _context2.sent;
-                if (res) {
-                  _context2.next = 5;
-                  break;
-                }
-                return _context2.abrupt("return");
-              case 5:
-                _this3.spinRecords = res.data;
-              case 6:
-              case "end":
-                return _context2.stop();
-            }
-          }
-        }, _callee2);
-      }))();
-    },
-    handleGenerateTurntableInfo: function handleGenerateTurntableInfo() {
       var _this4 = this;
       return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee3() {
-        var res, dishList, bgColors, turntableInfoContent;
+        var res;
         return _regenerator.default.wrap(function _callee3$(_context3) {
           while (1) {
             switch (_context3.prev = _context3.next) {
               case 0:
-                _context3.next = 2;
-                return (0, _dishApi.listDishRandomAPI)(6, _this4.dishTypeId);
-              case 2:
+                // 假设接口叫 getSpinRecordsAPI，你换成自己的
+                if (!_this4.isSuccessGetTurntableInfo) {
+                  _this4.init();
+                }
+                _context3.next = 3;
+                return (0, _rotationRecordApi.listSingleTurntableRecordAPI)(_this4.id);
+              case 3:
                 res = _context3.sent;
                 if (res) {
-                  _context3.next = 5;
+                  _context3.next = 6;
                   break;
                 }
                 return _context3.abrupt("return");
+              case 6:
+                _this4.spinRecords = res.data;
+              case 7:
+              case "end":
+                return _context3.stop();
+            }
+          }
+        }, _callee3);
+      }))();
+    },
+    handleGenerateTurntableInfo: function handleGenerateTurntableInfo() {
+      var _this5 = this;
+      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee4() {
+        var res, dishList, bgColors, turntableInfoContent;
+        return _regenerator.default.wrap(function _callee4$(_context4) {
+          while (1) {
+            switch (_context4.prev = _context4.next) {
+              case 0:
+                _context4.next = 2;
+                return (0, _dishApi.listDishRandomAPI)(6, _this5.dishTypeId);
+              case 2:
+                res = _context4.sent;
+                if (res) {
+                  _context4.next = 5;
+                  break;
+                }
+                return _context4.abrupt("return");
               case 5:
                 dishList = res.data; // 一些背景色池（可以自定义更多）
                 bgColors = ["#e9e8fe", "#b8c5f2", "#cf7e40", "#e2b29d", "#947975", "#6abf69", "#ffb347", "#87ceeb"]; // 转换成转盘数据结构
@@ -321,14 +368,14 @@ var _default = {
                     range: 1
                   };
                 }); // 存到本地变量/状态中（比如 this.turntableInfo）
-                _this4.prizeList = turntableInfoContent;
-                _this4.turntableInfo.title = _this4.tableName + "菜品"; // 设置转盘名称
+                _this5.prizeList = turntableInfoContent;
+                _this5.turntableInfo.title = _this5.tableName + "菜品"; // 设置转盘名称
               case 10:
               case "end":
-                return _context3.stop();
+                return _context4.stop();
             }
           }
-        }, _callee3);
+        }, _callee4);
       }))();
     },
     handleShowMake: function handleShowMake() {
@@ -353,37 +400,46 @@ var _default = {
       this.prize = prize;
     },
     init: function init() {
-      var _this5 = this;
-      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee4() {
+      var _this6 = this;
+      return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee5() {
         var res;
-        return _regenerator.default.wrap(function _callee4$(_context4) {
+        return _regenerator.default.wrap(function _callee5$(_context5) {
           while (1) {
-            switch (_context4.prev = _context4.next) {
+            switch (_context5.prev = _context5.next) {
               case 0:
-                if (!isNaN(_this5.dishTypeId)) {
-                  _context4.next = 10;
+                if (!isNaN(_this6.dishTypeId)) {
+                  _context5.next = 15;
                   break;
                 }
-                _context4.next = 3;
-                return (0, _turntableApi.getTurntableDetailAPI)(_this5.id);
+                _context5.next = 3;
+                return (0, _turntableApi.getTurntableDetailAPI)(_this6.id);
               case 3:
-                res = _context4.sent;
-                _this5.turntableInfo = res.data;
-                _this5.prizeList = JSON.parse(res.data.content);
-                _this5.loadSpinRecords(); // 调用获取旋转记录
-                _this5.isShowEditButton = true;
-                _context4.next = 12;
+                res = _context5.sent;
+                if (res) {
+                  _context5.next = 7;
+                  break;
+                }
+                _this6.isSuccessGetTurntableInfo = false;
+                return _context5.abrupt("return");
+              case 7:
+                ;
+                _this6.turntableInfo = res.data;
+                _this6.prizeList = JSON.parse(res.data.content);
+                _this6.loadSpinRecords(); // 调用获取旋转记录
+                _this6.isShowEditButton = true;
+                _this6.isSuccessGetTurntableInfo = true;
+                _context5.next = 17;
                 break;
-              case 10:
-                _this5.isShowEditButton = false;
+              case 15:
+                _this6.isShowEditButton = false;
                 // 处理随机菜单转盘
-                _this5.handleGenerateTurntableInfo();
-              case 12:
+                _this6.handleGenerateTurntableInfo();
+              case 17:
               case "end":
-                return _context4.stop();
+                return _context5.stop();
             }
           }
-        }, _callee4);
+        }, _callee5);
       }))();
     }
   },
@@ -395,6 +451,11 @@ var _default = {
     this.isShare = option.isShare ? option.isShare : this.isShare;
     // TODO: 将当前分享的转盘好友也可以保存在自己的账户
     // TODO: 好友可以互相在线编辑 websocket编辑
+    this.startAutoRefresh(this.refreshInterval);
+    if (option.shareOpenid) {
+      // 表示当前用户为用户邀请的用户(也可能是老用户,只管传递至于新老用户由后端判断)
+      uni.setStorageSync("shareOpenid", option.shareOpenid);
+    }
   }
 };
 exports.default = _default;

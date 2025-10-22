@@ -14,8 +14,8 @@
 							style="margin: 0 10rpx;"></text>分享</button>
 				</view>
 				<view class="fun-but">
-					<button v-if="prize.isMake" @click="handleShowMake" class="cu-btn bg-gradual-green shadow"> <text
-							class="cuIcon-form" style="margin: 0 10rpx;"></text>菜谱</button>
+					<button @click="handleExportData" class="cu-btn bg-yellow shadow cuIcon-down"> <text
+							style="margin: 0 10rpx;"></text>导出</button>
 				</view>
 				<view v-if="isShowEditButton" class="fun-but">
 					<button class="cu-btn bg-red shadow" @click="goEdit"> <text class="cuIcon-edit"
@@ -31,7 +31,7 @@
 
 		<!-- 旋转记录列表 -->
 		<!-- 旋转记录列表（可滚动） -->
-		<view v-if="turntableInfo.type==0" class="record-container">
+		<view class="record-container">
 			<view class="record-header">
 				<text class="record-title">旋转记录</text>
 				<view class="refresh-btn" @click="refreshSpinRecords">
@@ -39,7 +39,7 @@
 				</view>
 			</view>
 
-			<scroll-view scroll-y class="record-scroll">
+			<scroll-view scroll-y class="record-scroll" @scrolltolower="loadMoreRecord">
 				<view v-if="spinRecords.length === 0" class="record-empty">
 					暂无记录
 				</view>
@@ -55,12 +55,7 @@
 				</view>
 			</scroll-view>
 		</view>
-
-
 	</view>
-
-
-
 	</view>
 </template>
 
@@ -73,7 +68,12 @@
 	import {
 		listDishRandomAPI
 	} from "@/apis/dishApi.js";
-	import {listSingleTurntableRecordAPI} from "@/apis/rotationRecordApi.js";
+	import {
+		listSingleTurntableRecordAPI
+	} from "@/apis/rotationRecordApi.js";
+	import {
+		getOpenidAPI
+	} from "@/apis/userApi.js";
 	export default {
 		components: {
 			Turntable,
@@ -91,9 +91,10 @@
 				backUrl: "",
 				spinRecords: [], // ✅ 新增，用来保存旋转记录
 				refreshTimer: null,
-				isShare:false, // 标识是否是分享操作
-				refreshInterval: 1000 * 10 // 每隔10s刷新一次或者手动刷新
-
+				isShare: false, // 标识是否是分享操作
+				refreshInterval: 1000 * 3, // 每隔3s刷新一次或者手动刷新
+				openid: null,
+				isSuccessGetTurntableInfo:false
 			}
 		},
 		onHide() {
@@ -104,23 +105,40 @@
 		},
 		onShow() {
 			this.init()
-			if(this.turntableInfo.type==0){
-				this.startAutoRefresh(this.refreshInterval);
-			}
 		},
-		onShareAppMessage() {
+		async onShareAppMessage() {
 			let expireTime = Date.now() + 30 * 60 * 1000;
 			uni.setStorageSync("hasPermissionCheckDetail", {
 				expireTime
 			})
-
+			if (!this.openid) {
+				const res = await getOpenidAPI();
+				this.openid = res.data;
+			}
 			return {
 				title: this.tableName,
-				path: `/pages/detail/detail?id=${this.id}&tableName=${this.tableName}&backUrl=/pages/index/index`,
+				path: `/pages/detail/detail?id=${this.id}&tableName=${this.tableName}&backUrl=/pages/index/index&shareOpenid=${this.openid}`,
 				withShareTicket: true
 			}
 		},
 		methods: {
+			handleExportData() {
+				let content = "";
+				this.prizeList.forEach(prize => {
+					content += prize.fonts[0].text + "\n";
+				});
+
+				uni.setClipboardData({
+					data: content,
+					success(res) {
+						uni.showToast({
+							duration: 1200,
+							title: "导出到剪切板"
+						})
+					}
+				})
+
+			},
 			// ✅ 新增刷新操作
 			async refreshSpinRecords() {
 				uni.showLoading({
@@ -137,7 +155,10 @@
 			startAutoRefresh(interval) {
 				// 先清理旧定时器，避免重复
 				this.clearAutoRefresh();
+				if(!this.isSuccessGetTurntableInfo){
+					this.init();
 
+				}
 				this.refreshTimer = setInterval(() => {
 					this.loadSpinRecords();
 				}, interval);
@@ -153,8 +174,11 @@
 			// ✅ 新增：调用后端接口获取记录
 			async loadSpinRecords() {
 				// 假设接口叫 getSpinRecordsAPI，你换成自己的
+				if(!this.isSuccessGetTurntableInfo){
+					this.init();
+				}
 				const res = await listSingleTurntableRecordAPI(this.id);
-				if(!res) return;
+				if (!res) return;
 				this.spinRecords = res.data;
 			},
 			async handleGenerateTurntableInfo() {
@@ -213,10 +237,12 @@
 			async init() {
 				if (isNaN(this.dishTypeId)) {
 					let res = await getTurntableDetailAPI(this.id)
+					if(!res){this.isSuccessGetTurntableInfo = false;return;};
 					this.turntableInfo = res.data
 					this.prizeList = JSON.parse(res.data.content)
 					this.loadSpinRecords(); // 调用获取旋转记录
 					this.isShowEditButton = true;
+					this.isSuccessGetTurntableInfo = true;
 				} else {
 					this.isShowEditButton = false;
 					// 处理随机菜单转盘
@@ -229,9 +255,14 @@
 			this.dishTypeId = parseInt(option.dishTypeId)
 			this.tableName = option.tableName
 			this.backUrl = option.backUrl ? option.backUrl : this.backUrl
-			this.isShare = option.isShare? option.isShare : this.isShare
+			this.isShare = option.isShare ? option.isShare : this.isShare
 			// TODO: 将当前分享的转盘好友也可以保存在自己的账户
 			// TODO: 好友可以互相在线编辑 websocket编辑
+			this.startAutoRefresh(this.refreshInterval);
+			if (option.shareOpenid) {
+				// 表示当前用户为用户邀请的用户(也可能是老用户,只管传递至于新老用户由后端判断)
+				uni.setStorageSync("shareOpenid", option.shareOpenid);
+			}
 
 		}
 
@@ -300,10 +331,10 @@
 	.refresh-btn text {
 		margin-right: 8rpx;
 	}
-	
+
 	.my-record {
-		color: #ff9800; /* 你的小程序主题色 */
+		color: #ff9800;
+		/* 你的小程序主题色 */
 		font-weight: bold;
 	}
-
 </style>

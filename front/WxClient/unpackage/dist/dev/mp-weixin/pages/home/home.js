@@ -269,9 +269,6 @@ var _turntableApi = __webpack_require__(/*! @/apis/turntableApi.js */ 43);
 //
 //
 //
-//
-//
-//
 var _default = {
   data: function data() {
     return {
@@ -337,7 +334,7 @@ var _default = {
       var that = this;
       uni.showModal({
         title: "警告",
-        content: "\u662F\u5426\u5220\u9664\u8F6C\u76D8[".concat(item.title, "]"),
+        content: "\u662F\u5426\u5220\u9664\u8F6C\u76D8[".concat(item.title, "](\u8BB0\u5F55\u4E5F\u4F1A\u968F\u4E4B\u5220\u9664\uFF01)"),
         success: function success(res) {
           return (0, _asyncToGenerator2.default)( /*#__PURE__*/_regenerator.default.mark(function _callee() {
             var _res;
@@ -372,7 +369,7 @@ var _default = {
       uni.showModal({
         title: "提示",
         showCancel: false,
-        content: "长按可删除轮盘!"
+        content: "长按可删除轮盘\n注意同时相关记录也会删除！"
       });
     },
     gotoCreate: function gotoCreate() {

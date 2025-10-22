@@ -5,6 +5,8 @@ import top.chopper.dto.AdminUserLoginDto;
 import top.chopper.pojo.R;
 import top.chopper.pojo.User;
 
+import java.util.Map;
+
 /*
    @Author:ROBOT
    @DateTime:2025/7/6 17:29
@@ -14,5 +16,5 @@ import top.chopper.pojo.User;
 public interface UserService extends IService<User> {
     R adminLogin(AdminUserLoginDto adminUserLoginDto);
 
-    R wxClientLogin(String code);
+    R wxClientLogin(Map params);
 }

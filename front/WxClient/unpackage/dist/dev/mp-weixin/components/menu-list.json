@@ -1,8 +1,0 @@
-{
-  "component": true,
-  "usingComponents": {
-    "uni-search-bar": "/uni_modules/uni-search-bar/components/uni-search-bar/uni-search-bar",
-    "dish-add-dialog": "/components/dish_add_dialog",
-    "share-pop-dialog": "/components/share_pop_dialog"
-  }
-}
