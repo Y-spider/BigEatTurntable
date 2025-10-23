@@ -38,4 +38,6 @@ public class TurnTable {
     private LocalDateTime updateTime;
     @Schema(name = "orderNumber",description = "排序字段")
     private Integer orderNumber;
+    @Schema(name = "repeat",description = "是否可重复抽")
+    private Boolean isRepeat;
 }

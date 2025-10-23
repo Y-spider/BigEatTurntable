@@ -7,6 +7,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import top.chopper.Exception.BusinessException;
 import top.chopper.constant.TurnTableType;
 import top.chopper.mapper.RotationRecordMapper;
 import top.chopper.mapper.TurnTableMapper;
@@ -43,6 +44,9 @@ public class TurnTableServiceImpl extends ServiceImpl<TurnTableMapper, TurnTable
         TurnTable oldTurntable = mapper.selectById(turnTable.getId());
         if (oldTurntable.getType().equals(TurnTableType.TURN_TABLE_TYPE_SYS) || oldTurntable.getType().equals(TurnTableType.TURN_TABLE_TYPE_HOT)) {
             // 情况1 新建用户自定义转盘
+            if(oldTurntable.getTitle().equals(turnTable.getTitle())){
+                throw new BusinessException("转盘名已存在!");
+            }
             oldTurntable.setCreateTime(LocalDateTime.now());
             oldTurntable.setUpdateTime(LocalDateTime.now());
             oldTurntable.setContent(turnTable.getContent());

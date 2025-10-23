@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import top.chopper.Exception.BusinessException;
 import top.chopper.constant.TurnTableType;
 import top.chopper.dto.QueryPageDto;
 import top.chopper.pojo.R;
@@ -111,6 +112,14 @@ public class TurnTableController {
     public R handleAddTurntableClinet(@RequestBody TurnTable turnTable){
         // 这里需要判断具体的添加的角色，来进行一些信息的填充
         turnTable.setOpenid(SecurityUtil.getUserName());
+        // 不允许用户下有相同名称的转盘
+        LambdaQueryWrapper<TurnTable> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(TurnTable::getOpenid,turnTable.getOpenid())
+                .eq(TurnTable::getTitle,turnTable.getTitle());
+        boolean exists = service.exists(queryWrapper);
+        if(exists){
+            throw new BusinessException("转盘名已存在!");
+        }
         LocalDateTime now = LocalDateTime.now();
         turnTable.setUpdateTime(now);
         turnTable.setType(TurnTableType.TURN_TABLE_TYPE_OPT);

@@ -8,7 +8,7 @@
 		<view class="turntable-box">
 			<Turntable :turntable="turntableInfo" @routeDone="getRouteResult" :prizeList="prizeList"
 				style="margin: 50rpx;"></Turntable>
-			<view class="fun-button" style="display: flex;justify-content: space-between; align-items: center;">
+			<view class="fun-button" style="display: flex;justify-content: space-between; align-items: center;padding: 0rpx 10rpx;">
 				<view class="fun-but">
 					<button open-type="share" class="cu-btn bg-gradual-green shadow"> <text class="cuIcon-share"
 							style="margin: 0 10rpx;"></text>分享</button>
@@ -104,7 +104,9 @@
 			this.clearAutoRefresh();
 		},
 		onShow() {
-			this.init()
+			this.init();
+			this.clearAutoRefresh();
+			this.startAutoRefresh(this.refreshInterval);
 		},
 		async onShareAppMessage() {
 			let expireTime = Date.now() + 30 * 60 * 1000;
