@@ -35,4 +35,6 @@ p6spy 完整sql语句打印并且打印sql执行时间，方面找出慢查询�
     - 累计转盘数
 
 # 新增功能
-1. 用户邀请标记，在user表中添加了- inviter字段存储邀请人的openid
+1. 用户邀请标记，在user表中添加了- inviter字段存储邀请人的openid。
+2. 新增转盘可重复/不可重复抽选项。
+3. 给turntable添加is_repeat字段。
