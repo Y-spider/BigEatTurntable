@@ -11,7 +11,7 @@ import top.chopper.pojo.R;
 import top.chopper.pojo.RotationRecord;
 import top.chopper.service.RotationRecordService;
 import top.chopper.utils.SecurityUtil;
-import java.time.LocalDateTime;
+
 import java.util.List;
 
 /*
@@ -50,10 +50,8 @@ public class RotationRecordController {
     @Operation(description = "新增转动记录",summary = "新增转动记录")
     @PostMapping("/add")
     public R addRecord(@RequestBody RotationRecord record){
-        String openid = SecurityUtil.getUserName();
-        record.setOpenid(openid);
-        record.setCreateTime(LocalDateTime.now());
-        return R.SUCCESS(service.save(record));
+        service.addRecord(record);
+        return R.SUCCESS();
     }
 
     @Operation(description = "获取单个转盘记录，包含好友")

@@ -6,9 +6,10 @@
 		</cu-custom>
 		<!--  转盘详情页 -->
 		<view class="turntable-box">
-			<Turntable :turntable="turntableInfo" @routeDone="getRouteResult" :prizeList="prizeList"
+			<Turntable ref="turntable" :turntable="turntableInfo" @routeDone="getRouteResult" :prizeList="prizeList"
 				style="margin: 50rpx;"></Turntable>
-			<view class="fun-button" style="display: flex;justify-content: space-between; align-items: center;padding: 0rpx 10rpx;">
+			<view class="fun-button"
+				style="display: flex;justify-content: space-between; align-items: center;padding: 0rpx 10rpx;">
 				<view class="fun-but">
 					<button open-type="share" class="cu-btn bg-gradual-green shadow"> <text class="cuIcon-share"
 							style="margin: 0 10rpx;"></text>分享</button>
@@ -17,7 +18,8 @@
 					<button @click="handleExportData" class="cu-btn bg-yellow shadow cuIcon-down"> <text
 							style="margin: 0 10rpx;"></text>导出</button>
 				</view>
-				<view v-if="isShowEditButton" class="fun-but">
+				<!-- <view v-if="isShowEditButton" class="fun-but"> -->
+				<view class="fun-but">
 					<button class="cu-btn bg-red shadow" @click="goEdit"> <text class="cuIcon-edit"
 							style="margin: 0 10rpx;"></text> 编辑</button>
 				</view>
@@ -47,7 +49,7 @@
 					<view v-for="(item, index) in spinRecords" :key="index" class="record-item">
 						<view class="record-top">
 							<text v-if="!item.isMy">星友{{ item.userName }}</text>
-							<text class="my-record" v-else>我(自己)</text>
+							<text class="my-record" v-else >我(自己)</text>
 							<text>{{ item.result }}</text>
 						</view>
 						<view class="record-time">{{ item.createTime }}</view>
@@ -86,15 +88,14 @@
 				prizeList: [],
 				prize: null, // 奖品
 				turntableInfo: {},
-				dishTypeId: null,
 				isShowEditButton: true,
 				backUrl: "",
 				spinRecords: [], // ✅ 新增，用来保存旋转记录
 				refreshTimer: null,
-				isShare: false, // 标识是否是分享操作
 				refreshInterval: 1000 * 3, // 每隔3s刷新一次或者手动刷新
 				openid: null,
-				isSuccessGetTurntableInfo:false
+				isSuccessGetTurntableInfo: false,
+				shareOpenid: null,
 			}
 		},
 		onHide() {
@@ -119,11 +120,14 @@
 			}
 			return {
 				title: this.tableName,
-				path: `/pages/detail/detail?id=${this.id}&tableName=${this.tableName}&backUrl=/pages/index/index&shareOpenid=${this.openid}`,
+				path: `/pages/detail/detail?id=${this.id}&backUrl=/pages/index/index&shareOpenid=${this.openid}`,
 				withShareTicket: true
 			}
 		},
 		methods: {
+			loadMoreRecord() {
+				// 预留处理
+			},
 			handleExportData() {
 				let content = "";
 				this.prizeList.forEach(prize => {
@@ -147,6 +151,7 @@
 					title: "加载中..."
 				});
 				await this.loadSpinRecords();
+				this.init();
 				uni.hideLoading();
 				uni.showToast({
 					title: "刷新成功",
@@ -157,11 +162,13 @@
 			startAutoRefresh(interval) {
 				// 先清理旧定时器，避免重复
 				this.clearAutoRefresh();
-				if(!this.isSuccessGetTurntableInfo){
-					this.init();
-
-				}
+				// if (!this.isSuccessGetTurntableInfo) {
+				// 	this.init();
+				// }
 				this.refreshTimer = setInterval(() => {
+					if (this.turntableInfo && this.turntableInfo.type == 0) {
+						this.init();
+					}
 					this.loadSpinRecords();
 				}, interval);
 			},
@@ -176,55 +183,12 @@
 			// ✅ 新增：调用后端接口获取记录
 			async loadSpinRecords() {
 				// 假设接口叫 getSpinRecordsAPI，你换成自己的
-				if(!this.isSuccessGetTurntableInfo){
+				if (!this.isSuccessGetTurntableInfo) {
 					this.init();
 				}
 				const res = await listSingleTurntableRecordAPI(this.id);
 				if (!res) return;
 				this.spinRecords = res.data;
-			},
-			async handleGenerateTurntableInfo() {
-				// 根据随机获取的菜品列表，生成转盘信息
-				const res = await listDishRandomAPI(6, this.dishTypeId);
-				if (!res) return;
-				const dishList = res.data;
-
-				// 一些背景色池（可以自定义更多）
-				const bgColors = [
-					"#e9e8fe", "#b8c5f2", "#cf7e40", "#e2b29d",
-					"#947975", "#6abf69", "#ffb347", "#87ceeb"
-				];
-
-				// 转换成转盘数据结构
-				const turntableInfoContent = dishList.map((dish, index) => {
-					return {
-						fonts: [{
-							text: dish.name, // 菜品名字
-							top: "10%",
-							lineClamp: 2
-						}],
-						id: dish.id,
-						isMake: dish.isMake,
-						background: bgColors[index % bgColors.length], // 循环取颜色
-						lineClamp: 2,
-						range: 1,
-					};
-				});
-				// 存到本地变量/状态中（比如 this.turntableInfo）
-				this.prizeList = turntableInfoContent;
-				this.turntableInfo.title = this.tableName + "菜品"; // 设置转盘名称
-			},
-
-			handleShowMake() {
-				// 查看菜品制作页面
-				const checkPermision = uni.getStorageSync("hasPermissionCheckDetail");
-				if (!checkPermision || checkPermision?.expireTime <= Date.now()) {
-					this.$refs.sharePopDialogRef.open();
-				} else {
-					uni.navigateTo({
-						url: "/pages/dish_detail/dish_detail?id=" + this.prize.id
-					})
-				}
 			},
 			goEdit() {
 				let isSystem = true
@@ -235,33 +199,38 @@
 			},
 			getRouteResult(prize) {
 				this.prize = prize
+				// this.$refs.turntable.forceFlush()
 			},
 			async init() {
-				if (isNaN(this.dishTypeId)) {
-					let res = await getTurntableDetailAPI(this.id)
-					if(!res){this.isSuccessGetTurntableInfo = false;return;};
-					this.turntableInfo = res.data
-					this.prizeList = JSON.parse(res.data.content)
-					this.loadSpinRecords(); // 调用获取旋转记录
-					this.isShowEditButton = true;
-					this.isSuccessGetTurntableInfo = true;
-				} else {
+				let res = await getTurntableDetailAPI(this.id)
+				if (!res) {
+					this.isSuccessGetTurntableInfo = false;
+					return;
+				};
+				this.turntableInfo = res.data
+				if (this.turntableInfo.type == 0 && this.shareOpenid) {
 					this.isShowEditButton = false;
-					// 处理随机菜单转盘
-					this.handleGenerateTurntableInfo();
+				}
+				this.prizeList = JSON.parse(res.data.content)
+				this.isSuccessGetTurntableInfo = true;
+				if (this.turntableInfo.type == 0 && !this.turntableInfo.isRepeat) {
+				  this.prizeList.forEach(prize => {
+				    prize.fonts.forEach(f => {
+				      f.text = `剩余:${prize.count}  -` + f.text 
+				    })
+				  })
 				}
 			}
 		},
 		onLoad(option) {
 			this.id = parseInt(option.id)
-			this.dishTypeId = parseInt(option.dishTypeId)
-			this.tableName = option.tableName
 			this.backUrl = option.backUrl ? option.backUrl : this.backUrl
-			this.isShare = option.isShare ? option.isShare : this.isShare
 			// TODO: 将当前分享的转盘好友也可以保存在自己的账户
 			// TODO: 好友可以互相在线编辑 websocket编辑
+			this.init();
 			this.startAutoRefresh(this.refreshInterval);
 			if (option.shareOpenid) {
+				this.shareOpenid = option.shareOpenid;
 				// 表示当前用户为用户邀请的用户(也可能是老用户,只管传递至于新老用户由后端判断)
 				uni.setStorageSync("shareOpenid", option.shareOpenid);
 			}

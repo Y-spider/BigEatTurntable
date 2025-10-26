@@ -1,9 +1,6 @@
 package top.chopper.pojo;
 
-import com.baomidou.mybatisplus.annotation.IdType;
-import com.baomidou.mybatisplus.annotation.TableId;
-import com.baomidou.mybatisplus.annotation.TableLogic;
-import com.baomidou.mybatisplus.annotation.TableName;
+import com.baomidou.mybatisplus.annotation.*;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Data;
 
@@ -40,4 +37,7 @@ public class TurnTable {
     private Integer orderNumber;
     @Schema(name = "repeat",description = "是否可重复抽")
     private Boolean isRepeat;
+
+    @TableField(exist = false)
+    private Boolean canEdit = true; // 转盘修改权限,默认为true
 }

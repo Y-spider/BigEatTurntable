@@ -43,7 +43,7 @@ export default {
 		goDetail(item) {
 			uni.navigateTo({
 				// url: `pages/detail/detail?id=${item.id}&tableName=${item.title}`
-				url:`/pages/detail/detail?id=${item.id}&tableName=${item.title}`
+				url:`/pages/detail/detail?id=${item.id}`
 			})
 		}
 	}

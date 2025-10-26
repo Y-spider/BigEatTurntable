@@ -2,8 +2,10 @@
 	<view>
 		<view class="turntable-title">
 			{{turntable.title}}
+
+			<view @click="showTips" style="position: absolute; right: 20rpx;" class="cuIcon-question text-xl"></view>
 		</view>
-		<LuckyWheel  :key="count" ref="myLucky" width="700rpx" height="700rpx" offsetDegree=10 :blocks="blocks"
+		<LuckyWheel :key="count" ref="myLucky" width="700rpx" height="700rpx" offsetDegree=10 :blocks="blocks"
 			:prizes="prizes" :buttons="buttons" :defaultStyle="defaultStyle" :default-config="defaultConfig"
 			@start="startCallBack" @end="endCallBack" />
 		<!-- 结果弹框 -->
@@ -17,10 +19,10 @@
 					</view>
 				</view>
 				<view class="padding-xl">
-					{{resultPrize.fonts[0].text}}
+					{{showResultPrizeText}}
 				</view>
 				<view class="cu-bar bg-white">
-					<view class="action margin-0 flex-sub text-yellow " @tap="playAgain()">
+					<view v-if="turntable.isRepeat" class="action margin-0 flex-sub text-yellow " @tap="playAgain()">
 						<text></text>再来一次
 					</view>
 					<view class="action margin-0 flex-sub text-green solid-left">
@@ -54,14 +56,17 @@
 		},
 		data() {
 			return {
+				showResultPrizeText: "",
 				openMusic: true,
 				roatingDuration: 2,
 				modalName: "",
 				resultPrize: null,
 				count: 0,
 				LuckyWheel: null,
-				defaultStyle:{
-					fontSize:16
+				defaultStyle: {
+					fontSize: 16,
+					wordWrap: true,
+					lengthLimit: "50%"
 				},
 				defaultConfig: {
 					accelerationTime: 2000,
@@ -73,9 +78,7 @@
 					padding: '13px',
 					background: 'red'
 				}],
-				prizes: [
-					// { fonts: [{ text: '炒饭', top: '10%' }], background: '#e9e8fe' },
-				],
+				prizes: [],
 				buttons: [{
 						radius: '50px',
 						background: '#FFA500'
@@ -106,16 +109,29 @@
 		watch: {
 			prizeList: {
 				deep: true,
+				immediate: true,
 				handler(newVal, oldVal) {
-					this.prizes = [...newVal]
 					this.count++
-					if (this.LuckyWheel) {
-						this.LuckyWheel.init(this.prizes)
+					if (!this.turntable.isRepeat) {
+						newVal.forEach(prize => {
+							if (prize.count == 0) {
+								prize.range = 0
+							}
+						})
 					}
+					this.$set(this.prizeList, newVal)
+					this.prizes = this.prizeList
 				}
 			}
 		},
 		methods: {
+			showTips() {
+				uni.showModal({
+					title: "提示",
+					showCancel: false,
+					content: "1. 不重复抽转盘页面数据会有延迟，具体以抽奖时刻显示的为准!\n 2. 如果修改后页面信息不刷新退出转盘重新进入即可！"
+				})
+			},
 			checkSetting() {
 				let duration = uni.getStorageSync("roatingDuration")
 				let openMusic = uni.getStorageSync("openMusic")
@@ -139,7 +155,6 @@
 				return Math.floor(Math.random() * (max - min + 1)) + min;
 			},
 			init() {
-				this.prizes.prizeList = this.prizeList
 				this.audioPlay = uni.createInnerAudioContext({
 					useWebAudioImplement: true
 				});
@@ -149,10 +164,19 @@
 				this.audioPlay.src = "https://www.sunnygo.chat/images/eat-big-turntable/audioPlayForce_1.MP3"; // 本地或网络音频
 				this.audioPlay.loop = true
 				this.audioEnd.src = "/static/audio/audioEnd.mp3"
-				// this.LuckyWheel = this.$refs.myLucky
+				this.LuckyWheel = this.$refs.myLucky
 			},
 			// 点击抽奖按钮触发回调
 			startCallBack() {
+				const allZero = this.prizeList.every(item => item.range === 0);
+				if (allZero) {
+					uni.showModal({
+						showCancel: false,
+						content: "奖品已抽完！",
+					})
+					return;
+				}
+
 				// 先开始旋转
 				let routing = uni.getStorageSync("routing")
 				if (routing) {
@@ -170,26 +194,39 @@
 					this.$refs.myLucky.stop()
 				}, this.roatingDuration * 1000)
 			},
+			forceFlush() {
+				// 强制刷新转盘
+				this.$refs.myLucky.play()
+				this.$refs.myLucky.stop(-1)
+			},
 			// 抽奖结束触发回调
 			endCallBack(prize) {
+				console.log(prize)
+				if (!prize.range) return;
 				this.resultPrize = prize
+				if (this.turntable.type == 0 && !this.turntable.isRepeat) {
+					this.showResultPrizeText = this.resultPrize.fonts[0].text.split("-")[1];
+				} else {
+					this.showResultPrizeText = this.resultPrize.fonts[0].text
+				}
 				this.audioPlay.stop()
 				if (this.openMusic) {
 					this.audioEnd.play()
 				}
 				this.modalName = "DialogModal2"
 			},
-			handConfim() {
-				console.log("this.turntable",this.turntable)
-				const turntableName = this.turntable.type==0 ? this.turntable.title+"-自定义":(this.turntable.type==2 ? this.turntable.title+"-热门":this.turntable.title);
-				
+			async handConfim() {
+				console.log("this.turntable", this.turntable)
+				const turntableName = this.turntable.type == 0 ? this.turntable.title + "-自定义" : (this.turntable
+					.type == 2 ? this.turntable.title + "-热门" : this.turntable.title);
+
 				let saveRecordData = {
 					turntableId: this.turntable.id,
 					turntableName: turntableName,
-					result: this.resultPrize.fonts[0].text,
+					result: this.showResultPrizeText,
 					type: this.turntable.type
 				}
-				saveRecordAPI(saveRecordData)
+				await saveRecordAPI(saveRecordData)
 				this.$emit("routeDone", this.resultPrize)
 				this.modalName = ""
 				uni.setStorageSync("routing", false)

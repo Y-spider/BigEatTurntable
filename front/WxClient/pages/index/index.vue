@@ -67,10 +67,6 @@
 								style="margin: 0 10rpx;"></text>分享</button>
 					</view>
 					<view class="fun-but">
-						<button @click="handleShowMake" v-if="isShowMaker" class="cu-btn bg-gradual-green shadow"> <text
-								class="cuIcon-form" style="margin: 0 10rpx;"></text>菜谱</button>
-					</view>
-					<view class="fun-but">
 						<button class="cu-btn bg-red shadow" @click="goEdit"> <text class="cuIcon-edit"
 								style="margin: 0 10rpx;"></text> 编辑</button>
 					</view>
@@ -148,7 +144,9 @@
 				],
 				resultPrize: null,
 				defaultStyle: {
-					fontSize: 16
+					fontSize:16,
+					wordWrap:true,
+					lengthLimit:"50%"
 				},
 				defaultConfig: {
 					accelerationTime: 2000,
@@ -177,7 +175,6 @@
 					},
 				],
 				modalName: "",
-				isShowMaker: false,
 				selectedItem: null,
 				mode: 'random',
 				selectedType: 1, // 当前选中的固定类型，默认选中早餐菜单
@@ -262,20 +259,7 @@
 			hideModal() {
 				this.modalName = ""
 			},
-			open() {
-				this.$refs.myPopup.open()
-			},
-			confirm(value) {
-				// 输入框的值
-				// TODO 做一些其他的事情，手动执行 close 才会关闭对话框
-				// ...
-				this.$refs.popup.close()
-			},
-			close() {
-				// TODO 做一些其他的事情，before-close 为true的情况下，手动执行 close 才会关闭对话框
-				// ...
-				this.$refs.popup.close()
-			},
+
 			randomEmotion() {
 				const list = this.resultEmotionList;
 				return list[Math.floor(Math.random() * list.length)];
@@ -284,22 +268,28 @@
 				this.modalName = ""
 				uni.setStorageSync("routing", false)
 			},
-			handConfim() {
+			async handConfim() {
 				let saveRecordData = {
 					turntableId: this.turntable.id,
 					turntableName: this.turntable.type == 0 ? this.turntable.title + "-自定义" : this.turntable.title,
 					result: this.resultPrize.fonts[0].text,
 					type: this.turntable.type
 				}
-				saveRecordAPI(saveRecordData)
+				if(this.turntable.type == 0 && !this.turntable.isRepeat){
+					saveRecordData.result = this.resultPrize.fonts[0].text.split("-")[1];
+				}else{
+					saveRecordData.result = this.resultPrize.fonts[0].text
+				}
+				await saveRecordAPI(saveRecordData)
 				this.modalName = ""
 				uni.setStorageSync("routing", false)
+				this.getTuratableDetail(this.turntable.id)
+				
 			},
 			// 抽奖结束触发回调
 			endCallBack(prize) {
 				if (this.isCheckMenu) return;
 				this.resultPrize = prize
-				this.isShowMaker = prize?.isMake
 				this.audioPlay.stop()
 				if (this.openMusic) {
 					this.audioEnd.play()
@@ -308,7 +298,14 @@
 			},
 			// 点击抽奖按钮触发回调
 			startCallBack() {
-				this.isShowMaker = false
+				const allZero = this.prizeList.every(item => item.range === 0);
+				if(allZero){
+					uni.showModal({
+						showCancel:false,
+						content:"奖品已抽完！",
+					})
+					return;
+				}
 				// 先开始旋转
 				this.isCheckMenu = false
 				let routing = uni.getStorageSync("routing")
@@ -342,6 +339,18 @@
 				let res = await getTurntableDetailAPI(id)
 				this.prizeList = JSON.parse(res.data.content)
 				this.turntable = res.data
+				let tempList = this.prizeList
+				if (this.turntable.type == 0 && !this.turntable.isRepeat) {
+				 tempList.forEach(prize => {
+					if(prize.count == 0){
+						prize.range = 0
+					}
+				    prize.fonts.forEach(f => {
+				      f.text = `剩余:${prize.count}  -` + f.text 
+				    })
+				  })
+				}
+				console.log("tempList",tempList)
 				// 下面是为了强制刷新轮盘内容
 				this.isCheckMenu = true
 				this.$refs.myLucky?.play?.();

@@ -14,4 +14,5 @@ import java.util.List;
    */
 public interface RotationRecordService extends IService<RotationRecord> {
     List<ShareTurntableRotationRecordDto> listShareTurntableRecord(Long id);
+    void addRecord(RotationRecord record);
 }

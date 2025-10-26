@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import top.chopper.Exception.BusinessException;
@@ -15,6 +16,10 @@ import top.chopper.service.TurnTableService;
 import top.chopper.utils.SecurityUtil;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /*
    @Author:ROBOT
@@ -25,6 +30,7 @@ import java.time.LocalDateTime;
 @RestController
 @RequestMapping("/turntable")
 @Tag(name = "轮盘操作接口")
+@Slf4j
 public class TurnTableController {
     @Autowired
     private TurnTableService service;
@@ -69,7 +75,13 @@ public class TurnTableController {
     @Operation(description = "根据转盘id获转盘信息",summary="根据转盘id获转盘信息")
     @GetMapping("/querySingle/{id}")
     public R querySingleTurntableById(@PathVariable("id") Integer id){
-        return R.SUCCESS(service.getById(id));
+        TurnTable turnTable = service.getById(id);
+       if(turnTable.getType().equals(TurnTableType.TURN_TABLE_TYPE_OPT)){
+           if(!turnTable.getOpenid().equals(SecurityUtil.getUserName())){
+               turnTable.setCanEdit(false);
+           }
+       }
+        return R.SUCCESS(turnTable);
     }
 
     @Operation(description = "后台条件分页获取轮盘信息",summary = "后台条件分页获取轮盘信息")
@@ -95,6 +107,12 @@ public class TurnTableController {
     @Operation(description = "修改轮盘信息根据轮盘id",summary = "修改轮盘信息根据轮盘id")
     @PutMapping("/update")
     public R handleUpdateTurntable(@RequestBody TurnTable turnTable){
+        if(!turnTable.getIsRepeat()){
+            Set duplicate = this.checkHaveRepeatPrize(turnTable.getContent());
+            if(!duplicate.isEmpty()){
+                throw new BusinessException("不允许重复奖项:"+duplicate.stream().toList());
+            }
+        }
         turnTable.setUpdateTime(LocalDateTime.now());
         service.updateTurnTable(turnTable);
         return R.SUCCESS();
@@ -120,6 +138,13 @@ public class TurnTableController {
         if(exists){
             throw new BusinessException("转盘名已存在!");
         }
+        // 不重复抽，不允许有相同的奖品名称
+        if(!turnTable.getIsRepeat()){
+            Set duplicate = this.checkHaveRepeatPrize(turnTable.getContent());
+            if(!duplicate.isEmpty()){
+                throw new BusinessException("不允许重复奖项:"+duplicate.stream().toList());
+            }
+        }
         LocalDateTime now = LocalDateTime.now();
         turnTable.setUpdateTime(now);
         turnTable.setType(TurnTableType.TURN_TABLE_TYPE_OPT);
@@ -132,6 +157,34 @@ public class TurnTableController {
     public R handleAddTurntableAdmin(@RequestBody TurnTable turnTable){
         turnTable.setCreateTime(LocalDateTime.now());
         return R.SUCCESS(service.save(turnTable));
+    }
+
+
+    /**
+     * @param content 奖品JSON字符串
+     * @return 返回是否含有相同奖品名称
+     */
+    private Set checkHaveRepeatPrize(String content){
+        Pattern pattern = Pattern.compile("\"text\"\\s*:\\s*\"(.*?)\"");
+        Matcher matcher = pattern.matcher(content);
+        // 2️⃣ 检查是否有重复
+        Set<String> seen = new HashSet<>();
+        Set<String> duplicates = new HashSet<>();
+        while(matcher.find()){
+            String textValue = matcher.group(1);
+            if(!seen.add(textValue)){
+                duplicates.add(textValue);
+            }
+        }
+      return duplicates;
+    }
+
+    /**
+     * @param conten 奖品JSON字符串
+     * @return
+     */
+    private String handlePrizeShowText(String conten){
+        return "";
     }
 
 }

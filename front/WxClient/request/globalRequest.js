@@ -2,7 +2,7 @@
 // const BASE_URL = "https://www.sunnygo.chat/turntable/api/"
 // 开发环境
 // const BASE_URL = "http://127.0.0.1:16378/"
-const BASE_URL = "http://192.168.100.4:16378/"
+const BASE_URL = "http://192.168.1.103:16378/"
 let isCheckLogin = false
 // 检查是否登录，如果没有登录则进行登录
 function checkLogin(){

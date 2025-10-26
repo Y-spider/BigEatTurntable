@@ -43,7 +43,7 @@ public class TurnTableServiceImpl extends ServiceImpl<TurnTableMapper, TurnTable
     public void updateTurnTable(TurnTable turnTable) {
         TurnTable oldTurntable = mapper.selectById(turnTable.getId());
         if (oldTurntable.getType().equals(TurnTableType.TURN_TABLE_TYPE_SYS) || oldTurntable.getType().equals(TurnTableType.TURN_TABLE_TYPE_HOT)) {
-            // 情况1 新建用户自定义转盘
+            // 情况1 新建用户自定义转盘,以系统或者热门转盘为基础
             if(oldTurntable.getTitle().equals(turnTable.getTitle())){
                 throw new BusinessException("转盘名已存在!");
             }
@@ -58,6 +58,10 @@ public class TurnTableServiceImpl extends ServiceImpl<TurnTableMapper, TurnTable
             }
             mapper.insert(oldTurntable);
         } else {
+            // 非创建者无修改权限
+            if(!oldTurntable.getOpenid().equals(SecurityUtil.getUserName())){
+                throw new BusinessException("无修改权限");
+            }
             // 情况2 修改用户自定义转盘
             if(!oldTurntable.getTitle().equals(turnTable.getTitle())){
                 // 修改记录
@@ -70,6 +74,7 @@ public class TurnTableServiceImpl extends ServiceImpl<TurnTableMapper, TurnTable
             }
             oldTurntable.setContent(turnTable.getContent());
             oldTurntable.setUpdateTime(LocalDateTime.now());
+            oldTurntable.setIsRepeat(turnTable.getIsRepeat());
             mapper.updateById(oldTurntable);
         }
 

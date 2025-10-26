@@ -188,7 +188,7 @@
 			// 前往转盘
 			goTurntable(turntable) {
 				uni.navigateTo({
-					url: `/pages/detail/detail?id=${turntable.id}&tableName=${turntable.title}`
+					url: `/pages/detail/detail?id=${turntable.id}`
 				})
 			},
 			// 模拟分页API

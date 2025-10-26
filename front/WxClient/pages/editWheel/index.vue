@@ -15,7 +15,7 @@
 			<!-- 上部：名称 + 删除 + 颜色 -->
 			<view class="edit-top">
 				<button class="cu-btn round bg-red del-btn" @click="removeItem(idx)">－</button>
-				<input v-model="item.fonts[0].text" class="edit-input" placeholder="请输入奖项名称" />
+				<input :disabled="!tableInfo.canEdit" v-model="item.fonts[0].text" class="edit-input" placeholder="请输入奖项名称(不超过15字)" />
 				<view class="color-dot" :style="{background: item.background}" @click="chooseColor(idx)"></view>
 			</view>
 
@@ -23,24 +23,24 @@
 			<view class="edit-bottom">
 				<view class="bottom-item">
 					<view class="cu-tag bg-yellow sm">权重</view>
-					<uni-number-box v-model="item.range"></uni-number-box>
+					<uni-number-box :disabled="!tableInfo.canEdit" v-model="item.range"></uni-number-box>
 				</view>
 				<view v-if="!tableInfo.isRepeat" class="bottom-item">
 					<view class="cu-tag bg-yellow sm">数量</view>
-					<uni-number-box v-model="item.count"></uni-number-box>
+					<uni-number-box :disabled="!tableInfo.canEdit" v-model="item.count"></uni-number-box>
 				</view>
 			</view>
 		</view>
 
 		<!-- 添加新选项 -->
 		<view class="add-row bg-white" style="display: flex; justify-content: space-around; align-items: center;">
-			<button class="cu-btn round bg-blue" @click="addItem">+ 添加新选项</button>
+			<button :disabled="!tableInfo.canEdit" class="cu-btn round bg-blue" @click="addItem">+ 添加新选项</button>
 			<view class="cu-form-group">
 				<view class="title">重复抽</view>
-				<switch class='orange radius' @change="changeRepeate" :class="tableInfo.isRepeat?'checked':''"
+				<switch :disabled="!tableInfo.canEdit" class='orange radius' @change="changeRepeate" :class="tableInfo.isRepeat?'checked':''"
 					:checked="tableInfo.isRepeat"></switch>
 			</view>
-			<button class="cu-btn round bg-cyan" @click="showBatch = true">批量添加</button>
+			<button :disabled="!tableInfo.canEdit" class="cu-btn round bg-cyan" @click="showBatch = true">批量添加</button>
 		</view>
 		<!-- 批量添加弹窗 -->
 		<view v-if="showBatch" class="batch-modal-mask" style="width: 100vw; height: 100vh;"
@@ -66,7 +66,7 @@
 			</view>
 		</view>
 		<!-- 完成按钮 -->
-		<button class="cu-btn bg-yellow finish-btn" @click="finishEdit">完成({{prizeList.length}}项)</button>
+		<button :disabled="!tableInfo.canEdit" class="cu-btn bg-yellow finish-btn" @click="finishEdit">完成({{prizeList.length}}项)</button>
 	</view>
 </template>
 
@@ -106,7 +106,8 @@
 				showBatch: false,
 				batchText: '',
 				tableInfo: {
-					isRepeat: true
+					isRepeat: true,
+					canEdit:true
 				},
 				isCreate: false // 标识是否是创建转盘
 			}
@@ -161,6 +162,7 @@
 			async saveNewTurntable() {
 				let updateData = {
 					content: JSON.stringify(this.prizeList),
+					isRepeat:this.tableInfo.isRepeat
 				}
 				// const emptyPrizeList = this.prizeList.filter(prize => prize.text=='') || [];
 				// if(emptyPrizeList.length > 0){
@@ -198,19 +200,11 @@
 					this.saveNewTurntable()
 					return;
 				}
-				// const emptyPrizeList = this.prizeList.filter(prize=>prize.text=='') || [];
-				// if(emptyPrizeList.length > 0){
-				// 	uni.showModal({
-				// 		title:"选项不能为空!",
-				// 		showCancel:false,
-				// 	})
-				// 	return;
-				// }
-
 				// 进行保存
 				let updateData = {
 					id: this.id,
 					content: JSON.stringify(this.prizeList),
+					isRepeat:this.tableInfo.isRepeat
 				}
 				if (this.tableInfo.type != 0 || true) {
 					uni.showModal({
@@ -250,13 +244,17 @@
 				return
 			}
 			const list = uni.getStorageSync('editPrizeList')
-			if (list && Array.isArray(list)) {
-				this.prizeList = list
-			}
 			this.id = option.id
 			let res = await getTurntableDetailAPI(this.id)
 			this.tableInfo = res.data
 			this.tableInfo.content = JSON.parse(this.tableInfo.content)
+			if(!this.tableInfo.isRepeat && this.tableInfo.content.includes("剩余:")){
+				this.tableInfo.content.forEach(prize=>{
+					prize.fonts[0].text = prize.fonts[0].text.split("-")[1]
+				})
+				
+			}
+			this.prizeList = this.tableInfo.content
 
 		},
 		async onShow() {
