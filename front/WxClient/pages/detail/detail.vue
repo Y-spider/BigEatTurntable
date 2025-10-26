@@ -216,7 +216,7 @@
 				if (this.turntableInfo.type == 0 && !this.turntableInfo.isRepeat) {
 				  this.prizeList.forEach(prize => {
 				    prize.fonts.forEach(f => {
-				      f.text = `剩余:${prize.count}  -` + f.text 
+				      f.text = `剩余:${prize.count || 0}  -` + f.text 
 				    })
 				  })
 				}

@@ -66,7 +66,8 @@
 				defaultStyle: {
 					fontSize: 16,
 					wordWrap: true,
-					lengthLimit: "50%"
+					lengthLimit: "90%",
+					lineClamp:2
 				},
 				defaultConfig: {
 					accelerationTime: 2000,
@@ -114,7 +115,7 @@
 					this.count++
 					if (!this.turntable.isRepeat) {
 						newVal.forEach(prize => {
-							if (prize.count == 0) {
+							if (prize.count == 0 || prize.count == undefined) {
 								prize.range = 0
 							}
 						})

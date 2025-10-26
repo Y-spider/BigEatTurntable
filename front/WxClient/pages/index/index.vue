@@ -146,7 +146,8 @@
 				defaultStyle: {
 					fontSize:16,
 					wordWrap:true,
-					lengthLimit:"50%"
+					lengthLimit:"90%",
+					lineClamp:2
 				},
 				defaultConfig: {
 					accelerationTime: 2000,
@@ -342,15 +343,15 @@
 				let tempList = this.prizeList
 				if (this.turntable.type == 0 && !this.turntable.isRepeat) {
 				 tempList.forEach(prize => {
-					if(prize.count == 0){
+					if(prize.count == 0 || prize.count==undefined){
 						prize.range = 0
 					}
 				    prize.fonts.forEach(f => {
-				      f.text = `剩余:${prize.count}  -` + f.text 
+				      f.text = `剩余:${prize.count || 0}  -` + f.text 
 				    })
 				  })
 				}
-				console.log("tempList",tempList)
+				// console.log("tempList",tempList)
 				// 下面是为了强制刷新轮盘内容
 				this.isCheckMenu = true
 				this.$refs.myLucky?.play?.();
