@@ -42,13 +42,24 @@
 			{
 				"navigationBarTitleText" : ""
 			}
-		},
+		}
+	],
+	// 设置分包，分包主要为工具模块
+	"subPackages": [
 		{
-			"path" : "pages/tools-components/timer-tool/timer-tool",
-			"style" : 
-			{
-				"navigationBarTitleText" : ""
-			}
+			"root": "pages-tools",
+			"name":"toolPackage",
+			"pages": [
+				{
+					"path" : "tools-components/timer-tool/timer-tool"
+				},
+				{
+					"path" : "tools-components/timer-tool/settings-page"
+				},
+				{
+					"path" : "tools-components/timer-tool/statistics-page"
+				}
+			]
 		}
 	],
 	"tabBar": {

@@ -68,5 +68,13 @@ logging:
       # %logger{36} → 输出类名，最多36个字符
       # %msg → 日志消息内容
     # %n → 换行符
+# ================================第三方服务相关参数配置===================
+thrids:
+  badu:
+    appid: "20251023002481706" # 百度翻译的appid
+#    key: "vMgN2FcoeZxKSMBnaZz8" # 访问密钥
+    apiKey: "Pbmz_d3vku6l0gkilp1858trg"   # 建议使用apikey来作为接口请求凭证
+  cat:
+    key: "live_3c2NvI7ceaFoCm9wfXEIuoPIEkiP2wjHODoN2bErSJQEGAHDQBajbTct3yKkJ8vH" # https://thecatapi.com/ 开发者密钥
 
 

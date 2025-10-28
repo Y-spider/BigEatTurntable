@@ -10,9 +10,7 @@
 						<text class="cuIcon-close text-red"></text>
 					</view>
 				</view>
-				<view class="padding-xl" v-html="noticeContent">
-
-				</view>
+				<view class="padding-xl" v-html="noticeContent"></view>
 			</view>
 		</view>
 		<cu-custom :isBack="false">
