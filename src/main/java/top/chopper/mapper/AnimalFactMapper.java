@@ -1,7 +1,8 @@
 package top.chopper.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import top.chopper.utils.catspider.CatJoy;
+import top.chopper.pojo.AnimalFact;
+
 
 /*
    @Author:ROBOT
@@ -9,5 +10,6 @@ import top.chopper.utils.catspider.CatJoy;
    @Version:1.0.0
    @Description:
    */
-public interface CatJoyMapper extends BaseMapper<CatJoy> {
+public interface AnimalFactMapper extends BaseMapper<AnimalFact> {
+    AnimalFact getRandomByType(String type);
 }

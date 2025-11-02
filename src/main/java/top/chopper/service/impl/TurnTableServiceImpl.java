@@ -17,6 +17,7 @@ import top.chopper.service.TurnTableService;
 import top.chopper.utils.SecurityUtil;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 /*
    @Author:ROBOT
@@ -40,11 +41,11 @@ public class TurnTableServiceImpl extends ServiceImpl<TurnTableMapper, TurnTable
      */
     @Override
     @Transactional
-    public void updateTurnTable(TurnTable turnTable) {
+    public Integer updateTurnTable(TurnTable turnTable) {
         TurnTable oldTurntable = mapper.selectById(turnTable.getId());
         if (oldTurntable.getType().equals(TurnTableType.TURN_TABLE_TYPE_SYS) || oldTurntable.getType().equals(TurnTableType.TURN_TABLE_TYPE_HOT)) {
             // 情况1 新建用户自定义转盘,以系统或者热门转盘为基础
-            if(oldTurntable.getTitle().equals(turnTable.getTitle())){
+            if(checkTitleRepeat(turnTable.getTitle())){
                 throw new BusinessException("转盘名已存在!");
             }
             oldTurntable.setCreateTime(LocalDateTime.now());
@@ -77,6 +78,7 @@ public class TurnTableServiceImpl extends ServiceImpl<TurnTableMapper, TurnTable
             oldTurntable.setIsRepeat(turnTable.getIsRepeat());
             mapper.updateById(oldTurntable);
         }
+        return oldTurntable.getId();
 
     }
 
@@ -92,5 +94,18 @@ public class TurnTableServiceImpl extends ServiceImpl<TurnTableMapper, TurnTable
         int deleted = recordMapper.delete(recordLambdaQueryWrapper);
         mapper.deleteById(id);
         log.info("成功删除用户==>{}自定义转盘==》{}旋转记录受影响条数为:{}",SecurityUtil.getUserName(),turnTable.getTitle(),deleted);
+    }
+
+    private boolean checkTitleRepeat(String title){
+        LambdaQueryWrapper<TurnTable> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.select(TurnTable::getTitle)
+                .eq(TurnTable::getOpenid,SecurityUtil.getUserName());
+        List<String> titles = mapper.selectList(queryWrapper).stream().map(TurnTable::getTitle).toList();
+        for (String tt : titles){
+            if(title.equals(tt)){
+                return true;
+            }
+        }
+        return false;
     }
 }

@@ -8,7 +8,8 @@ import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import top.chopper.mapper.CatJoyMapper;
+import top.chopper.mapper.AnimalFactMapper;
+import top.chopper.pojo.AnimalFact;
 import top.chopper.utils.BaiduTranslateUtil;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -23,7 +24,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 @AllArgsConstructor
 class RequestCatJoyThread implements Runnable {
     private BaiduTranslateUtil baiduTranslateUtil;
-    private CatJoyMapper catJoyMapper;
+    private AnimalFactMapper animalFactMapper;
     private AtomicInteger processedCount;  // 计数器
     private Integer count;
     /**
@@ -45,10 +46,10 @@ class RequestCatJoyThread implements Runnable {
                    --i;
                    continue;
                }
-               CatJoy catJoy = new CatJoy();
+               AnimalFact catJoy = new AnimalFact();
                catJoy.setEnText(enText);
                catJoy.setZhText(zhText);
-               catJoyMapper.insert(catJoy);
+               animalFactMapper.insert(catJoy);
                log.info("笑话==》{}  保存成功~~~",enText);
                int count = processedCount.addAndGet(1);
                log.info("线程==》{},成功上传当前已上传:{}个joy",Thread.currentThread().getName(),count);
@@ -59,9 +60,9 @@ class RequestCatJoyThread implements Runnable {
     }
 
     private boolean checkIsRepeat(String enText){
-        LambdaQueryWrapper<CatJoy> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(CatJoy::getEnText,enText);
-        return catJoyMapper.exists(queryWrapper);
+        LambdaQueryWrapper<AnimalFact> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(AnimalFact::getEnText,enText);
+        return animalFactMapper.exists(queryWrapper);
     }
 
 }

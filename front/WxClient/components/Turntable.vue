@@ -217,7 +217,6 @@
 				this.modalName = "DialogModal2"
 			},
 			async handConfim() {
-				console.log("this.turntable", this.turntable)
 				const turntableName = this.turntable.type == 0 ? this.turntable.title + "-自定义" : (this.turntable
 					.type == 2 ? this.turntable.title + "-热门" : this.turntable.title);
 

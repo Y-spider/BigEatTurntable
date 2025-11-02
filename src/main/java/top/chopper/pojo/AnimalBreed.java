@@ -136,4 +136,22 @@ public class AnimalBreed {
     private String type;  // 种类
     @TableField("`zh_name`")
     private String zhName;  // 名称中文
+
+    @TableField("`breed_group`")
+    private String breedGroup;  // 分组
+
+
+    @TableField("`bred_for`")
+    private String bredFor;  // 职业
+
+
+    @TableField("`height_metric`")
+    private String heightMetric;  // 高度米尺
+
+    @TableField("`height_imperial`")
+    private String heightImperial;  // 盖度英尺
+
+    @TableField("`id_dog`")
+    private Integer idDog;  // dogId
+
 }

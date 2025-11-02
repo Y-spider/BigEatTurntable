@@ -231,7 +231,7 @@
 			this.initActiveNotice();
 		},
 		methods: {
-
+		
 			handleShowMake() {
 				// 查看菜品制作页面
 				const checkPermision = uni.getStorageSync("hasPermissionCheckDetail");
@@ -283,6 +283,7 @@
 				this.modalName = ""
 				uni.setStorageSync("routing", false)
 				this.getTuratableDetail(this.turntable.id)
+				
 				
 			},
 			// 抽奖结束触发回调
@@ -336,6 +337,7 @@
 				}
 				this.selectedType = id
 				let res = await getTurntableDetailAPI(id)
+				uni.setStorageSync("indexSelectId",id)
 				this.prizeList = JSON.parse(res.data.content)
 				this.turntable = res.data
 				let tempList = this.prizeList
@@ -360,7 +362,12 @@
 				let res = await getUserTurntableInfoAPI()
 				let turntableInfoRes = await getAllSystemTurntableAPI()
 				this.typeList = []; // 先清空
-				this.selectedType = turntableInfoRes.data[0].id
+				let indexSelectedId = uni.getStorageSync("indexSelectId");
+				if(indexSelectedId){
+					this.selectedType = indexSelectedId
+				}else{
+					this.selectedType = turntableInfoRes.data[0].id
+				}
 				for (let i = 0; i < Math.ceil(turntableInfoRes.data.length / this.pageShowSize); i++) {
 					this.$set(this.typeList, i, turntableInfoRes.data.slice(i * this.pageShowSize, (i + 1) * this
 						.pageShowSize));
@@ -398,6 +405,7 @@
 					return;
 				}
 				this.selectedType = type;
+				uni.setStorageSync("indexSelectId",id);
 				this.turntable = {
 					"id": id,
 					type,

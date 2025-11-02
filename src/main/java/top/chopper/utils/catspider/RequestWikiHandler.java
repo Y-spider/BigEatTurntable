@@ -31,21 +31,31 @@ public class RequestWikiHandler {
 //        System.out.println(body);
 //    }
 @Transactional
-public  void initCatBreed() {
-    String url = "https://api.thecatapi.com/v1/breeds";
+public  void initCatBreed(String type) {
+    String url = "";
+    if(type.equals("cat")){
+        url = "https://api.thecatapi.com/v1/breeds";
+    }else if(type.equals("dog")){
+        url = "https://api.thedogapi.com/v1/breeds";
+    }
     String body = HttpRequest.get(url).execute().body();
     List<Map> breedsList = JSONUtil.toList(body, Map.class);
     for (Map<String, Object> breedData : breedsList) {
         Object imperial = JSONUtil.parseObj(breedData.get("weight")).get("imperial");
         Object metric = JSONUtil.parseObj(breedData.get("weight")).get("metric");
         AnimalBreed breed = new AnimalBreed();
-        breed.setType("cat");
+        breed.setType(type);
         breed.setWeightImperial(imperial.toString());
         breed.setWeightMetric(metric.toString());
 
         // 设置其它字段
-        if (breedData.containsKey("id") && breedData.get("id") != null) {
-            breed.setId((String) breedData.get("id"));
+        if (breedData.containsKey("id") && breedData.get("id") != null && type.equals("cat")) {
+            breed.setId((String) breedData.get("id")); // 这里由于是主键，所以使用name来进行补充一下
+
+        }
+        if (breedData.containsKey("id") && breedData.get("id") != null && type.equals("dog")) {
+            breed.setId((String) breedData.get("name"));
+            breed.setIdDog((Integer) breedData.get("id"));
         }
         if (breedData.containsKey("name") && breedData.get("name") != null) {
             breed.setName((String) breedData.get("name"));
@@ -61,10 +71,10 @@ public  void initCatBreed() {
             breed.setVcahospitalsUrl((String) breedData.get("vcahospitals_url"));
         }
         if (breedData.containsKey("temperament") && breedData.get("temperament") != null) {
-            breed.setTemperament((String) breedData.get("temperament"));
+            breed.setTemperament(baiduTranslateUtil.aiTextTranslate((String) breedData.get("temperament")));
         }
         if (breedData.containsKey("origin") && breedData.get("origin") != null) {
-            breed.setOrigin((String) breedData.get("origin"));
+            breed.setOrigin(baiduTranslateUtil.aiTextTranslate((String) breedData.get("origin")));
         }
         if (breedData.containsKey("country_codes") && breedData.get("country_codes") != null) {
             breed.setCountryCodes((String) breedData.get("country_codes"));
@@ -155,6 +165,20 @@ public  void initCatBreed() {
         if (breedData.containsKey("reference_image_id") && breedData.get("reference_image_id") != null) {
             breed.setReferenceImageId((String) breedData.get("reference_image_id"));
         }
+
+        if (breedData.containsKey("height_imperial") && breedData.get("height_imperial") != null) {
+            breed.setHeightImperial((String) breedData.get("height_imperial"));
+        }
+        if (breedData.containsKey("height_metric") && breedData.get("height_metric") != null) {
+            breed.setHeightMetric((String) breedData.get("height_metric"));
+        }
+        if (breedData.containsKey("bred_for") && breedData.get("bred_for") != null) {
+            breed.setBredFor(breedData.get("bred_for") + "("+ baiduTranslateUtil.aiTextTranslate((String)breedData.get("bred_for")) +")");
+        }
+        if (breedData.containsKey("breed_group") && breedData.get("breed_group") != null) {
+            breed.setBreedGroup(breedData.get("breed_group") + "("+ baiduTranslateUtil.aiTextTranslate((String)breedData.get("breed_group")) +")");
+        }
+
 
 // 插入数据
         animalBreedMapper.insert(breed);

@@ -177,7 +177,7 @@
 					title: "新转盘名称",
 					editable: true,
 					placeholderText: '请输入新转盘名称',
-					success: (res) => {
+					success: async (res) => {
 						if (res.confirm) {
 							if (res.content == "") {
 								uni.showToast({
@@ -188,7 +188,8 @@
 								return;
 							}
 							updateData.title = res.content
-							addTurntableAPI(updateData)
+							let saveRes = await addTurntableAPI(updateData)
+							uni.setStorageSync("indexSelectId",saveRes.data.id)
 							uni.navigateBack()
 						}
 					}
@@ -223,14 +224,16 @@
 									return;
 								}
 								updateData.title = res.content
-								await updateTurntableAPI(updateData)
+								let updateRes = await updateTurntableAPI(updateData)
 								uni.setStorageSync('editPrizeList', this.prizeList)
+								uni.setStorageSync("indexSelectId",updateRes.data.id);
 								uni.navigateBack()
 							}
 						}
 					})
 				} else {
-					await updateTurntableAPI(updateData)
+					let updateRes = await updateTurntableAPI(updateData)
+					uni.setStorageSync("indexSelectId",updateRes.data.id);
 					uni.setStorageSync('editPrizeList', this.prizeList)
 					uni.navigateBack()
 				}
@@ -251,8 +254,7 @@
 			if(!this.tableInfo.isRepeat && this.tableInfo.content.includes("剩余:")){
 				this.tableInfo.content.forEach(prize=>{
 					prize.fonts[0].text = prize.fonts[0].text.split("-")[1]
-				})
-				
+				})	
 			}
 			this.prizeList = this.tableInfo.content
 

@@ -8,7 +8,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import top.chopper.mapper.CatJoyMapper;
+import top.chopper.mapper.AnimalFactMapper;
+import top.chopper.pojo.AnimalFact;
 import top.chopper.utils.BaiduTranslateUtil;
 
 import java.util.concurrent.atomic.AtomicInteger;
@@ -25,7 +26,7 @@ public class CatJoyInitHandler {
     @Autowired
     private BaiduTranslateUtil baiduTranslateUtil;
     @Autowired
-    private CatJoyMapper catJoyMapper;
+    private AnimalFactMapper animalFactMapper;
     private AtomicInteger processedCount = new AtomicInteger(0);  // 线程安全的计数器
 
     /**
@@ -63,17 +64,17 @@ public class CatJoyInitHandler {
               --i;
               continue;
           }
-          CatJoy catJoy = new CatJoy();
+          AnimalFact catJoy = new AnimalFact();
           catJoy.setEnText(enText);
           catJoy.setZhText(zhText);
-          catJoyMapper.insert(catJoy);
+          animalFactMapper.insert(catJoy);
           log.info("笑话==》{}  保存第{}成功~~~",enText,i+1);
       }
     }
 
     private boolean checkIsRepeat(String enText){
-        LambdaQueryWrapper<CatJoy> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(CatJoy::getEnText,enText);
-        return catJoyMapper.exists(queryWrapper);
+        LambdaQueryWrapper<AnimalFact> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(AnimalFact::getEnText,enText);
+        return animalFactMapper.exists(queryWrapper);
     }
 }

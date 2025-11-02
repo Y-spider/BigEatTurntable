@@ -58,6 +58,18 @@
 				},
 				{
 					"path" : "tools-components/timer-tool/statistics-page"
+				},
+				{
+					"path" : "tools-components/cat-tool/cat-tool"
+				},
+				{
+					"path" : "tools-components/dog-tool/dog-tool"
+				},
+				{
+					"path" : "tools-components/festival-timer/festival-timer"
+				},
+				{
+					"path" : "tools-components/festival-timer/festival-detail"
 				}
 			]
 		}

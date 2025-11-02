@@ -16,6 +16,7 @@ import top.chopper.service.TurnTableService;
 import top.chopper.utils.SecurityUtil;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -114,8 +115,10 @@ public class TurnTableController {
             }
         }
         turnTable.setUpdateTime(LocalDateTime.now());
-        service.updateTurnTable(turnTable);
-        return R.SUCCESS();
+        Integer id = service.updateTurnTable(turnTable);
+        HashMap<Object, Object> map = new HashMap<>();
+        map.put("id",id);
+        return R.SUCCESS(map);
     }
 
     @Operation(description = "修改轮盘信息根据轮盘id",summary = "修改轮盘信息根据轮盘id")
@@ -149,7 +152,10 @@ public class TurnTableController {
         turnTable.setUpdateTime(now);
         turnTable.setType(TurnTableType.TURN_TABLE_TYPE_OPT);
         turnTable.setCreateTime(now);
-        return R.SUCCESS(service.save(turnTable));
+        service.save(turnTable);
+        HashMap<Object, Object> map = new HashMap<>();
+        map.put("id",turnTable.getId());
+        return R.SUCCESS(map);
     }
 
     @Operation (description = "后台上传转盘",summary = "后台上传转盘")

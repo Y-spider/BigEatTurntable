@@ -1,8 +1,8 @@
 // 正式环境
-// const BASE_URL = "https://www.sunnygo.chat/turntable/api/"
+const BASE_URL = "https://www.sunnygo.chat/turntable/api/"
 // 开发环境
 // const BASE_URL = "http://127.0.0.1:16378/"
-const BASE_URL = "http://192.168.1.103:16378/"
+// const BASE_URL = "http://192.168.1.104:16378/"
 let isCheckLogin = false
 // 检查是否登录，如果没有登录则进行登录
 function checkLogin(){
@@ -54,7 +54,7 @@ export function httpOFPost(path, params = {}, loading = true,method) {
 	return new Promise((resolve, reject) => {
 		uni.request({
 			header: {
-				token: uni.getStorageSync("token") || ""
+				"token": uni.getStorageSync("token") || ""
 			},
 			url: BASE_URL + path,
 			method:method,
@@ -71,7 +71,7 @@ export function httpOFPost(path, params = {}, loading = true,method) {
 					reject(res.data)
 					return false;
 				}
-				else if(res.data?.code == -99){
+				else if(res.data?.code == -99){ // -99 token失效需要重新登录
 					uni.removeStorageSync("token")
 					uni.showToast({
 						icon: "error",

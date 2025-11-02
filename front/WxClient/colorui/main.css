@@ -36,6 +36,18 @@ image {
 .radius {
 	border-radius: 6upx;
 }
+/* ==================
+          背景颜色定义
+ ==================== */
+.bg-color-cat{
+	background-color: #ff93b7;
+}
+.bg-color-dog{
+	background-color: #f8b400;
+}
+.bg-color-festival{
+	background-color: #9be2b3;
+}
 
 /* ==================
           图片

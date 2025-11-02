@@ -10,7 +10,11 @@ import top.chopper.pojo.TurnTable;
    @Description:
    */
 public interface TurnTableService extends IService<TurnTable> {
-    void updateTurnTable(TurnTable turnTable);
+    /**
+     * @param turnTable
+     * @return 返回操作转盘id,或者新增转盘ID
+     */
+    Integer updateTurnTable(TurnTable turnTable);
 
     void myDeleteTurntableById(Integer id);
 
