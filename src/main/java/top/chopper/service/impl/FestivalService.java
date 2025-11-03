@@ -145,7 +145,12 @@ public class FestivalService {
     public List<Festival> listByType(String type){
         LambdaQueryWrapper<Festival> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(Festival::getType,type);
-        queryWrapper.orderByAsc(Festival::getTime);
+        if("custom".equals(type)){
+            queryWrapper.orderByDesc(Festival::getTime);
+        }
+        else{
+            queryWrapper.orderByAsc(Festival::getTime);
+        }
         queryWrapper.orderByDesc(Festival::getCreateTime);
         List<Festival> festivals = festivalMapper.selectList(queryWrapper);
         festivals.forEach(festival -> {

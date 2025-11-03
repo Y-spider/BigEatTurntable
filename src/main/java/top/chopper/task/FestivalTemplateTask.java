@@ -63,7 +63,7 @@ public class FestivalTemplateTask {
         wxSendTemplateMessageUtil.setToUser(festival.getOpenid());
         wxSendTemplateMessageUtil.setTemplateId("eV1m7anh8wsli5zjfehBzUmzBiFNkt2fOzviSkj727M");
         wxSendTemplateMessageUtil.setDataList(subscribeDataList);
-        wxSendTemplateMessageUtil.setToPagePath("pages-tools/tools-components/festival-timer/festival-detail?id="+festival.id + "&backUrl=pages/index/index");
+        wxSendTemplateMessageUtil.setToPagePath("pages-tools/tools-components/festival-timer/festival-detail?id="+festival.id + "&backUrl=/pages/index/index");
         try {
             wxSendTemplateMessageUtil.sendTemplateMessage();
         }catch ( Exception e ){
