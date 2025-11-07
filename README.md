@@ -105,3 +105,9 @@ key: live_3c2NvI7ceaFoCm9wfXEIuoPIEkiP2wjHODoN2bErSJQEGAHDQBajbTct3yKkJ8vH
 ![image-20251103001025927](./assets/image-20251103001025927.png)
 
 ![image-20251103001036336](./assets/image-20251103001036336.png)
+
+
+--------------------------------
+# V3.x版本
+1. 该版本在v2版本的基础上，将会增加账单模块。
+2. 不纠结星球.xlsx为初版 账单开发需求文档
