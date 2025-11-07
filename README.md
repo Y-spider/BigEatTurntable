@@ -65,7 +65,7 @@ https://cdn2.thecatapi.com  获取cat图片，国内可访问。
 // 待确定接口
 1. 获取总的breeds信息接口 （已确定，参考第5点）
 2. 获取cat图的种类信息 （可以访问）
-3. 维基百科种类信息 （国内无法访问）
+3. 维基百科种类信息 （国内无法访问）--> 不做。
 4. 每日笑话接口信息-中英（国内无法访问） https://meowfacts.herokuapp.com/   已完成，初始化92条数据
 5. 获取所有可用的种类信息接口(初始化cat种类数据使用) https://api.thecatapi.com/v1/breeds 
 6. 获取所有可用的种类信息接口(初始化dog种类数据使用) https://api.thedogapi.com/v1/breeds
@@ -83,3 +83,25 @@ key: live_3c2NvI7ceaFoCm9wfXEIuoPIEkiP2wjHODoN2bErSJQEGAHDQBajbTct3yKkJ8vH
 	2. 猫咪图片获取接口国内能正常访问，但是图片是随机的，并且并不是所有图片都有种类标签。没有就显示未知种类，如果有，则可以查看品种信息（包含基础的品种信息，也包含维基百科的相关描述，初始化数据）。
 ```
 
+# 2025.11.2 更新如下
+1. 完成每日猫咪图片 + 冷知识 + 种类信息 ==> 图片信息前端直接访问[api.thecatapi.com/v1/images/search?has_breeds=true&limit=1](https://api.thecatapi.com/v1/images/search?has_breeds=true&limit=1)
+
+![image-20251103000840332](./assets/image-20251103000840332.png)
+
+2. 完成每日狗狗图片 + 冷知识 + 种类信息  ===> 图片直接访问的[api.thedogapi.com/v1/images/search?has_breeds=true&limit=1](https://api.thedogapi.com/v1/images/search?has_breeds=true&limit=1)
+
+![image-20251103000755657](./assets/image-20251103000755657.png)
+
+
+
+3. 完成了节日倒计时小工具
+
+```markdown
+	用户可以自定义事件，指定日期，系统会在指定日期当天的7AM和1PM发放模版消息提醒用户。
+```
+
+![image-20251103001017595](./assets/image-20251103001017595.png)
+
+![image-20251103001025927](./assets/image-20251103001025927.png)
+
+![image-20251103001036336](./assets/image-20251103001036336.png)
