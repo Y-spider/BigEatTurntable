@@ -111,3 +111,9 @@ key: live_3c2NvI7ceaFoCm9wfXEIuoPIEkiP2wjHODoN2bErSJQEGAHDQBajbTct3yKkJ8vH
 # V3.x版本
 1. 该版本在v2版本的基础上，将会增加账单模块。
 2. 不纠结星球.xlsx为初版 账单开发需求文档
+
+
+# 用户模块修改
+1. 用户必须完善头像以及昵称才可以正常使用小程序功能，强制要求。
+2. 提供用户头像上传修改接口。
+3. 提供用户昵称修改接口。

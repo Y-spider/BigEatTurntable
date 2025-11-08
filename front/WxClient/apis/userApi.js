@@ -7,3 +7,12 @@ export  function logInAPI(data){
 export function getOpenidAPI(){
 	return httpOFGet('user/get/userId',false)
 }
+
+export function getUserInfoAPI(){
+	return httpOFGet('user',false)
+}
+
+export function updateUserInfoAPI(data){
+	return httpOFPost("user/client/update",data,false,"POST")
+}
+

@@ -37,7 +37,7 @@ minio:
   endpoint: http://118.195.164.246:9000 # 连接点地址
   accessKey: yan  # 账号
   secretKey: Yanwenguang123_  # 密码
-  bucketName: eat-big-turntable
+  bucketName: planet
 
 #=================自定义微信系统属性============
 system:

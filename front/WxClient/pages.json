@@ -42,6 +42,9 @@
 			{
 				"navigationBarTitleText" : ""
 			}
+		},
+		{
+			"path": "pages/home/user_modify"
 		}
 	],
 	// 设置分包，分包主要为工具模块

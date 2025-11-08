@@ -36,4 +36,17 @@ public class MinioFileController {
             return R.SUCCESS(minioUtil.uploadFile(file));
         }
     }
+
+    @PostMapping("/avatar")
+    @Operation(description = "上传avatar图片",summary = "上传avatar图片,返回文件访问url")
+    public R handleFileUploadAvatar(@RequestParam(name = "file", required = false) MultipartFile file){
+        if(file==null){
+            return R.FAIL("上传文件不能为空!");
+        }
+        else{
+            return R.SUCCESS(minioUtil.uploadAvatar(file));
+        }
+    }
+
+
 }

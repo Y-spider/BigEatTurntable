@@ -100,6 +100,40 @@ public class MinioUtil {
         }
         return data;
     }
+
+    /**
+     * 上传微信小程序用户头像接口
+     * @param file
+     * @return
+     */
+    public HashMap<String, Object> uploadAvatar(MultipartFile file){
+        HashMap<String, Object> data = new HashMap<>();
+        String fileName = "avatar/" + file.getOriginalFilename();
+        data.put("fileName",fileName);
+        String contentType = file.getContentType(); // 获取文件类型
+        data.put("contentType",contentType);
+        InputStream in = null;
+        try {
+            in = file.getInputStream();
+            minioClient.putObject(PutObjectArgs.builder()
+                    .contentType(contentType)
+                    .stream(in,in.available(),-1)
+                    .object(fileName)
+                    .bucket(minioProp.getBucketName())
+                    .build());
+        } catch ( RuntimeException | IOException | ErrorResponseException | InsufficientDataException |
+                  InternalException | InvalidKeyException | InvalidResponseException | NoSuchAlgorithmException |
+                  ServerException | XmlParserException e ) {
+            log.error("上传文件==》"+fileName+"<====发送错误" + e);
+            throw new BusinessException("文件操作失败" + e);
+        }
+        // 访问url
+        String fileUrl = "https://www.sunnygo.chat/images" + "/" + minioProp.getBucketName() + "/" + fileName;
+        data.put("url",fileUrl);
+        data.put("timestamp", String.valueOf(System.currentTimeMillis()));
+        return data;
+    }
+
         /**
          * 获取文件类型
          * @param url 网络地址

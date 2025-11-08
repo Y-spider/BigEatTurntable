@@ -33,7 +33,22 @@ export default {
 		}
 	},
 	onShow() {
+		const name = uni.getStorageSync("name");
+		const avatar = uni.getStorageSync("avatar");
+		if(!name || !avatar){
+			uni.showModal({
+				content:"您需要上传头像与昵称才能正常使用功能！",
+				showCancel:false,
+				success:()=>{
+					uni.navigateTo({
+						url:"/pages/home/user_modify"
+					})
+					return;
+				}
+			})
+		}
 		this.init()
+
 	},
 	methods: {
 		async init(){

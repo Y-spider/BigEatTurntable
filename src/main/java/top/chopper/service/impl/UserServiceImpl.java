@@ -1,13 +1,16 @@
 package top.chopper.service.impl;
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.druid.support.json.JSONUtils;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import top.chopper.Exception.BusinessException;
 import top.chopper.dto.AdminUserLoginDto;
 import top.chopper.mapper.TokenMapper;
@@ -17,6 +20,8 @@ import top.chopper.pojo.Token;
 import top.chopper.pojo.User;
 import top.chopper.service.UserService;
 import top.chopper.utils.JWTUtil;
+import top.chopper.utils.MinioUtil;
+import top.chopper.utils.SecurityUtil;
 
 import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
@@ -50,6 +55,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private String secret;
     @Value("${wexi.grant_type}")
     private String grant_type;
+    @Autowired
+    private MinioUtil minioUtil;
 
     @Override
     @Transactional
@@ -120,6 +127,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             HashMap<String, String> resMap = new HashMap<>();
             resMap.put("token",jwtToken);
             resMap.put("userName",user.getName());
+            resMap.put("avtar",user.getAvatar());
+            resMap.put("email",user.getEmail());
             return R.SUCCESS(resMap);
         }else{
             // 已经存在该用户
@@ -146,9 +155,44 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             HashMap<String, String> resMap = new HashMap<>();
             resMap.put("token",jwtToken);
             resMap.put("userName",user.getName());
+            resMap.put("avatar",user.getAvatar());
+            resMap.put("email",user.getEmail());
             return R.SUCCESS(resMap);
         }
 
+    }
+
+    /**
+     * @param file
+     * @return
+     */
+    @Override
+    @Transactional
+    public R uploadAvatar(MultipartFile file) {
+        HashMap<String, Object> map = minioUtil.uploadAvatar(file);
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getOpenid, SecurityUtil.getUserName());
+        User user = userMapper.selectOne(queryWrapper);
+        if(ObjectUtil.isEmpty(user)){
+            log.info("用户:{}不存在",SecurityUtil.getUserName());
+            throw new BusinessException("认证失败，请稍后再试!");
+        }
+        user.setAvatar(map.get("url").toString());
+        return R.SUCCESS(map);
+    }
+
+    /**
+     * @param user
+     */
+    @Override
+    @Transactional
+    public void handleClientUpdate(User user) {
+        user.setId(null);
+        user.setOpenid(null);
+        user.setUpdateTime(LocalDateTime.now());
+        LambdaUpdateWrapper<User> queryWrapper = new LambdaUpdateWrapper<>();
+        queryWrapper.eq(User::getOpenid,SecurityUtil.getUserName());
+        userMapper.update(user,queryWrapper);
     }
 
 

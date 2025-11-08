@@ -6,8 +6,10 @@ import './uni.promisify.adaptor'
 Vue.config.productionTip = false
 App.mpType = 'app'
 import cuCustom from './colorui/components/cu-custom.vue'
-
+import {uploadAvatar,uploadFile} from "@/apis/commonApi.js";
 Vue.component('cu-custom',cuCustom)
+Vue.prototype.$uploadAvatar = (tempFilePath) => uploadAvatar(tempFilePath)
+Vue.prototype.$uploadFile = (tempFilePath) => uploadFile(tempFilePath)
 const app = new Vue({
   ...App
 })

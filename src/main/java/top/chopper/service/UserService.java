@@ -1,6 +1,7 @@
 package top.chopper.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.multipart.MultipartFile;
 import top.chopper.dto.AdminUserLoginDto;
 import top.chopper.pojo.R;
 import top.chopper.pojo.User;
@@ -17,4 +18,8 @@ public interface UserService extends IService<User> {
     R adminLogin(AdminUserLoginDto adminUserLoginDto);
 
     R wxClientLogin(Map params);
+
+    R uploadAvatar(MultipartFile file);
+
+    void handleClientUpdate(User user);
 }

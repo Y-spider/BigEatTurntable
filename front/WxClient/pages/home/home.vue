@@ -36,9 +36,15 @@
 		<!-- 固定头部区域 -->
 		<view class="fixed-header">
 			<view class="user-info-box animate__animated animate__fadeInDown"
-				style="display: flex;justify-content: space-between;align-items: center;">
-				<view class="user-info">
-					<view class="nickname animate__animated animate__fadeInLeft">星友{{ userName }}
+				style="display: flex;justify-content: space-between;align-items: center;position: relative;height: 200rpx;">
+				<view style="position: absolute; top: -30rpx; left: 40vw;" @click="toModifyInfo">
+					<view class='cu-avatar round xl'>
+						<text v-if="!avatar" class="cuIcon-people"></text>
+						<image class='cu-avatar round xl' v-else :src="avatar"></image>
+					</view>
+				</view>
+				<view class="user-info"  @click="toModifyInfo">
+					<view class="nickname animate__animated animate__fadeInLeft" style="margin-bottom: 30rpx;">{{ userName }}
 					</view>
 					<view class="stat animate__animated animate__fadeInRight">
 						<text>我的转盘：<text class="stat-num">{{ createCount }}</text></text>
@@ -114,17 +120,22 @@
 				spinPageSize: 10,
 				spinTotal: 0,
 				spinLoading: false,
-				spinFinished: false
+				spinFinished: false,
+				avatar:""
 			}
 		},
-		created() {
-			this.userName = uni.getStorageSync("userName")
-		},
 		onShow() {
+			this.userName = uni.getStorageSync("userName");
+			this.avatar = uni.getStorageSync("avatar") || "";
 			this.loadSpinRecords(true)
 			this.init()
 		},
 		methods: {
+			toModifyInfo(){
+				uni.navigateTo({
+					url:"/pages/home/user_modify"
+				})
+			},
 			openSetting(){
 				// 打开设置
 				let openMusic = uni.getStorageSync("openMusic")

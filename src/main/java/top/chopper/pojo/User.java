@@ -36,4 +36,8 @@ public class User {
     private String name;
     @Schema(name = "inviter",description = "邀请人，只有第一次生效")
     private String inviter;
+    @Schema(name = "avatar",description = "用户头像访问地址")
+    public String avatar;
+    @Schema(name = "email",description = "绑定邮箱地址")
+    public String email;
 }
