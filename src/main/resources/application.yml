@@ -17,7 +17,7 @@ spring:
   mail:
     host: smtp.qq.com # qq的smtp邮件发送服务器地址
     username: 3267585160@qq.com
-    password: xkmjqtuozzmocida # 第三方密码服务授权码
+    password: sniodluqoqaidaej # 第三方密码服务授权码
     properties:  # 下面设置属性，开启ssl连接，因为服务器需要使用ssl进行连接
       mail:
         smtp:
