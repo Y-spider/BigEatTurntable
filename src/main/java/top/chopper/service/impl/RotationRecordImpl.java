@@ -1,5 +1,6 @@
 package top.chopper.service.impl;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -18,6 +19,7 @@ import top.chopper.service.RotationRecordService;
 import top.chopper.utils.SecurityUtil;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -70,6 +72,27 @@ public class RotationRecordImpl extends ServiceImpl<RotationRecordMapper, Rotati
     }
 
     /**
+     * 计算当前用户剩余抽取次数
+     * @param id
+     * @return
+     */
+    @Override
+    public HashMap<String, Object> calcSpinCount(Long id) {
+        HashMap<String, Object> result = new HashMap<>();
+        TurnTable turnTable = turnTableMapper.selectById(id);
+        if(turnTable.getLimitCount() == 0){
+            result.put("spinCount",-1);
+            return result;
+        }
+        LambdaQueryWrapper<RotationRecord> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(RotationRecord::getOpenid,SecurityUtil.getUserName())
+                .between(RotationRecord::getCreateTime,turnTable.getLimitStartTime(),LocalDateTime.now());
+        Long count = recordMapper.selectCount(queryWrapper);
+        result.put("spinCount",turnTable.getLimitCount() -  count);
+        return result;
+    }
+
+    /**
      * ps : 如果是不重复抽的情况下，业务上杜绝了相同奖品名称的出现
      * @param prize 奖品名称
      * @param content 奖品列表JSON字符串
@@ -91,7 +114,7 @@ public class RotationRecordImpl extends ServiceImpl<RotationRecordMapper, Rotati
                         break;
                     }else{
                         log.error("奖品库存不足，系统错误!");
-                        throw new BusinessException("已经被其他星又抽走啦!");
+                        throw new BusinessException("已经被其他用户抽走啦!");
                     }
                 }
             }

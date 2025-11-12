@@ -166,6 +166,31 @@ public class TurnTableController {
     }
 
 
+    @Operation (description = "设置转盘限制次数",summary = "设置转盘限制次数")
+    @PostMapping("/client/limit")
+    public R handleSetLimitCount(@RequestBody TurnTable turnTable){
+        LocalDateTime now = LocalDateTime.now();
+        turnTable.setUpdateTime(now);
+        turnTable.setLimitStartTime(now);
+        TurnTable oldTurntable = service.getById(turnTable.getId());
+        if(!oldTurntable.getOpenid().equals(SecurityUtil.getUserName())){
+            throw new BusinessException("无权限修改!");
+        }
+        if(turnTable.getLimitCount() < 0){
+            log.error("参数[limitCount]值错误，limitCount={}",turnTable.getLimitCount());
+            throw new BusinessException("系统繁忙，请稍后重试！");
+        }
+        service.updateById(turnTable);
+        return R.SUCCESS();
+    }
+
+    @Operation(description = "生成/获取二维码访问URL",summary = "生成/获取二维码访问URL")
+    @GetMapping("/erCode/{id}")
+    public R handleGetErCodeUrl(@PathVariable("id") Integer id){
+        return R.SUCCESS(service.getErCodeUrl(id));
+    }
+
+
     /**
      * @param content 奖品JSON字符串
      * @return 返回是否含有相同奖品名称
@@ -192,5 +217,6 @@ public class TurnTableController {
     private String handlePrizeShowText(String conten){
         return "";
     }
+
 
 }

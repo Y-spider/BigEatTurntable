@@ -1,52 +1,56 @@
 // 上传avatar
-export function uploadAvatar(tempFilePath){
-	return new Promise((resolve,reject)=>{
+export function uploadAvatar(tempFilePath) {
+	return new Promise((resolve, reject) => {
 		const token = uni.getStorageSync("token");
 		uni.uploadFile({
-		  url: "http://127.0.0.1:16378/file/avatar",
-		  filePath: tempFilePath, // ✅ 正确字段
-		  name: 'file',
-		  formData: {},
-		  header:{
-			  token
-		  },
-		  success: (uploadFileRes) => {
-		    console.log('uploadFileRes', uploadFileRes)
-		    const data = JSON.parse(uploadFileRes.data || '{}')
-		    if (data.code === 200) {
-		      resolve(data)
-		    } else {
-		      reject(data.errMsg || '上传失败')
-		    }
-		  },
-		  fail: reject
+			url: "http://192.168.1.103:16378/file/avatar",
+			filePath: tempFilePath, // ✅ 正确字段
+			name: 'file',
+			formData: {},
+			header: {
+				token
+			},
+			success: (uploadFileRes) => {
+				console.log('uploadFileRes', uploadFileRes)
+				const data = JSON.parse(uploadFileRes.data || '{}')
+				if (data.code === 200) {
+					resolve(data)
+				} else {
+					reject(data.errMsg || '上传失败')
+				}
+			},
+			fail: (err) =>{
+				console.log("上传头像失败", err)
+				reject(err)
+			}
 		})
 
 	})
 }
 
 // 上传 文件
-export function uploadFile(tempFilePath){
+export function uploadFile(tempFilePath) {
 	const token = uni.getStorageSync("token");
-	return new Promise((resolve,reject)=>{
+	return new Promise((resolve, reject) => {
 		uni.uploadFile({
-			url:"http://127.0.0.1:16378/file/upload",
+			url: "http://192.168.1.103:16378/file/upload",
 			filePath: tempFilePath,
 			name: 'file',
-			formData:{
-				
+			formData: {
+
 			},
-			header:{
+			header: {
 				token
 			},
 			success: (uploadFileRes) => {
-				if(uploadFileRes.data.code == 200){
+				if (uploadFileRes.data.code == 200) {
 					resolve(uploadFileRes.data);
-				}else{
+				} else {
 					reject(uploadFileRes.data.errMsg)
 				}
 			},
-			fail:(err)=>{
+			fail: (err) => {
+				console.log("上传文件失败", err)
 				reject(err);
 			}
 		})

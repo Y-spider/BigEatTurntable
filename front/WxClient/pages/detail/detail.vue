@@ -2,7 +2,7 @@
 	<view>
 		<cu-custom :isBack="true" :backUrl="backUrl">
 			<block slot="backText">返回</block>
-			<block slot="content">{{turntableInfo.title}}</block>
+			<block slot="content">{{turntableInfo.title}} </block>
 		</cu-custom>
 		<!--  转盘详情页 -->
 		<view class="turntable-box">
@@ -10,9 +10,13 @@
 				style="margin: 50rpx;"></Turntable>
 			<view class="fun-button"
 				style="display: flex;justify-content: space-between; align-items: center;padding: 0rpx 10rpx;">
-				<view class="fun-but">
-					<button open-type="share" class="cu-btn bg-gradual-green shadow"> <text class="cuIcon-share"
-							style="margin: 0 10rpx;"></text>分享</button>
+				<view v-if="turntableInfo.canEdit" class="fun-but">
+					<button @click="modalName = 'bottomModal'" class="cu-btn bg-gradual-green shadow"> <text
+							class="cuIcon-share" style="margin: 0 10rpx;"></text>分享</button>
+				</view>
+				<view v-else class="fun-but">
+					<button open-type="share" class="cu-btn bg-gradual-green shadow"> <text
+							class="cuIcon-share" style="margin: 0 10rpx;"></text>分享</button>
 				</view>
 				<view class="fun-but">
 					<button @click="handleExportData" class="cu-btn bg-yellow shadow cuIcon-down"> <text
@@ -25,10 +29,40 @@
 				</view>
 			</view>
 		</view>
+		<!-- 底部弹框 -->
+		<view class="cu-modal bottom-modal" :class="modalName=='bottomModal'?'show':''">
+			<view class="cu-dialog">
+				<view class="cu-bar bg-white">
+					<view class="action text-blue"><button type="primary"
+							style="color: #ffffff; font-size: small; border:none !important; background-color: none !important;"
+							open-type="share">确定</button></view>
+					<view class="action text-blue" @tap="hideModal">
+						<button size="mini" type="default">取消</button>
+					</view>
+				</view>
+				<view class="padding-xl " style="height: 500rpx;">
+					<view>
+						<form>
+							<view class="cu-form-group">
+								<view class="title">开启次数限制</view>
+								<switch class='orange radius' @change="handleSwitchLimit"
+									:class="switchLimit?'checked':''" :checked="switchLimit?true:false"></switch>
+							</view>
+							<view v-if="switchLimit" class="cu-form-group">
+								<view class="title">限制抽奖次数(每人)</view>
+								<view  class="edit-bottom">
+									<view class="bottom-item">
+										<uni-number-box v-model="limitCount" min=""></uni-number-box>
+									</view>
+								</view>
+							</view>
+						</form>
+					</view>
+				</view>
+			</view>
+		</view>
 		<!-- 分享弹框 -->
 		<share-pop-dialog ref="sharePopDialogRef" />
-		<!-- 广告区域,到时候占用到这里~~~ -->
-		<!-- 旋转记录列表 -->
 		<!-- 广告区域 -->
 
 		<!-- 旋转记录列表 -->
@@ -48,8 +82,8 @@
 				<view v-else>
 					<view v-for="(item, index) in spinRecords" :key="index" class="record-item">
 						<view class="record-top">
-							<text v-if="!item.isMy">星友{{ item.userName }}</text>
-							<text class="my-record" v-else >我(自己)</text>
+							<text v-if="!item.isMy">{{ item.userName }}</text>
+							<text class="my-record" v-else>我(自己)</text>
 							<text>{{ item.result }}</text>
 						</view>
 						<view class="record-time">{{ item.createTime }}</view>
@@ -65,13 +99,14 @@
 	import Turntable from "@/components/Turntable.vue";
 	import sharePopDialog from "@/components/share_pop_dialog.vue";
 	import {
-		getTurntableDetailAPI
+		getTurntableDetailAPI,updateTurantableLimitCountAPI
 	} from "@/apis/turntableApi.js";
 	import {
 		listDishRandomAPI
 	} from "@/apis/dishApi.js";
 	import {
-		listSingleTurntableRecordAPI
+		listSingleTurntableRecordAPI,
+		getSpinCountAPI
 	} from "@/apis/rotationRecordApi.js";
 	import {
 		getOpenidAPI
@@ -83,6 +118,10 @@
 		},
 		data() {
 			return {
+				spinCount:undefined,
+				switchLimit: false,
+				limitCount:1,
+				modalName: "",
 				tableName: "",
 				id: null,
 				prizeList: [],
@@ -96,6 +135,7 @@
 				openid: null,
 				isSuccessGetTurntableInfo: false,
 				shareOpenid: null,
+				requestCount:1
 			}
 		},
 		onHide() {
@@ -110,6 +150,17 @@
 			this.startAutoRefresh(this.refreshInterval);
 		},
 		async onShareAppMessage() {
+			if(this.turntableInfo.canEdit){
+				const postData = {
+					id:this.turntableInfo.id,
+					limitCount:this.limitCount
+				}
+				if(!this.switchLimit){
+					postData.limitCount = 0
+				}
+				const updateRes = await updateTurantableLimitCountAPI(postData);
+				if(!updateRes) return;
+			}
 			let expireTime = Date.now() + 30 * 60 * 1000;
 			uni.setStorageSync("hasPermissionCheckDetail", {
 				expireTime
@@ -125,6 +176,13 @@
 			}
 		},
 		methods: {
+			
+			handleSwitchLimit() {
+				this.switchLimit = !this.switchLimit
+			},
+			hideModal() {
+				this.modalName = "";
+			},
 			loadMoreRecord() {
 				// 预留处理
 			},
@@ -212,14 +270,19 @@
 					this.isShowEditButton = false;
 				}
 				this.prizeList = JSON.parse(res.data.content)
+				if(this.requestCount <= 1){
+					this.switchLimit = this.turntableInfo.limitCount > 0;
+					this.limitCount = this.turntableInfo.limitCount;
+				}
 				this.isSuccessGetTurntableInfo = true;
 				if (this.turntableInfo.type == 0 && !this.turntableInfo.isRepeat) {
-				  this.prizeList.forEach(prize => {
-				    prize.fonts.forEach(f => {
-				      f.text = `剩余:${prize.count || 0}  -` + f.text 
-				    })
-				  })
+					this.prizeList.forEach(prize => {
+						prize.fonts.forEach(f => {
+							f.text = `剩余:${prize.count || 0}  -` + f.text
+						})
+					})
 				}
+				this.requestCount++;
 			}
 		},
 		onLoad(option) {

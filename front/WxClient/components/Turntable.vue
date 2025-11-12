@@ -1,9 +1,9 @@
 <template>
 	<view>
 		<view class="turntable-title">
-			{{turntable.title}}
-
-			<view @click="showTips" style="position: absolute; right: 20rpx;" class="cuIcon-question text-xl"></view>
+			<view @click="showErCode" style="position: absolute; left: 20rpx; color: #79c241;" class="cuIcon-qr_code text-xxl"></view>
+			{{turntable.title}}   <text style="color: #e54d42; font-size: small;" v-if="turntable.limitCount > 0">--剩余({{spinCount}})次数</text>
+			<view @click="showTips" style="position: absolute; right: 20rpx; color: #e54d42;" class="cuIcon-question text-xxl"></view>
 		</view>
 		<LuckyWheel :key="count" ref="myLucky" width="700rpx" height="700rpx" offsetDegree=10 :blocks="blocks"
 			:prizes="prizes" :buttons="buttons" :defaultStyle="defaultStyle" :default-config="defaultConfig"
@@ -33,13 +33,30 @@
 				</view>
 			</view>
 		</view>
+		<view class="cu-modal" :class="modalName=='Modal'?'show':''">
+			<view class="cu-dialog">
+				<view class="cu-bar bg-white justify-end">
+					<view class="content">转盘二维码</view>
+					<view class="action" @tap="modalName = ''">
+						<text class="cuIcon-close text-red"></text>
+					</view> 
+				</view>
+				<view class="padding-xl">
+					<view @click="previewImage">
+						<image :src="erCodeUrl" style="width: 320rpx; height: 320rpx;"></image>
+					</view>
+				</view>
+			</view>
+		</view>
 	</view>
 </template>
 
 <script>
 	import {
-		saveRecordAPI
-	} from "@/apis/rotationRecordApi.js"
+		saveRecordAPI,
+		getSpinCountAPI
+	} from "@/apis/rotationRecordApi.js";
+	import {getErCodeUrlAPI} from "@/apis/turntableApi.js";
 	import LuckyWheel from '@/components/@lucky-canvas/uni/lucky-wheel'
 	export default {
 		components: {
@@ -56,6 +73,9 @@
 		},
 		data() {
 			return {
+				erCodeUrl:"",
+				modalName:"",
+				spinCount:undefined,
 				showResultPrizeText: "",
 				openMusic: true,
 				roatingDuration: 2,
@@ -123,14 +143,39 @@
 					this.$set(this.prizeList, newVal)
 					this.prizes = this.prizeList
 				}
+			},
+			turntable:{
+				async handler(newVal){
+					if(newVal.limitCount > 0){
+						const spinCountRes = await getSpinCountAPI(newVal.id);
+						if(!spinCountRes) return;
+						this.spinCount = spinCountRes.data.spinCount;
+					}
+				}
 			}
 		},
 		methods: {
+			downloadErCode(){
+				// 下载二维码
+			},
+			previewImage(){
+				uni.previewImage({
+					urls:[this.erCodeUrl]
+				})
+			},
+			async showErCode(){
+				const res = await getErCodeUrlAPI(this.turntable.id);
+				if(!res) return;
+				this.erCodeUrl = res.data.url;
+				console.log("this.erCodeUrl",this.erCodeUrl)
+				this.modalName = "Modal";
+				console.log("this.modalName",this.modalName)
+			},
 			showTips() {
 				uni.showModal({
 					title: "提示",
 					showCancel: false,
-					content: "1. 不重复抽转盘页面数据会有延迟，具体以抽奖时刻显示的为准!\n 2. 如果修改后页面信息不刷新退出转盘重新进入即可！"
+					content: "1. 不重复抽转盘页面数据会有延迟，具体以抽奖时刻显示的为准!\n 2. 如果修改后页面信息不刷新退出转盘重新进入即可！\n3. 点击二维码可放大预览，长按可以保存。\n 4. 生成的二维码即用户扫描即可进入到当前页面，建议打印线下使用。"
 				})
 			},
 			checkSetting() {
@@ -168,7 +213,18 @@
 				this.LuckyWheel = this.$refs.myLucky
 			},
 			// 点击抽奖按钮触发回调
-			startCallBack() {
+			async startCallBack() {
+				if(this.turntable.limitCount > 0){
+					const res = await getSpinCountAPI(this.turntable.id);
+					if(!res) return;
+					if(res.data.spinCount <= 0){
+						uni.showModal({
+							content:"抽签次数已用完！",
+							showCancel:false,
+						})
+						return;
+					}
+				}
 				const allZero = this.prizeList.every(item => item.range === 0);
 				if (allZero) {
 					uni.showModal({
@@ -215,6 +271,9 @@
 					this.audioEnd.play()
 				}
 				this.modalName = "DialogModal2"
+				if(this.turntable.limitCount > 0){
+					this.spinCount--;
+				}
 			},
 			async handConfim() {
 				const turntableName = this.turntable.type == 0 ? this.turntable.title + "-自定义" : (this.turntable

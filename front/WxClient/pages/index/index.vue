@@ -29,7 +29,7 @@
 		<view v-if="mode!='nearby'">
 			<view class="turntable-box" style="z-index: 99999;">
 				<view class="turntable-title">
-					{{turntable.title}}
+					{{turntable.title}}  <text style="color: #e54d42; font-size: small;" v-if="turntable.limitCount > 0">--剩余({{spinCount}})次数</text>
 				</view>
 				<LuckyWheel :default-style="defaultStyle" ref="myLucky" style="font-size: smaller;" width="700rpx"
 					height="700rpx" offsetDegree=10 :blocks="blocks" :prizes="prizeList" :buttons="buttons"
@@ -48,7 +48,7 @@
 							{{randomEmotion()}}{{resultPrize.fonts[0].text}}
 						</view>
 						<view class="cu-bar bg-white">
-							<view class="action margin-0 flex-sub text-yellow " @tap="playAgain()">
+							<view v-if="turntable.limitCount == 0" class="action margin-0 flex-sub text-yellow " @tap="playAgain()">
 								<text></text>不算~再来一次
 							</view>
 							<view class="action margin-0 flex-sub text-green solid-left">
@@ -126,6 +126,7 @@
 	import {
 		getOpenidAPI
 	} from "@/apis/userApi.js";
+	import {getSpinCountAPI} from "@/apis/rotationRecordApi.js";
 	import LuckyWheel from '@/components/@lucky-canvas/uni/lucky-wheel';
 	import sharePopDialog from "../../components/share_pop_dialog.vue";
 	export default {
@@ -135,6 +136,7 @@
 		},
 		data() {
 			return {
+				spinCount:0,
 				noticeContent: "", // 公告信息
 				typeList: [], // 接口返回的餐类
 				resultEmotionList: ["₍ᐢ..ᐢ₎♡", "૮(˶ᵔ ᵕ ᵔ˶)ა", "૮꒰ ˶• ༝ •˶꒱ა", "꒰ᐢ⸝⸝•༝•⸝⸝ᐢ꒱ ​​", "°꒰๑'ꀾ'๑꒱°", "(ᕑᗢᓫ∗)",
@@ -232,17 +234,6 @@
 		},
 		methods: {
 		
-			handleShowMake() {
-				// 查看菜品制作页面
-				const checkPermision = uni.getStorageSync("hasPermissionCheckDetail");
-				if (!checkPermision || checkPermision?.expireTime <= Date.now()) {
-					this.$refs.sharePopDialogRef.open();
-				} else {
-					uni.navigateTo({
-						url: "/pages/dish_detail/dish_detail?id=" + this.resultPrize.id
-					})
-				}
-			},
 			async initActiveNotice() {
 				let noticeRes = await getActiveNoticeAPI()
 				this.noticeContent = noticeRes.data?.content || "暂无公告信息 ₍ᐢ.ˬ.⑅ᐢ₎"
@@ -295,9 +286,23 @@
 					this.audioEnd.play()
 				}
 				this.modalName = "DialogModal2"
+				if(this.turntable.limitCount > 0){
+					this.spinCount--;
+				}
 			},
 			// 点击抽奖按钮触发回调
-			startCallBack() {
+			async startCallBack() {
+				if(this.turntable.limitCount > 0){
+					const spinCounntRes = await getSpinCountAPI(this.turntable.id);
+					 if(!spinCounntRes) return;
+					if(spinCounntRes.data.spinCount <= 0){
+						uni.showModal({
+							content:"抽奖次数已用完",
+							showCancel:false
+						})
+						return;
+					}
+				}
 				const allZero = this.prizeList.every(item => item.range === 0);
 				if(allZero){
 					uni.showModal({
@@ -340,6 +345,10 @@
 				uni.setStorageSync("indexSelectId",id)
 				this.prizeList = JSON.parse(res.data.content)
 				this.turntable = res.data
+				if(this.turntable.limitCount > 0){
+					const spinCountRes = await getSpinCountAPI(id);
+					this.spinCount = spinCountRes.data.spinCount;
+				}
 				let tempList = this.prizeList
 				if (this.turntable.type == 0 && !this.turntable.isRepeat) {
 				 tempList.forEach(prize => {

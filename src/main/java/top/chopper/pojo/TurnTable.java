@@ -40,4 +40,13 @@ public class TurnTable {
 
     @TableField(exist = false)
     private Boolean canEdit = true; // 转盘修改权限,默认为true
+
+    @Schema(name = "limitCount",description = "限制抽奖次数")
+    private Integer limitCount;
+
+    @Schema(name = "limitStartTime",description = "标识时间")
+    private LocalDateTime limitStartTime;
+
+    @Schema(name = "erCodeUrl",description = "分享二维码URL")
+    private String erCodeUrl;
 }

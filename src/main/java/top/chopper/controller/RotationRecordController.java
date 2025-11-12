@@ -61,4 +61,10 @@ public class RotationRecordController {
         return R.SUCCESS(list);
     }
 
+    @Operation(description = "获取剩余次数，仅针对设置了抽取次数限制的转盘")
+    @GetMapping("/spinCount/{id}")
+    public R getRecordCanSpinCountTurntableId(@PathVariable("id")Long id){
+        return R.SUCCESS(service.calcSpinCount(id));
+    }
+
 }

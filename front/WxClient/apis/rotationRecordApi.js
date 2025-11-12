@@ -19,3 +19,8 @@ export function saveRecordAPI(data){
 export function listSingleTurntableRecordAPI(id){
 	return httpOFGet(`record/list/share/${id}`)
 }
+
+// 获取剩余抽奖次数
+export function getSpinCountAPI(id){
+	return httpOFGet(`record/spinCount/${id}`)
+}

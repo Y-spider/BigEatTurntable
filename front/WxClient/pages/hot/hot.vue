@@ -33,7 +33,7 @@ export default {
 		}
 	},
 	onShow() {
-		const name = uni.getStorageSync("name");
+		const name = uni.getStorageSync("userName");
 		const avatar = uni.getStorageSync("avatar");
 		if(!name || !avatar){
 			uni.showModal({

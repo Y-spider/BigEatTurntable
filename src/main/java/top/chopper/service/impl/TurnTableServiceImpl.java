@@ -1,5 +1,13 @@
 package top.chopper.service.impl;
 
+import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.http.HttpUtil;
+import cn.hutool.http.Method;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -14,10 +22,13 @@ import top.chopper.mapper.TurnTableMapper;
 import top.chopper.pojo.RotationRecord;
 import top.chopper.pojo.TurnTable;
 import top.chopper.service.TurnTableService;
+import top.chopper.utils.MinioUtil;
 import top.chopper.utils.SecurityUtil;
 
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 
 /*
    @Author:ROBOT
@@ -32,6 +43,8 @@ public class TurnTableServiceImpl extends ServiceImpl<TurnTableMapper, TurnTable
     private TurnTableMapper mapper;
     @Autowired
     private RotationRecordMapper recordMapper;
+    @Autowired
+    private MinioUtil minioUtil;
 
 
     /**
@@ -96,6 +109,52 @@ public class TurnTableServiceImpl extends ServiceImpl<TurnTableMapper, TurnTable
         log.info("成功删除用户==>{}自定义转盘==》{}旋转记录受影响条数为:{}",SecurityUtil.getUserName(),turnTable.getTitle(),deleted);
     }
 
+    /**
+     * @param id
+     * @return
+     */
+    @Override
+    public HashMap<String, Object> getErCodeUrl(Integer id) {
+        HashMap<String, Object> result = new HashMap<>();
+        TurnTable turnTable = mapper.selectById(id);
+        if(ObjectUtil.isNull(turnTable)){
+            log.error("获取ErCodeUrl传入参数[id]不存在==>{}",id);
+            throw new BusinessException("系统繁忙，请稍后重试！");
+        }
+        if(StrUtil.isNotEmpty(turnTable.getErCodeUrl())){
+            result.put("url",turnTable.getErCodeUrl());
+            return result;
+        }
+        String accessToken = getAccessToken();
+        String requestUrl = "https://api.weixin.qq.com/cgi-bin/wxaapp/createwxaqrcode?access_token="+accessToken;
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("path","pages/detail/detail?id="+id+"&shareOpenid="+SecurityUtil.getUserName()+"&backUrl=/pages/index/index");
+        params.put("width",430);
+        // ⚠️ 将参数转为 JSON 字符串发送
+        String jsonBody = JSONUtil.toJsonStr(params);
+        HttpRequest request = new HttpRequest(requestUrl);
+        request.setMethod(Method.POST);
+        request.header("Content-Type", "application/json");
+        request.body(jsonBody);
+        HttpResponse response = request.execute();
+        // 判断返回类型
+        String contentType = response.header("Content-Type");
+        if (contentType != null && contentType.contains("json")) {
+            // 如果返回是 JSON，说明有错误
+            log.error("请求转盘{}生成二维码错误==>{}", id, response);
+            throw new BusinessException("系统繁忙，请稍后再试！");
+        }
+        else{
+            String fileName =  "qrcode/" + UUID.randomUUID() + ".jpg";
+            HashMap<String, String> map = minioUtil.uploadFile(response.bodyBytes(), fileName, "image/jpeg");
+            result.put("url",map.get("url"));
+            turnTable.setErCodeUrl(map.get("url"));
+            turnTable.setUpdateTime(LocalDateTime.now());
+            mapper.updateById(turnTable);
+            return result;
+        }
+    }
+
     private boolean checkTitleRepeat(String title){
         LambdaQueryWrapper<TurnTable> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.select(TurnTable::getTitle)
@@ -108,4 +167,17 @@ public class TurnTableServiceImpl extends ServiceImpl<TurnTableMapper, TurnTable
         }
         return false;
     }
+
+    private String getAccessToken(){
+        String url = "https://api.weixin.qq.com/cgi-bin/token";
+        HashMap<String, Object> params = new HashMap<>();
+        params.put("grant_type", "client_credential");
+        params.put("appid", "wxfbf664952970b1bb");
+        params.put("secret", "9a8381b008724997047978c6b8966bf3");
+
+        String result = HttpUtil.get(url, params);
+        JSONObject entries = JSONUtil.parseObj(result);
+        return entries.get("access_token").toString();
+    }
+
 }

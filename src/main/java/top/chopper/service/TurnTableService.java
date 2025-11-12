@@ -3,6 +3,8 @@ package top.chopper.service;
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.chopper.pojo.TurnTable;
 
+import java.util.HashMap;
+
 /*
    @Author:ROBOT
    @DateTime:2025/7/6 17:36
@@ -17,5 +19,7 @@ public interface TurnTableService extends IService<TurnTable> {
     Integer updateTurnTable(TurnTable turnTable);
 
     void myDeleteTurntableById(Integer id);
+
+    HashMap<String,Object> getErCodeUrl(Integer id);
 
 }

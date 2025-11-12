@@ -158,4 +158,40 @@ public class MinioUtil {
                 return "file"; // 默认值
             }
         }
+
+    /**
+     * 上传二进制文件数据到 MinIO
+     * @param bytes 文件的字节数组
+     * @param fileName 存储到 MinIO 的文件名（可带路径，如 "qrcode/xxx.jpg"）
+     * @param contentType 文件类型（例如 "image/jpeg"）
+     * @return 返回文件访问信息
+     */
+    public HashMap<String, String> uploadFile(byte[] bytes, String fileName, String contentType) {
+        HashMap<String, String> data = new HashMap<>();
+        data.put("fileName", fileName);
+        data.put("contentType", contentType);
+
+        try (InputStream in = new ByteArrayInputStream(bytes)) {
+            minioClient.putObject(PutObjectArgs.builder()
+                    .bucket(minioProp.getBucketName())
+                    .object(fileName)
+                    .stream(in, bytes.length, -1)
+                    .contentType(contentType)
+                    .build());
+
+            String fileUrl = "https://www.sunnygo.chat/images" + "/" + minioProp.getBucketName() + "/" + fileName;
+            data.put("url", fileUrl);
+            data.put("timestamp", String.valueOf(System.currentTimeMillis()));
+        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
+                 InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
+                 XmlParserException e) {
+            log.error("上传二进制文件失败==>" + fileName, e);
+            throw new BusinessException("上传二进制文件失败：" + e.getMessage());
+        }
+
+        return data;
+    }
+
+
+
 }

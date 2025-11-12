@@ -33,3 +33,13 @@ export function deleteTurntableByIdAPI(id){
 export function getAllSystemTurntableAPI(){
 	return httpOFGet(`turntable/list/system`)
 }
+
+// 修改转盘抽奖限制次数
+export function updateTurantableLimitCountAPI(data){
+	return httpOFPost(`turntable/client/limit`,data,false,"POST")
+}
+
+// 获取转盘二维码
+export function getErCodeUrlAPI(id){
+	return httpOFGet(`turntable/erCode/${id}`)
+}

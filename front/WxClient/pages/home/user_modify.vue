@@ -85,9 +85,8 @@
 
 			// 选择昵称（微信API）
 			chooseNickname(e) {
-
 				this.userInfo.name = e.detail.value
-			},
+			},	
 
 			// 验证邮箱格式
 			checkEmail(email) {
