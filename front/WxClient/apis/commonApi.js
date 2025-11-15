@@ -1,9 +1,11 @@
 // 上传avatar
+const baseUrl = "https://www.sunnygo.chat/turntable/api/"
+// const baseUrl = "http://192.168.1.103:16378/"
 export function uploadAvatar(tempFilePath) {
 	return new Promise((resolve, reject) => {
 		const token = uni.getStorageSync("token");
 		uni.uploadFile({
-			url: "http://192.168.1.103:16378/file/avatar",
+			url: baseUrl + "file/avatar",
 			filePath: tempFilePath, // ✅ 正确字段
 			name: 'file',
 			formData: {},
@@ -33,7 +35,7 @@ export function uploadFile(tempFilePath) {
 	const token = uni.getStorageSync("token");
 	return new Promise((resolve, reject) => {
 		uni.uploadFile({
-			url: "http://192.168.1.103:16378/file/upload",
+			url: baseUrl + "file/upload",
 			filePath: tempFilePath,
 			name: 'file',
 			formData: {

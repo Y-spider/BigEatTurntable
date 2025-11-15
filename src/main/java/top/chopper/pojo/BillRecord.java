@@ -59,12 +59,14 @@ BillRecord extends BasePojo {
     @TableField("`remark`")
     @Schema(name = "remark",description = "备注信息")
     private String remark;
+
     @TableField("`attachment_url`")
     @Schema(name = "attachmentUrl",description = "附件URL，多个使用逗号分隔开")
     private String attachmentUrl;
-    @TableField("`update_opneid`")
-    @Schema(name = "updateOpneid",description = "修改人标识")
-    private String updateOpneid;
+
+    @TableField("`update_openid`")
+    @Schema(name = "updateOpenid",description = "修改人标识")
+    private String updateOpenid;
 
 
 

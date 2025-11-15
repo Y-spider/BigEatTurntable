@@ -22,13 +22,13 @@
 					{{showResultPrizeText}}
 				</view>
 				<view class="cu-bar bg-white">
-					<view v-if="turntable.isRepeat" class="action margin-0 flex-sub text-yellow " @tap="playAgain()">
+					<!-- <view v-if="turntable.isRepeat" class="action margin-0 flex-sub text-yellow " @tap="playAgain()">
 						<text></text>再来一次
-					</view>
-					<view class="action margin-0 flex-sub text-green solid-left">
+					</view> -->
+					<!-- <view class="action margin-0 flex-sub text-green solid-left">
 						<button open-type="share" class="share-btn">分享</button>
 						<text>分享</text>
-					</view>
+					</view> -->
 					<view class="action margin-0 flex-sub text-red solid-left" @tap="handConfim()">确定</view>
 				</view>
 			</view>
@@ -43,7 +43,7 @@
 				</view>
 				<view class="padding-xl">
 					<view @click="previewImage">
-						<image :src="erCodeUrl" style="width: 320rpx; height: 320rpx;"></image>
+						<image :src="erCodeUrl" style="width: 320rpx; height: 360rpx;"></image>
 					</view>
 				</view>
 			</view>

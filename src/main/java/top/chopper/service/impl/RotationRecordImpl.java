@@ -72,7 +72,7 @@ public class RotationRecordImpl extends ServiceImpl<RotationRecordMapper, Rotati
     }
 
     /**
-     * 计算当前用户剩余抽取次数
+     * 计算当前用户某个转盘剩余抽取次数
      * @param id
      * @return
      */
@@ -86,6 +86,7 @@ public class RotationRecordImpl extends ServiceImpl<RotationRecordMapper, Rotati
         }
         LambdaQueryWrapper<RotationRecord> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(RotationRecord::getOpenid,SecurityUtil.getUserName())
+                .eq(RotationRecord::getTurntableId,id)
                 .between(RotationRecord::getCreateTime,turnTable.getLimitStartTime(),LocalDateTime.now());
         Long count = recordMapper.selectCount(queryWrapper);
         result.put("spinCount",turnTable.getLimitCount() -  count);

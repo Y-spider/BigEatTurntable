@@ -2,10 +2,12 @@ package top.chopper.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
 import top.chopper.Exception.BusinessException;
+import top.chopper.dto.QueryPageDto;
 import top.chopper.pojo.BillRecord;
 import top.chopper.pojo.R;
 import top.chopper.service.BillRecordService;
@@ -24,6 +26,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/book/record")
 @Tag(description = "账单明细处理器",name = "BillRecordController")
+@Slf4j
 public class BillRecordController {
     @Autowired
     private BillRecordService billRecordService;
@@ -56,11 +59,20 @@ public class BillRecordController {
     @Operation(description = "修改消费记录（好友之间可以相互修改）",summary = "新增消费记录(好友之间可以相互修改)")
     public R modifyBillRecord(@RequestBody BillRecord billRecord){
         billRecord.setUpdateTime(LocalDateTime.now());
-        billRecord.setUpdateOpneid(SecurityUtil.getUserName());
+        billRecord.setUpdateOpenid(SecurityUtil.getUserName());
         billRecord.setOpenid(null);
         billRecordService.updateById(billRecord);
         return R.SUCCESS();
     }
+
+    // 参数比较多
+    @PostMapping("/list")
+    @Operation(description = "分页获取账单记录",summary = "分页获取账单记录")
+    public R listWithPage(@RequestBody QueryPageDto queryPageDto){
+      return R.SUCCESS(billRecordService.listWithPageAndCondition(queryPageDto));
+    }
+
+
 
 
 

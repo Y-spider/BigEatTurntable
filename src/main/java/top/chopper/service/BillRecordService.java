@@ -1,6 +1,8 @@
 package top.chopper.service;
 
+import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import top.chopper.dto.QueryPageDto;
 import top.chopper.pojo.BillRecord;
 
 /*
@@ -10,4 +12,5 @@ import top.chopper.pojo.BillRecord;
    @Description:
    */
 public interface BillRecordService extends IService<BillRecord> {
+    Page<BillRecord> listWithPageAndCondition(QueryPageDto queryPageDto);
 }

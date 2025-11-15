@@ -13,6 +13,7 @@ import com.baomidou.mybatisplus.core.conditions.update.LambdaUpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import top.chopper.Exception.BusinessException;
@@ -45,6 +46,10 @@ public class TurnTableServiceImpl extends ServiceImpl<TurnTableMapper, TurnTable
     private RotationRecordMapper recordMapper;
     @Autowired
     private MinioUtil minioUtil;
+    @Value("${wexi.appid}")
+    private String appid;
+    @Value("${wexi.secret}")
+    private String secret;
 
 
     /**
@@ -172,8 +177,8 @@ public class TurnTableServiceImpl extends ServiceImpl<TurnTableMapper, TurnTable
         String url = "https://api.weixin.qq.com/cgi-bin/token";
         HashMap<String, Object> params = new HashMap<>();
         params.put("grant_type", "client_credential");
-        params.put("appid", "wxfbf664952970b1bb");
-        params.put("secret", "9a8381b008724997047978c6b8966bf3");
+        params.put("appid", appid);
+        params.put("secret", secret);
 
         String result = HttpUtil.get(url, params);
         JSONObject entries = JSONUtil.parseObj(result);

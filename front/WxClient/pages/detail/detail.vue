@@ -36,8 +36,8 @@
 					<view class="action text-blue"><button type="primary"
 							style="color: #ffffff; font-size: small; border:none !important; background-color: none !important;"
 							open-type="share">确定</button></view>
-					<view class="action text-blue" @tap="hideModal">
-						<button size="mini" type="default">取消</button>
+					<view class="action text-blue" @tap="hideModal" style="padding:0 30rpx">
+						<button size="mini" type="default" >取消</button>
 					</view>
 				</view>
 				<view class="padding-xl " style="height: 500rpx;">
@@ -45,14 +45,14 @@
 						<form>
 							<view class="cu-form-group">
 								<view class="title">开启次数限制</view>
-								<switch class='orange radius' @change="handleSwitchLimit"
+								<switch :disabled="!turntableInfo.canEdit" class='orange radius' @change="handleSwitchLimit"
 									:class="switchLimit?'checked':''" :checked="switchLimit?true:false"></switch>
 							</view>
 							<view v-if="switchLimit" class="cu-form-group">
 								<view class="title">限制抽奖次数(每人)</view>
 								<view  class="edit-bottom">
 									<view class="bottom-item">
-										<uni-number-box v-model="limitCount" min=""></uni-number-box>
+										<uni-number-box :disabled="!turntableInfo.canEdit" v-model="limitCount" min=""></uni-number-box>
 									</view>
 								</view>
 							</view>
@@ -272,7 +272,7 @@
 				this.prizeList = JSON.parse(res.data.content)
 				if(this.requestCount <= 1){
 					this.switchLimit = this.turntableInfo.limitCount > 0;
-					this.limitCount = this.turntableInfo.limitCount;
+					this.limitCount = this.turntableInfo.limitCount==0 ? 1 : this.turntableInfo.limitCount;
 				}
 				this.isSuccessGetTurntableInfo = true;
 				if (this.turntableInfo.type == 0 && !this.turntableInfo.isRepeat) {

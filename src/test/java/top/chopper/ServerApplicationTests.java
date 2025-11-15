@@ -1,6 +1,5 @@
 package top.chopper;
 
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import top.chopper.task.EmailSendTask;
@@ -15,10 +14,10 @@ class ServerApplicationTests {
     private BaiduTranslateUtil baiduTranslateUtil;
     @Autowired
     private CatJoyInitHandler catJoyInitHandler;
-    @Test
-    void testSendEmail(){
-        emailSendTask.sendTextEmail("3267585160@qq.com","测试","hello 成功");
-    }
+//    @Test
+//    void testSendEmail(){
+//        emailSendTask.sendTextEmail("3267585160@qq.com","测试","hello 成功");
+//    }
 
 //    @Test
 //    void testTranslate(){

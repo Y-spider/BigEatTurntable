@@ -40,17 +40,17 @@
 					<view class="cu-dialog">
 						<view class="cu-bar bg-white justify-end">
 							<view class="content">抽奖结果</view>
-							<view class="action" @tap="hideModal">
+							<!-- <view class="action" @tap="handConfim">
 								<text class="cuIcon-close text-red"></text>
-							</view>
+							</view> -->
 						</view>
 						<view class="padding-xl">
 							{{randomEmotion()}}{{resultPrize.fonts[0].text}}
 						</view>
 						<view class="cu-bar bg-white">
-							<view v-if="turntable.limitCount == 0" class="action margin-0 flex-sub text-yellow " @tap="playAgain()">
+							<!-- <view v-if="turntable.limitCount == 0" class="action margin-0 flex-sub text-yellow " @tap="playAgain()">
 								<text></text>不算~再来一次
-							</view>
+							</view> -->
 							<view class="action margin-0 flex-sub text-green solid-left">
 								<button open-type="share" class="share-btn">分享</button>
 								<text>分享</text>
@@ -210,6 +210,7 @@
 				const res = await getOpenidAPI();
 				this.openid = res.data;
 			}
+			this.getTuratableDetail(this.turntable.id)
 			return {
 				title: this.turntable.title,
 				path: "/pages/detail/detail?id=" + this.turntable.id + "&tableName=" + this.turntable.title +
@@ -273,9 +274,7 @@
 				await saveRecordAPI(saveRecordData)
 				this.modalName = ""
 				uni.setStorageSync("routing", false)
-				this.getTuratableDetail(this.turntable.id)
-				
-				
+				this.getTuratableDetail(this.turntable.id)				
 			},
 			// 抽奖结束触发回调
 			endCallBack(prize) {
@@ -286,9 +285,6 @@
 					this.audioEnd.play()
 				}
 				this.modalName = "DialogModal2"
-				if(this.turntable.limitCount > 0){
-					this.spinCount--;
-				}
 			},
 			// 点击抽奖按钮触发回调
 			async startCallBack() {
@@ -346,8 +342,10 @@
 				this.prizeList = JSON.parse(res.data.content)
 				this.turntable = res.data
 				if(this.turntable.limitCount > 0){
-					const spinCountRes = await getSpinCountAPI(id);
-					this.spinCount = spinCountRes.data.spinCount;
+					setTimeout(async ()=>{
+						const spinCountRes = await getSpinCountAPI(id);
+						this.spinCount = spinCountRes.data.spinCount;
+					},300)
 				}
 				let tempList = this.prizeList
 				if (this.turntable.type == 0 && !this.turntable.isRepeat) {
