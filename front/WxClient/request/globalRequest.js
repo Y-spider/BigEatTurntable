@@ -1,8 +1,8 @@
 // 正式环境
-const BASE_URL = "https://www.sunnygo.chat/turntable/api/"
+// const BASE_URL = "https://www.sunnygo.chat/turntable/api/"
 // 开发环境
 // const BASE_URL = "http://127.0.0.1:16378/"
-// const BASE_URL = "http://192.168.1.103:16378/"
+const BASE_URL = "http://192.168.1.104:16378/"
 let isCheckLogin = false
 // 检查是否登录，如果没有登录则进行登录
 function checkLogin(){
@@ -65,12 +65,11 @@ export function httpOFPost(path, params = {}, loading = true,method) {
 				// res.data?.code表示先判断res.data是否为null或undefined，
 				//如果不是，则访问其code属性。这样可以有效避免在对象为null或undefined时造成的错误
 				if (res.data?.code == -1) {
-					uni.showToast({
-						icon: "error",
-						duration: 2000,
-						title: res.data.errMsg
-					});
-					reject(res.data)
+					uni.showModal({
+						content:res.data.errMsg,
+						showCancel:false
+					})
+					reject(false)
 					return false;
 				}
 				else if(res.data?.code == -99){ // -99 token失效需要重新登录
@@ -121,11 +120,10 @@ export function httpOFGet(path,loading = true){
 				timeout:60000,
 				async success(res){
 					if(res.data?.code == -1){
-						uni.showToast({
-							icon:"fail",
-							title:res.data.errMsg,
-							duration:2000
-						});
+						uni.showModal({
+							content:res.data.errMsg,
+							showCancel:false
+						})
 						return false;
 					}
 					else if(res.data?.code == -99){
@@ -182,11 +180,10 @@ export function httpOfGetWithNotToken(path,loading = false){
 				// uni.hideLoading()
 				resolve(res.data) // 将响应数据返回
 				if(res.data?.code == -1){
-					uni.showToast({
-						icon:"fail",
-						title:res.data.errMsg,
-						duration:2000
-					});
+					uni.showModal({
+						content:res.data.errMsg,
+						showCancel:false
+					})
 				};
 			},
 			fail(err){

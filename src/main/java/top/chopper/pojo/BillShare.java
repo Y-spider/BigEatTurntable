@@ -17,14 +17,17 @@ import lombok.Data;
 @Data
 public class BillShare {
     @TableId(type = IdType.AUTO)
-    @TableField("`id`")
     @Schema(name = "id",description = "主键")
     private Integer id;
 
     @TableField("`openid`")
     @Schema(name = "`openid`",description = "用户标识")
     private String openid;
-    @TableField("`billId`")
+    @TableField("`bill_id`")
     @Schema(name = "billId",description = "参与的共享账单id")
     private Integer billId;
+
+    @TableField("`is_choose`")
+    @Schema(name = "isChoose",description = "选中标记")
+    private Boolean isChoose;
 }

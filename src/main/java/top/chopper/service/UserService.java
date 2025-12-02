@@ -22,4 +22,6 @@ public interface UserService extends IService<User> {
     R uploadAvatar(MultipartFile file);
 
     void handleClientUpdate(User user);
+
+    User getCurrentUser();
 }

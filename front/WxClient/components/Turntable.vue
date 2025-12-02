@@ -164,12 +164,18 @@
 				})
 			},
 			async showErCode(){
+				uni.showLoading({
+					mask:true,
+					title:"加载中..."
+				})
 				const res = await getErCodeUrlAPI(this.turntable.id);
-				if(!res) return;
+				if(!res){
+					uni.hideLoading()
+					return
+					};
 				this.erCodeUrl = res.data.url;
-				console.log("this.erCodeUrl",this.erCodeUrl)
 				this.modalName = "Modal";
-				console.log("this.modalName",this.modalName)
+				uni.hideLoading()
 			},
 			showTips() {
 				uni.showModal({

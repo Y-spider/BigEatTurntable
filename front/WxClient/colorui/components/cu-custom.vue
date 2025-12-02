@@ -62,7 +62,7 @@
 					uni.switchTab({
 						url:this.backUrl,
 						fail(err){
-							console.log("返回tabbar页面是吧===>",err)
+							console.log("返回路径不为页面===>",err)
 						}
 					})
 					return;

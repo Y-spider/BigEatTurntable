@@ -1,5 +1,6 @@
 package top.chopper.pojo;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
@@ -20,13 +21,12 @@ import java.math.BigDecimal;
 @TableName("bill_record")
 public class
 BillRecord extends BasePojo {
-    @TableId
-    @TableField("`id`") // 表示数据库的字段名为 `id`
+    @TableId(type = IdType.AUTO)
     private String id;  // 品种唯一标识符
 
     @TableField("`bill_book_id`")
     @Schema(name = "billBookId",description = "账本ID")
-    private String billBookId;
+    private Integer billBookId;
 
     @TableField("`openid`")
     @Schema(name = "openid",description = "记录所属用户")
@@ -67,6 +67,25 @@ BillRecord extends BasePojo {
     @TableField("`update_openid`")
     @Schema(name = "updateOpenid",description = "修改人标识")
     private String updateOpenid;
+
+    @TableField("`record_time`")
+    @Schema(name = "recordTime",description = "标记时间")
+    private String recordTime;
+
+    @TableField("`parent_id`")
+    @Schema(name = "parentId",description = "从那个记录拷贝过来的，会在导入账本记录时生成")
+    private Integer parentId;
+
+    @TableField("`method_label`")
+    @Schema(name = "methodLabel",description = "标记时间")
+    private String methodLabel;
+
+    @TableField("`method_url`")
+    @Schema(name = "methodUrl",description = "标记时间")
+    private String methodUrl;
+
+    @TableField(exist = false)
+    private Boolean isEdit; // 是否具有修改权限
 
 
 

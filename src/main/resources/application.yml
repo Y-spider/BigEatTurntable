@@ -27,6 +27,11 @@ spring:
     custom-to: 3267585160@qq.com # 自定义发送汇总信息给指定邮箱
   thymeleaf:
     cache: false # 开发环境关闭缓存 生产环境打开缓存
+  security:
+    oauth2:
+      authorizationserver:
+        client:
+
 # ================= mybatis-plus服务=================
 mybatis-plus:
   configuration:
@@ -78,4 +83,7 @@ thrids:
   cat:
     key: "live_3c2NvI7ceaFoCm9wfXEIuoPIEkiP2wjHODoN2bErSJQEGAHDQBajbTct3yKkJ8vH" # https://thecatapi.com/ 开发者密钥
 
+# ================================用户相关配置===================
 
+user:
+  limitUpload: 1 # 用户账单上传图片附件限制数量

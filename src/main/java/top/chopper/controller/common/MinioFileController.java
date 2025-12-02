@@ -1,16 +1,16 @@
 package top.chopper.controller.common;
 
+import cn.hutool.core.util.ObjectUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import top.chopper.pojo.R;
 import top.chopper.utils.MinioUtil;
+
+import java.util.List;
 
 /*
    @Author:ROBOT
@@ -45,6 +45,16 @@ public class MinioFileController {
         }
         else{
             return R.SUCCESS(minioUtil.uploadAvatar(file));
+        }
+    }
+
+    @PostMapping("/upload/batch")
+    @Operation(description = "批量文件上传操作,返回文件访问url",summary = "批量文件上传操作,返回文件访问url")
+    public R handleBatchUpload(@RequestBody List<MultipartFile> files){
+        if(ObjectUtil.isEmpty(files)){
+            return R.FAIL("上传文件不能为空!");
+        }else{
+            return R.SUCCESS(minioUtil.uploadBatchMultipartFiles("book/",files));
         }
     }
 

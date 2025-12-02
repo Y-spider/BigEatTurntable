@@ -1,54 +1,57 @@
 {
 	"pages": [ //pages数组中第一项表示应用启动页，参考：https://uniapp.dcloud.io/collocation/pages
 		{
-			"path": "pages/index/index",
-			"style": {
-				
-			}
+			"path" : "pages/bill-book/bill-book"
 		},
 		{
-			"path" : "pages/home/home",
-			"style" : 
-			{
-				"navigationBarTitleText" : "吃货大转盘",
-				"enablePullDownRefresh" : false
-			}
+			"path": "pages/index/index"
 		},
 		{
-			"path" : "pages/hot/hot",
-			"style" : 
-			{
-				"navigationBarTitleText" : "热门转盘",
-				"enablePullDownRefresh" : false
-			}
+			"path" : "pages/home/home"
 		},
 		{
-			"path": "pages/editWheel/index",
-			"style": {
-				"navigationBarTitleText" : "修改",
-				"enablePullDownRefresh" : false
-			}
+			"path": "pages/editWheel/index"
 		},
 		{
-			"path" : "pages/detail/detail",
-			"style" : 
-			{
-				"navigationBarTitleText" : ""
-			}
+			"path" : "pages/detail/detail"
 		},
 		{
-			"path" : "pages/tools/tools",
-			"style" : 
-			{
-				"navigationBarTitleText" : ""
-			}
+			"path" : "pages/tools/tools"
 		},
 		{
 			"path": "pages/home/user_modify"
 		}
 	],
-	// 设置分包，分包主要为工具模块
+	// 设置分包
 	"subPackages": [
+		// 账本分包
+		{
+			"root": "pages-book",
+			"name":"billBookPackage",
+			"pages": [
+				{
+					"path" : "book-management/book-management"
+				},
+				{
+					"path" : "bill-search/bill-search",
+					"style" : 
+					{
+						"navigationBarTitleText" : ""
+					}
+				},
+				{
+					"path" : "bill-record-detail/bill-record-detail",
+					"style" : 
+					{
+						"navigationBarTitleText" : ""
+					}
+				},
+				{
+					"path": "bill-search/bill-search-show-list"
+				}
+			]
+		},
+		// 工具模块
 		{
 			"root": "pages-tools",
 			"name":"toolPackage",
@@ -73,6 +76,9 @@
 				},
 				{
 					"path" : "tools-components/festival-timer/festival-detail"
+				},
+				{
+					"path" : "tools-components/hot-turantable/hot-turantable"
 				}
 			]
 		}
@@ -88,10 +94,10 @@
 				"selectedIconPath": "static/index-active.png"
 			},
 			{
-				"pagePath": "pages/hot/hot",
-				"text": "热门话题",
-				"iconPath": "static/hot.png",
-				"selectedIconPath": "static/hot-active.png"
+				"pagePath": "pages/bill-book/bill-book",
+				"text": "记账",
+				"iconPath": "/static/账本 (1).png",
+				"selectedIconPath": "static/账本.png"
 			},
 			{
 				"pagePath": "pages/tools/tools",

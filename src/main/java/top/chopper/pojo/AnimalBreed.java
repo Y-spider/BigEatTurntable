@@ -15,7 +15,6 @@ import lombok.Data;
 @TableName("animal_breeds")  // 表名
 public class AnimalBreed {
     @TableId
-    @TableField("`id`") // 表示数据库的字段名为 `id`
     private String id;  // 品种唯一标识符
 
     @TableField("`name`")

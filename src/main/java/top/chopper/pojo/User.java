@@ -40,4 +40,9 @@ public class User {
     public String avatar;
     @Schema(name = "email",description = "绑定邮箱地址")
     public String email;
+
+    @Schema(name = "limitUpload",description = "绑定邮箱地址")
+    public Integer limitUpload;
+
+
 }

@@ -6,13 +6,12 @@
 		</cu-custom>
 
 		<!-- 工具分类标题 -->
-		<!-- <view class="section-title">
-			<text class="title-text">🛠️ 实用工具</text>
-		</view> -->
+		<view v-if="commandToolList.length > 0" class="section-title">
+			<text class="title-text">🔥 热门推荐</text>
+		</view>
 
-		<!-- 工具列表 -->
-		<!-- <view class="tools-container">
-			<view class="tool-item" v-for="(tool, index) in tools" :key="index" @click="navigateToTool(tool)"
+		<view class="tools-container">
+			<view class="tool-item" v-for="(tool, index) in commandToolList" :key="index" @click="navigateToTool(tool)"
 				@longpress="showToolTip(tool)">
 				<view class="tool-icon" :style="{ background: tool.bgColor }">
 					<text class="icon-text">{{ tool.icon }}</text>
@@ -22,13 +21,14 @@
 					<view class="tool-desc">{{ tool.shortDesc }}</view>
 				</view>
 			</view>
-		</view> -->
-		
+		</view>
+
+
 		<!-- 工具分类标题 -->
-		<view class="section-title">
+		<view v-if="funList.length > 0" class="section-title">
 			<text class="title-text">🖼️️️ 休闲时刻</text>
 		</view>
-		
+
 		<view class="tools-container">
 			<view class="tool-item" v-for="(tool, index) in funList" :key="index" @click="navigateToTool(tool)"
 				@longpress="showToolTip(tool)">
@@ -41,12 +41,12 @@
 				</view>
 			</view>
 		</view>
-		
+
 		<!-- 工具分类标题 -->
-		<view class="section-title">
+		<view v-if="dateToolList.length > 0" class="section-title">
 			<text class="title-text">⏳️️️ 日期工具</text>
 		</view>
-		
+
 		<view class="tools-container">
 			<view class="tool-item" v-for="(tool, index) in dateToolList" :key="index" @click="navigateToTool(tool)"
 				@longpress="showToolTip(tool)">
@@ -121,93 +121,64 @@
 						features: '自定义长度、字符类型选择、强度检测、批量生成',
 						path: '/pages-util/tools-components/password-generator/password-generator',
 						bgColor: "#aa557f"
+					}
+				],
+				funList: [{
+						"id": "day-cat-knowdage",
+						"name": "每日猫图+冷知识",
+						"icon": "🐾",
+						"shortDesc": "让爱猫人乐不可支",
+						"description": "每天随机获取萌猫图片，并伴随有趣的猫咪冷知识，带你了解更多猫咪的秘密世界！不仅如此，还有丰富的猫咪科普知识等你来探索。",
+						"features": "每日随机猫咪图片 | 精彩猫咪冷知识 | 探索猫咪科普知识",
+						"path": "/pages-tools/tools-components/cat-tool/cat-tool",
+						"bgColor": "#FFB6C1"
 					},
+					{
+						"id": "day-dog-knowdage",
+						"name": "每日狗图+冷知识",
+						"icon": "🐾",
+						"shortDesc": "让爱狗人乐不可支",
+						"description": "每天随机获取可爱狗狗图片，并伴随有趣的狗狗冷知识，带你了解更多狗狗的秘密世界！不仅如此，还有丰富的狗狗科普知识等你来探索。",
+						"features": "每日随机狗狗图片 | 精彩狗狗冷知识 | 探索猫狗狗普知识",
+						"path": "/pages-tools/tools-components/dog-tool/dog-tool",
+						"bgColor": "#f8b400"
+					}
+
+				],
+				dateToolList: [
 					// {
-					// 	id: 'qr',
-					// 	name: '二维码工具',
-					// 	icon: '📱',
-					// 	shortDesc: '生成和识别二维码',
-					// 	description: '快速生成文本、链接、WiFi等二维码，也可以识别图片中的二维码内容。',
-					// 	features: '文本转二维码、链接转二维码、WiFi二维码、二维码识别',
-					// 	path: '/pages/tools-components/qr-tool/qr-tool',
-					// 	bgColor: "#ff0000"
-					// },
-					// {
-					// 	id: 'color',
-					// 	name: '颜色工具',
-					// 	icon: '🎨',
-					// 	shortDesc: '颜色搭配和转换',
-					// 	description: '提供颜色搭配建议、颜色代码转换、调色板生成等功能，适合设计师和开发者使用。',
-					// 	features: '颜色搭配、代码转换、调色板、取色器',
-					// 	path: '/pages/tools-components/color-tool/color-tool'
-					// },
-					// {
-					// 	id: 'unit',
-					// 	name: '单位转换器',
-					// 	icon: '📏',
-					// 	shortDesc: '各种单位快速转换',
-					// 	description: '支持长度、重量、温度、面积、体积等多种单位的快速转换，日常生活必备工具。',
-					// 	features: '多单位支持、实时转换、历史记录、常用单位',
-					// 	path: '/pages/tools-components/unit-converter/unit-converter',
-					// 	bgColor: "#ff0000"
-					// },
-					// {
-					// 	id: 'habit',
-					// 	name: '习惯打卡',
-					// 	icon: '✅',
-					// 	shortDesc: '培养好习惯',
-					// 	description: '记录和追踪你的日常习惯，通过打卡的方式帮助你养成好习惯，告别坏习惯。',
-					// 	features: '习惯记录、打卡提醒、统计分析、成就系统',
-					// 	path: '/pages/tools-components/habit-tracker/habit-tracker',
-					// 	bgColor: "#ff0000"
-					// },
-					// {
-					// 	id: 'mood',
-					// 	name: '心情日记',
-					// 	icon: '😊',
-					// 	shortDesc: '记录心情变化',
-					// 	description: '记录每天的心情变化，分析情绪波动，帮助你更好地了解自己的情绪状态。',
-					// 	features: '心情记录、情绪分析、趋势图表、心情提醒',
-					// 	path: '/pages/tools-components/mood-diary/mood-diary',
-					// 	bgColor: "#ff0000"
+					// 	"id": "节日倒计时",
+					// 	"name": "节日倒计时助手",
+					// 	"icon": "📅",
+					// 	"shortDesc": "记录与期待每一个特别的日子",
+					// 	"description": "节日倒计时助手，不仅帮你精准记录与提醒各类热门节假日，还支持自定义纪念日与特别日子。每个节日都附带节日起源、文化背景与趣味传说，让你在期待的同时也能感受传统与故事的魅力。",
+					// 	"features": "节假日倒计时 | 自定义纪念日 | 节日由来与神话故事 | 节日文化科普",
+					// 	"path": "/pages-tools/tools-components/festival-timer/festival-timer",
+					// 	"bgColor": "#FFE9C9"
 					// }
+
 				],
-				funList:[
-					{
-					  "id": "day-cat-knowdage",
-					  "name": "每日猫图+冷知识",
-					  "icon": "🐾",
-					  "shortDesc": "让爱猫人乐不可支",
-					  "description": "每天随机获取萌猫图片，并伴随有趣的猫咪冷知识，带你了解更多猫咪的秘密世界！不仅如此，还有丰富的猫咪科普知识等你来探索。",
-					 "features": "每日随机猫咪图片 | 精彩猫咪冷知识 | 探索猫咪科普知识",
-					  "path": "/pages-tools/tools-components/cat-tool/cat-tool",
-					  "bgColor": "#FFB6C1"
+				commandToolList: [{
+						"id": "热门转盘",
+						"name": "热门转盘",
+						"icon": "🎡",
+						"shortDesc": "用转盘轻松做决定，让选择更有趣",
+						"description": "一个简单又好玩的大转盘工具，助你在犹豫不决时轻松做选择。支持创建多个主题转盘，如美食选择、出行方案、娱乐活动等，也可自定义选项内容和转盘样式。无论是日常小决定还是聚会互动，都能通过轻轻一转，让选择变得更轻松、更有趣。",
+						"features": "自定义转盘 | 多主题选择 | 聚会互动 | 随机决策助手",
+						"path": "/pages-tools/tools-components/hot-turantable/hot-turantable",
+						"bgColor": "#ffa500"
 					},
 					{
-					  "id": "day-dog-knowdage",
-					  "name": "每日狗图+冷知识",
-					  "icon": "🐾",
-					  "shortDesc": "让爱狗人乐不可支",
-					  "description": "每天随机获取可爱狗狗图片，并伴随有趣的狗狗冷知识，带你了解更多狗狗的秘密世界！不仅如此，还有丰富的狗狗科普知识等你来探索。",
-					 "features": "每日随机狗狗图片 | 精彩狗狗冷知识 | 探索猫狗狗普知识",
-					  "path": "/pages-tools/tools-components/dog-tool/dog-tool",
-					  "bgColor": "#f8b400"
-					}
+							"id": "节日倒计时",
+							"name": "节日倒计时助手",
+							"icon": "📅",
+							"shortDesc": "记录与期待每一个特别的日子",
+							"description": "节日倒计时助手，不仅帮你精准记录与提醒各类热门节假日，还支持自定义纪念日与特别日子。每个节日都附带节日起源、文化背景与趣味传说，让你在期待的同时也能感受传统与故事的魅力。",
+							"features": "节假日倒计时 | 自定义纪念日 | 节日由来与神话故事 | 节日文化科普",
+							"path": "/pages-tools/tools-components/festival-timer/festival-timer",
+							"bgColor": "#FFE9C9"
+						}
 
-				],
-				dateToolList:[
-					{
-					  "id": "节日倒计时",
-					  "name": "节日倒计时助手",
-					  "icon": "📅",
-					  "shortDesc": "记录与期待每一个特别的日子",
-					  "description": "节日倒计时助手，不仅帮你精准记录与提醒各类热门节假日，还支持自定义纪念日与特别日子。每个节日都附带节日起源、文化背景与趣味传说，让你在期待的同时也能感受传统与故事的魅力。",
-					  "features": "节假日倒计时 | 自定义纪念日 | 节日由来与神话故事 | 节日文化科普",
-					  "path": "/pages-tools/tools-components/festival-timer/festival-timer",
-					  "bgColor": "#FFE9C9"
-					}
-
-				
 				]
 			}
 		},

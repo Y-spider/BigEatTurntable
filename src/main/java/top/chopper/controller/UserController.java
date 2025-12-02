@@ -63,7 +63,7 @@ public class UserController {
     @Operation(description = "获取微信用户的信息",summary = "获取微信用户的信息")
     public R getClientInfo(){
         LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.select(User::getName,User::getEmail,User::getAvatar);
+        queryWrapper.select(User::getName,User::getEmail,User::getAvatar,User::getLimitUpload);
         queryWrapper.eq(User::getOpenid,SecurityUtil.getUserName());
         User one = userService.getOne(queryWrapper);
         return R.SUCCESS(one);

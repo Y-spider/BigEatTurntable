@@ -17,7 +17,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.UUID;
 import java.util.regex.Pattern;
 
@@ -41,7 +43,7 @@ public class MinioUtil {
      */
     public HashMap<String,String> uploadFile(MultipartFile file){
         HashMap<String, String> data = new HashMap<>();
-        String fileName = file.getOriginalFilename();
+        String fileName = "bill_book/" + file.getOriginalFilename();
         data.put("fileName",fileName);
         String contentType = file.getContentType(); // 获取文件类型
         data.put("contentType",contentType);
@@ -191,6 +193,70 @@ public class MinioUtil {
 
         return data;
     }
+
+    /**
+     * 批量上传 MultipartFile 文件
+     * @param filePath   保存到 MinIO 的路径前缀（如 "bill/"）
+     * @param files      MultipartFile 数组
+     * @return List<HashMap<String, String>>
+     */
+    public List<HashMap<String, String>> uploadBatchMultipartFiles(
+            String filePath,
+            List<MultipartFile> files
+    ) {
+
+        if (files == null || files.isEmpty()) {
+            throw new BusinessException("上传文件不能为空");
+        }
+
+        List<HashMap<String, String>> resultList = new ArrayList<>();
+
+        for (MultipartFile file : files) {
+
+            String originalName = file.getOriginalFilename();
+            String contentType = file.getContentType();
+
+            // 根据原文件名获取后缀
+            String ext = "";
+            if (originalName != null && originalName.contains(".")) {
+                ext = originalName.substring(originalName.lastIndexOf("."));
+            }
+
+            // 生成唯一文件名
+            String fileName = filePath + UUID.randomUUID() + ext;
+
+            try (InputStream in = file.getInputStream()) {
+
+                minioClient.putObject(PutObjectArgs.builder()
+                        .bucket(minioProp.getBucketName())
+                        .object(fileName)
+                        .stream(in, in.available(), -1)
+                        .contentType(contentType)
+                        .build());
+
+                String fileUrl = "https://www.sunnygo.chat/images"
+                        + "/" + minioProp.getBucketName()
+                        + "/" + fileName;
+
+                HashMap<String, String> data = new HashMap<>();
+                data.put("fileName", fileName);
+                data.put("contentType", contentType);
+                data.put("url", fileUrl);
+                data.put("timestamp", String.valueOf(System.currentTimeMillis()));
+
+                resultList.add(data);
+
+            } catch (Exception e) {
+                log.error("批量上传失败 ==> " + fileName, e);
+                throw new BusinessException("批量上传失败：" + e.getMessage());
+            }
+        }
+
+        return resultList;
+    }
+
+
+
 
 
 

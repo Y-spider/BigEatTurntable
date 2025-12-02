@@ -2,6 +2,9 @@ package top.chopper.service;
 
 import com.baomidou.mybatisplus.extension.service.IService;
 import top.chopper.pojo.BillBook;
+import top.chopper.pojo.User;
+
+import java.util.List;
 
 /*
    @Author:ROBOT
@@ -11,4 +14,17 @@ import top.chopper.pojo.BillBook;
    */
 public interface BillBookService extends IService<BillBook> {
     void deleteBillBook(Integer id);
+
+    BillBook getCurrentChooseBookBill();
+
+
+    List<BillBook> listCurrentBillBook();
+
+    void createDefaultBook(String openid,String userName);
+
+    List<User> listAllBookUser();
+
+    void joinShareBook(Integer bookId);
+
+    void changeChooseBillBook(BillBook billBook);
 }

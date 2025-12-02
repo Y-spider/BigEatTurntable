@@ -1,6 +1,6 @@
 <template>
 	<view class="hot-turntable-page">
-		<cu-custom :isBack="false">
+		<cu-custom :isBack="true">
 		    <block slot="content">热门转盘</block>
 		</cu-custom>
 		<view class="hot-list">

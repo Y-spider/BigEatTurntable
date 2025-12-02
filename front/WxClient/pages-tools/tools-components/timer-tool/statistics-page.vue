@@ -2,7 +2,7 @@
 <template>
 	<view class="statistics-container">
 		<cu-custom :isBack="true">
-			<block slot="content">统计</block>
+			<block slot="content">番茄</block>
 		</cu-custom>
 		
 		<!-- 统计概览 -->

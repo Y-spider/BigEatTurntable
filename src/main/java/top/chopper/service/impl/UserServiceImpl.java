@@ -1,4 +1,5 @@
 package top.chopper.service.impl;
+
 import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import com.alibaba.druid.support.json.JSONUtils;
@@ -13,11 +14,11 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import top.chopper.Exception.BusinessException;
 import top.chopper.dto.AdminUserLoginDto;
+import top.chopper.mapper.BillRecordMapper;
 import top.chopper.mapper.TokenMapper;
 import top.chopper.mapper.UserMapper;
-import top.chopper.pojo.R;
-import top.chopper.pojo.Token;
-import top.chopper.pojo.User;
+import top.chopper.pojo.*;
+import top.chopper.service.BillBookService;
 import top.chopper.service.UserService;
 import top.chopper.utils.JWTUtil;
 import top.chopper.utils.MinioUtil;
@@ -33,6 +34,7 @@ import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 
 /*
    @Author:ROBOT
@@ -55,8 +57,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private String secret;
     @Value("${wexi.grant_type}")
     private String grant_type;
+    @Value("${user.limitUpload}")
+    private Integer limitUpload;
     @Autowired
     private MinioUtil minioUtil;
+    @Autowired
+    private BillBookService billBookService;
+    @Autowired
+    private BillRecordMapper billRecordMapper;
+
 
     @Override
     @Transactional
@@ -110,6 +119,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             user.setOpenid(openid);
             user.setRemark("client");
             user.setName(openid.substring(openid.length()-6));
+            user.setLimitUpload(limitUpload);
             if(inviter!=null && !StrUtil.isEmpty(inviter.toString())){
                 user.setInviter(inviter.toString());
             }
@@ -129,6 +139,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             resMap.put("userName",user.getName());
             resMap.put("avtar",user.getAvatar());
             resMap.put("email",user.getEmail());
+            // 初始化账默认账本
+            billBookService.createDefaultBook(openid,user.getName());
             return R.SUCCESS(resMap);
         }else{
             // 已经存在该用户
@@ -187,12 +199,39 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     @Transactional
     public void handleClientUpdate(User user) {
+
         user.setId(null);
         user.setOpenid(null);
         user.setUpdateTime(LocalDateTime.now());
         LambdaUpdateWrapper<User> queryWrapper = new LambdaUpdateWrapper<>();
         queryWrapper.eq(User::getOpenid,SecurityUtil.getUserName());
+        User oldUser = userMapper.selectOne(queryWrapper);
+        if(ObjectUtil.isNotEmpty(user.getName()) && !Objects.equals(user.getName(), oldUser.getName())){
+            // 更新账单记录
+            LambdaUpdateWrapper<BillRecord> updateWrapper = new LambdaUpdateWrapper<>();
+            updateWrapper
+                    .eq(BillRecord::getOpenid,SecurityUtil.getUserName())
+                    .set(BillRecord::getName,user.getName())
+                    .set(BillRecord::getUpdateTime,LocalDateTime.now());
+            billRecordMapper.update(updateWrapper);
+            // 更新账本所属用户名称
+            LambdaUpdateWrapper<BillBook> billBookUpdateWrapper = new LambdaUpdateWrapper<>();
+            billBookUpdateWrapper.eq(BillBook::getOpenid,SecurityUtil.getUserName())
+                    .set(BillBook::getName,user.getName());
+            billBookService.update(billBookUpdateWrapper);
+        }
         userMapper.update(user,queryWrapper);
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public User getCurrentUser() {
+        String openid = SecurityUtil.getUserName();
+        LambdaQueryWrapper<User> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(User::getOpenid,openid);
+        return userMapper.selectOne(queryWrapper);
     }
 
 
