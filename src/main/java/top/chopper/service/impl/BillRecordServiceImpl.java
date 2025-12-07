@@ -835,7 +835,7 @@ public class BillRecordServiceImpl extends ServiceImpl<BillRecordMapper, BillRec
             billRecord.setType("out");
         }
         if(ObjectUtil.isNotEmpty(entries.get("amount"))){
-            billRecord.setAmount(BigDecimal.valueOf((Long)entries.get("amount")));
+            billRecord.setAmount(new BigDecimal(entries.get("amount").toString()));
         }else{
             billRecord.setAmount(BigDecimal.ZERO);
         }
