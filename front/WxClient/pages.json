@@ -48,6 +48,34 @@
 				},
 				{
 					"path": "bill-search/bill-search-show-list"
+				},
+				{
+					"path" : "bill-record-management/bill-record-management",
+					"style" : 
+					{
+						"navigationBarTitleText" : ""
+					}
+				},
+				{
+					"path" : "bill-record-calendar/bill-record-calendar",
+					"style" : 
+					{
+						"navigationBarTitleText" : ""
+					}
+				},
+				{
+					"path" : "bill-record-view/bill-record-view",
+					"style" : 
+					{
+						"navigationBarTitleText" : ""
+					}
+				},
+				{
+					"path" : "bill-record-view/bill-record-summary",
+					"style" : 
+					{
+						"navigationBarTitleText" : ""
+					}
 				}
 			]
 		},
@@ -96,8 +124,8 @@
 			{
 				"pagePath": "pages/bill-book/bill-book",
 				"text": "记账",
-				"iconPath": "/static/账本 (1).png",
-				"selectedIconPath": "static/账本.png"
+				"iconPath": "/static/068_记账 (1).png",
+				"selectedIconPath": "/static/068_记账.png"
 			},
 			{
 				"pagePath": "pages/tools/tools",

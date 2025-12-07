@@ -2,6 +2,7 @@ package top.chopper.service;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.IService;
+import org.springframework.web.multipart.MultipartFile;
 import top.chopper.dto.QueryPageDto;
 import top.chopper.pojo.BillRecord;
 
@@ -24,4 +25,14 @@ public interface BillRecordService extends IService<BillRecord> {
     void handleMergeBook(Integer formBookId,Integer toBookId);
 
     Map<String,Object> searchList(Map<String,Object> map);
+
+    void sendRecordSummaryExcelToCurrentUser(Map<String,Object> map);
+
+    BillRecord voiceAddRecordByAi(MultipartFile file);
+
+    BillRecord desAddRecordByAi(String des);
+
+    Map<String,Object> getStatisticsInfo(Map<String,Object> params);
+
+    Map<String,Object> getDurationSummary(Map<String,Object> params);
 }

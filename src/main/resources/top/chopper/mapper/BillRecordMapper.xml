@@ -17,7 +17,7 @@
                 bill_book_id = #{billId}
             </if>
             <if test="startTime != null and endTime != null">
-               and create_time BETWEEN #{startTime} AND #{endTime}
+               and record_time BETWEEN #{startTime} AND #{endTime}
             </if>
         <if test="openid!='all'">
             and openid = #{openid}

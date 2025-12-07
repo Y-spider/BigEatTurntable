@@ -77,16 +77,15 @@ BillRecord extends BasePojo {
     private Integer parentId;
 
     @TableField("`method_label`")
-    @Schema(name = "methodLabel",description = "标记时间")
+    @Schema(name = "methodLabel",description = "支付方式")
     private String methodLabel;
 
     @TableField("`method_url`")
-    @Schema(name = "methodUrl",description = "标记时间")
+    @Schema(name = "methodUrl",description = "支付方式URL")
     private String methodUrl;
 
     @TableField(exist = false)
     private Boolean isEdit; // 是否具有修改权限
-
 
 
 }

@@ -59,6 +59,26 @@
 				</view>
 			</view>
 		</view>
+		
+		
+		<!-- 系统分类标题 -->
+		<view v-if="systemTool.length > 0" class="section-title">
+			<text class="title-text">⚙️️️️ 系统工具</text>
+		</view>
+		
+		<view class="tools-container">
+			<view class="tool-item" v-for="(tool, index) in systemTool" :key="index""
+				@longpress="showToolTip(tool)">
+				<view class="tool-icon" :style="{ background: tool.bgColor }">
+					<text class="icon-text">{{ tool.icon }}</text>
+				</view>
+				<view class="tool-info">
+					<view class="tool-name">{{ tool.name }}</view>
+					<view class="tool-desc">{{ tool.shortDesc }}</view>
+				</view>
+				<button open-type="contact" style="position: absolute; width: 300rpx;height: 200rpx;opacity: 0;">1</button>
+			</view>
+		</view>
 
 		<!-- 教程部分 -->
 		<view class="section-title">
@@ -146,17 +166,29 @@
 
 				],
 				dateToolList: [
-					// {
-					// 	"id": "节日倒计时",
-					// 	"name": "节日倒计时助手",
-					// 	"icon": "📅",
-					// 	"shortDesc": "记录与期待每一个特别的日子",
-					// 	"description": "节日倒计时助手，不仅帮你精准记录与提醒各类热门节假日，还支持自定义纪念日与特别日子。每个节日都附带节日起源、文化背景与趣味传说，让你在期待的同时也能感受传统与故事的魅力。",
-					// 	"features": "节假日倒计时 | 自定义纪念日 | 节日由来与神话故事 | 节日文化科普",
-					// 	"path": "/pages-tools/tools-components/festival-timer/festival-timer",
-					// 	"bgColor": "#FFE9C9"
-					// }
+					{
+						"id": "节日倒计时",
+						"name": "节日倒计时助手",
+						"icon": "📅",
+						"shortDesc": "记录与期待每一个特别的日子",
+						"description": "节日倒计时助手，不仅帮你精准记录与提醒各类热门节假日，还支持自定义纪念日与特别日子。每个节日都附带节日起源、文化背景与趣味传说，让你在期待的同时也能感受传统与故事的魅力。",
+						"features": "节假日倒计时 | 自定义纪念日 | 节日由来与神话故事 | 节日文化科普",
+						"path": "/pages-tools/tools-components/festival-timer/festival-timer",
+						"bgColor": "#FFE9C9"
+					}
 
+				],
+				systemTool:[
+					{
+					  "id": "联系客服",
+					  "name": "联系客服",
+					  "icon": "📞",
+					  "shortDesc": "遇到问题？随时联系我",
+					  "description": "当你在使用过程中遇到疑问、功能异常、建议反馈或账单问题时，可以通过此页面快速联系到我们。支持在线留言、问题提交，以及查看常见问题，确保你在使用过程中始终顺畅无忧。",
+					  "features": "问题反馈 | 在线帮助 | 建议与意见 | 常见问题解答",
+					  "path": "/pages-tools/tools-components/contact-service/contact-service",
+					  "bgColor": "#E6F3FF"
+					}
 				],
 				commandToolList: [{
 						"id": "热门转盘",
@@ -177,8 +209,7 @@
 							"features": "节假日倒计时 | 自定义纪念日 | 节日由来与神话故事 | 节日文化科普",
 							"path": "/pages-tools/tools-components/festival-timer/festival-timer",
 							"bgColor": "#FFE9C9"
-						}
-
+						},
 				]
 			}
 		},
@@ -192,6 +223,10 @@
 
 			// 跳转到工具页面
 			navigateToTool(tool) {
+				if(tool.id=="联系客服"){
+					uni.openCustomerServiceChat();
+					return;
+				}
 				uni.navigateTo({
 					url: tool.path
 				})

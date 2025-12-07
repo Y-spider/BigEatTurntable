@@ -39,6 +39,21 @@
         </profile>
     </profiles>
     <dependencies>
+<!--           调用ai大模型依赖-->
+        <!-- https://mvnrepository.com/artifact/com.unfbx/chatgpt-java -->
+        <dependency>
+            <groupId>com.unfbx</groupId>
+            <artifactId>chatgpt-java</artifactId>
+            <version>1.2.0</version>
+        </dependency>
+
+        <!--        excel 操作依赖-->
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>easyexcel</artifactId>
+            <version>3.3.2</version>
+        </dependency>
+
         <!-- 小程序模版发送 https://mvnrepository.com/artifact/com.github.binarywang/weixin-java-miniapp -->
         <dependency>
             <groupId>com.github.binarywang</groupId>

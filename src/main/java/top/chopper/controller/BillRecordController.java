@@ -1,5 +1,6 @@
 package top.chopper.controller;
 
+import cn.hutool.core.util.ObjectUtil;
 import cn.hutool.core.util.StrUtil;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -7,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import top.chopper.Exception.BusinessException;
 import top.chopper.dto.QueryPageDto;
 import top.chopper.pojo.BillBook;
@@ -49,6 +51,7 @@ public class BillRecordController {
         billRecord.setName(userService.getCurrentUser().getName());
         billRecord.setOpenid(SecurityUtil.getUserName());
         LocalDateTime now = LocalDateTime.now();
+        billRecord.setId(null);
         billRecord.setCreateTime(now);
         billRecord.setUpdateTime(now);
         billRecordService.save(billRecord);
@@ -127,7 +130,58 @@ public class BillRecordController {
         return R.SUCCESS(billRecordService.searchList(map));
     }
 
+    @PostMapping("/export/excel")
+    @Operation(description = "导出excel并发送邮件给当前用户",summary = "导出excel并发送邮件给当前用户")
+    public R handleExportExcel(@RequestBody Map<String,Object> map){
+        billRecordService.sendRecordSummaryExcelToCurrentUser(map);
+        return R.SUCCESS();
+    }
 
+    @PostMapping(value = "/add/voice",produces = "application/json;charset=UTF-8")
+    @Operation(
+            description = "结合AI分析输入的语音，生成账单返回（但是不真正插入)",
+            summary = "结合AI分析输入的语音，生成账单返回（但是不真正插入)"
+    )
+    public R handleVoiceAdd(@RequestParam("file") MultipartFile file) {
+        // 强制设置响应头和编码
+        BillRecord billRecord = billRecordService.voiceAddRecordByAi(file);
+        return R.SUCCESS(billRecord);
+    }
+
+
+    @PostMapping(value = "/add/des",produces = "application/json;charset=UTF-8")
+    @Operation(
+            description = "结合AI分析输入的语音，生成账单返回（但是不真正插入)",
+            summary = "结合AI分析输入的语音，生成账单返回（但是不真正插入)"
+    )
+
+    public R handleDesAdd(@RequestBody Map<String,Object> map) {
+        // 强制设置响应头和编码
+        if(ObjectUtil.isEmpty(map)){
+            throw new BusinessException("参数不能为空");
+        }
+        String desText = map.get("des").toString();
+        if(ObjectUtil.isEmpty(desText)){
+            throw new BusinessException("参数[des]不能为空!");
+        }
+        BillRecord billRecord = billRecordService.desAddRecordByAi(desText);
+        return R.SUCCESS(billRecord);
+    }
+
+
+    @PostMapping("/static")
+    @Operation(description = "返回统计表格信息",summary = "返回统计表格信息")
+    public R handleGetStaticInfo(@RequestBody Map<String,Object> params){
+        Map<String, Object> statisticsInfo = billRecordService.getStatisticsInfo(params);
+        return R.SUCCESS(statisticsInfo);
+    }
+
+    @PostMapping("/duration/summary")
+    @Operation(description = "统计月份消费信息",summary = "统计月份消费信息")
+    public R handleSummaryOfDuration(@RequestBody Map<String,Object> params){
+        Map<String, Object> statisticsInfo = billRecordService.getDurationSummary(params);
+        return R.SUCCESS(statisticsInfo);
+    }
 
 
 

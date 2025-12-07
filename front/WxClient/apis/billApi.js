@@ -73,3 +73,23 @@ export function mergeBillRecordAPI(formBillBookId,toBillBookId){
 export function getSearchListAPI(data){
 	return httpOFPost(`book/record/search`,data,false,'POST');
 }
+
+// 导出账单
+export function exportBillRecordAPI(data){
+	return httpOFPost(`book/record/export/excel`,data,false,'POST');
+}
+
+//输入内容ai解析结果
+export function makeBillRecordByDesWithAiAPI(data){
+	return httpOFPost(`book/record/add/des`,data,false,'POST')
+}
+
+// 统计分析数据拉取接口
+export function getStasticDataAPI(data){
+	return httpOFPost(`book/record/static`,data,false,'POST')
+}
+
+// 获取月份统计信息
+export function getSummaryMonthAPI(data){
+	return httpOFPost(`book/record/duration/summary`,data,false,'POST');
+}

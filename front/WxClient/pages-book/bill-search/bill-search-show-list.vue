@@ -61,9 +61,9 @@
 												<text style="color: #ffa500;"> ({{record.name}}) </text>
 											</view>
 											<view>
-												<view v-if="record.remark" class="remark"
+												<view class="remark"
 													style=" color: #8b8b8b; font-size: small;  padding: 5rpx 10rpx;">
-													备注：{{record.remark}}</view>
+													备注：{{record.remark || '无'}}</view>
 											</view>
 										</view>
 										<view class="item-left-r flex align-center" style="gap: 10rpx;">
@@ -134,6 +134,8 @@
 				return res;
 			},
 			async init() {
+				this.billRecordList = [];
+				this.itemRecordList = [];
 			    const res = await getSearchListAPI(this.searchParams);
 			    if (!res) return;
 			    // 深拷贝

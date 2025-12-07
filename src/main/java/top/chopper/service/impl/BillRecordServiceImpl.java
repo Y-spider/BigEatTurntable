@@ -1,16 +1,31 @@
 package top.chopper.service.impl;
 
 import cn.hutool.core.util.ObjectUtil;
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.http.HttpRequest;
+import cn.hutool.http.HttpResponse;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
+import com.alibaba.excel.EasyExcel;
+import com.alibaba.excel.write.metadata.style.WriteCellStyle;
+import com.alibaba.excel.write.style.HorizontalCellStyleStrategy;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.poi.ss.usermodel.HorizontalAlignment;
+import org.apache.poi.ss.usermodel.VerticalAlignment;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import top.chopper.Exception.BusinessException;
 import top.chopper.constant.BillConstant;
+import top.chopper.dto.BillRecordExportExcelDto;
 import top.chopper.dto.QueryPageDto;
 import top.chopper.mapper.BillRecordMapper;
 import top.chopper.mapper.BillShareMapper;
@@ -21,15 +36,21 @@ import top.chopper.pojo.User;
 import top.chopper.service.BillBookService;
 import top.chopper.service.BillRecordService;
 import top.chopper.service.UserService;
+import top.chopper.utils.EmailSenderUtil.EmailUtil;
+import top.chopper.utils.FasterWhisperUtil;
+import top.chopper.utils.SecurityUtil;
 
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.math.BigDecimal;
-import java.time.DayOfWeek;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
+import java.math.RoundingMode;
+import java.time.*;
 import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeFormatterBuilder;
+import java.time.temporal.ChronoField;
 import java.time.temporal.TemporalAdjusters;
 import java.util.*;
+import java.util.stream.Collectors;
 
 /*
    @Author:ROBOT
@@ -51,6 +72,12 @@ public class BillRecordServiceImpl extends ServiceImpl<BillRecordMapper, BillRec
     private BillBookService billBookService;
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private EmailUtil emailUtil;
+
+    @Value("${LLM.deepseek.api-key}")
+    private String apiKey;
 
     /**
      * 分页+查询条件获取账单
@@ -132,15 +159,11 @@ public class BillRecordServiceImpl extends ServiceImpl<BillRecordMapper, BillRec
     @Override
     @SuppressWarnings("all")
     public Map<String, Object> listWithMonth(LocalDateTime time,Integer userId) {
-        LocalDateTime startOfMonth = time.with(TemporalAdjusters.firstDayOfMonth())
-                .with(LocalTime.MIN);
         BillBook currentChooseBookBill = billBookService.getCurrentChooseBookBill();
-        // 当月最后一天 23:59:59.999999999
-        LocalDateTime endOfMonth = time.with(TemporalAdjusters.lastDayOfMonth())
-                .with(LocalTime.MAX);
+        Map<String, String> timeMap = handleGetMonthStartAndEnd(time);
         HashMap<String, String> result = new HashMap<>();
-        result.put("startTime", startOfMonth.toString());
-        result.put("endTime", endOfMonth.toString());
+        result.put("startTime", timeMap.get("startTime").toString());
+        result.put("endTime",timeMap.get("endTime").toString());
         LambdaQueryWrapper<BillRecord> queryWrapper = new LambdaQueryWrapper<>();
        String openid = "all";
         if(userId!=-1){
@@ -157,7 +180,7 @@ public class BillRecordServiceImpl extends ServiceImpl<BillRecordMapper, BillRec
         queryWrapper
                 .eq("all"!=openid,BillRecord::getOpenid, openid)
                 .eq(BillRecord::getBillBookId,queryBillBookId)
-                .between(BillRecord::getCreateTime, startOfMonth, endOfMonth)
+                .between(BillRecord::getRecordTime,  timeMap.get("startTime"),  timeMap.get("endTime"))
                 .orderByDesc(BillRecord::getRecordTime)
                 .orderByDesc(BillRecord::getUpdateTime)
                 .orderByDesc(BillRecord::getCreateTime);
@@ -239,35 +262,7 @@ public class BillRecordServiceImpl extends ServiceImpl<BillRecordMapper, BillRec
         BillBook currentChooseBookBill = billBookService.getCurrentChooseBookBill();
         LambdaQueryWrapper<BillRecord> queryWrapper = new LambdaQueryWrapper<>();
         queryWrapper.eq(BillRecord::getBillBookId,BillBook.getIdByCurrentBillBook(currentChooseBookBill));
-        if(ObjectUtil.isNotEmpty(map.get("userId")) && !"-1".equals(map.get("userId").toString())){
-            User user = userService.getById((Integer) map.get("userId"));
-            queryWrapper.eq(BillRecord::getOpenid,user.getOpenid());
-        }
-        if(ObjectUtil.isNotEmpty(map.get("type")) && !"全部分类".equals(map.get("type"))){
-            queryWrapper.eq(BillRecord::getType,map.get("type"));
-        }
-        if(ObjectUtil.isNotEmpty(map.get("startTime")) && ObjectUtil.isNotEmpty(map.get("endTime"))){
-            LocalDate startTime1 = LocalDate.parse(map.get("startTime").toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            LocalDateTime startTime = startTime1.atStartOfDay();
-            LocalDate endTime1 = LocalDate.parse(map.get("endTime").toString(), DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            LocalDateTime endTime = endTime1.atStartOfDay();
-            if(endTime.isBefore(startTime)){
-                // 不处理，查询全部
-            }else{
-                queryWrapper.between(BillRecord::getRecordTime,startTime1,endTime1);
-            }
-        }
-        if(ObjectUtil.isNotEmpty(map.get("methodType")) && !"全部账户".equals(map.get("methodType"))){
-            queryWrapper.eq(BillRecord::getMethodLabel,map.get("methodType"));
-        }
-        if(ObjectUtil.isNotEmpty(map.get("remark"))){
-            queryWrapper.like(BillRecord::getRemark,map.get("remark"));
-        }
-        queryWrapper.
-                 orderByDesc(BillRecord::getRecordTime)
-                .orderByDesc(BillRecord::getUpdateTime)
-                .orderByDesc(BillRecord::getCreateTime);
-        List<BillRecord> billRecords = billRecordMapper.selectList(queryWrapper);
+        List<BillRecord> billRecords = listByQueryWrappy(queryWrapper, map);
         BigDecimal outTotal = BigDecimal.ZERO;
         BigDecimal inTotal = BigDecimal.ZERO;
         LinkedHashMap<String, Object> resultMap = new LinkedHashMap<>();
@@ -316,37 +311,370 @@ public class BillRecordServiceImpl extends ServiceImpl<BillRecordMapper, BillRec
     }
 
     /**
+     * @param map
+     */
+    @Override
+    public void sendRecordSummaryExcelToCurrentUser(Map<String, Object> map) {
+        User currentUser = userService.getCurrentUser();
+        if(ObjectUtil.isEmpty(currentUser.getEmail())){
+            throw new BusinessException("请先绑定接收邮箱!");
+        }
+        LambdaQueryWrapper<BillRecord> queryWrapper = new LambdaQueryWrapper<>();
+        List<BillRecord> billRecords = listByQueryWrappy(queryWrapper, map);
+        if(billRecords.isEmpty()){
+            throw new BusinessException("当前时间范围内无消费记录!");
+        }
+        BillBook exportBook = billBookService.getById((Integer) map.get("bookId"));
+        ArrayList<BillRecordExportExcelDto> billRecordExportExcelList = new ArrayList<>();
+        BillRecordExportExcelDto lastNextLine = new BillRecordExportExcelDto(); // 记录总支出，总收入，结余
+        lastNextLine.setInTotal(BigDecimal.ZERO);
+        lastNextLine.setOutTotal(BigDecimal.ZERO);
+        billRecordExportExcelList.add(lastNextLine);
+        for (BillRecord record : billRecords) {
+            BillRecordExportExcelDto target = new BillRecordExportExcelDto();
+            BeanUtils.copyProperties(record,target);
+            if("in".equals(record.getType())){
+                lastNextLine.setInTotal(lastNextLine.getInTotal().add(record.getAmount()));
+            }else if("out".equals(record.getType())){
+                lastNextLine.setOutTotal(lastNextLine.getOutTotal().add(record.getAmount()));
+            }
+            target.setBookName(exportBook.getTitle());
+            billRecordExportExcelList.add(target);
+        }
+        lastNextLine.setSurplus(lastNextLine.getInTotal().subtract(lastNextLine.getOutTotal()));
+        try {
+            WriteCellStyle contentStyle = new WriteCellStyle();
+            contentStyle.setHorizontalAlignment(HorizontalAlignment.CENTER); // 水平居中
+            contentStyle.setVerticalAlignment(VerticalAlignment.CENTER);     // 垂直居中
+
+// 内容策略
+            WriteCellStyle headStyle = new WriteCellStyle(); // 表头样式
+            headStyle.setHorizontalAlignment(HorizontalAlignment.CENTER);
+            headStyle.setVerticalAlignment(VerticalAlignment.CENTER);
+
+            HorizontalCellStyleStrategy styleStrategy =
+                    new HorizontalCellStyleStrategy(headStyle, contentStyle);
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
+            EasyExcel.write(out, BillRecordExportExcelDto.class)
+                    .registerWriteHandler(styleStrategy)
+                    .sheet("账单")
+                    .doWrite(billRecordExportExcelList);
+            byte[] excelBytes = out.toByteArray();
+            String contentText = String.format("亲爱的用户：您好！\n%s至%s账本[%s]账单%d条明细已发送到您的邮箱，请下载附件查阅。",map.get("startTime"),map.get("endTime"),exportBook.getTitle(),billRecords.size());
+            emailUtil.sendExcelMail(currentUser.getEmail(),excelBytes,contentText,"转盘记账工具_账单明细",exportBook.getTitle()+"账单明细");
+            log.info("用户:{}导出账本:{}记录{}条成功，导出时间范围为:[{}]-[{}]", SecurityUtil.getUserName(),exportBook.getTitle(),billRecords.size(),map.get("startTime"),map.get("endTime"));
+        } catch (Exception e ) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    /**
+     * ai解析上传的语音，生成billRecord记录返回给前端
+     * @param file
+     * @return
+     */
+    @Override
+    public BillRecord voiceAddRecordByAi(MultipartFile file) {
+        BillRecord billRecord = new BillRecord();
+        try {
+            // 翻译后的文本
+            String transcribeText = FasterWhisperUtil.transcribe(file);
+            if(ObjectUtil.isEmpty(transcribeText)){
+                return billRecord;
+            }
+            String textJson = deepSeekMakeTranslate(transcribeText);
+            billRecord = genBillRecordByJsonStr(textJson);
+            return billRecord;
+        } catch ( IOException e ) {
+            throw new RuntimeException(e);
+        } catch ( InterruptedException e ) {
+            log.error(e.toString());
+            throw new BusinessException(e.getMessage());
+        }
+    }
+
+    /**
+     * 通过解析用户输入的文本来解析生成billrecord
+     * @param des
+     * @return
+     */
+    @Override
+    public BillRecord desAddRecordByAi(String des) {
+        String jsonStr = deepSeekMakeTranslate(des);
+        return genBillRecordByJsonStr(jsonStr);
+    }
+
+    /**
+     * @param params 
+     * @return
+     */
+    /**
+     * 获取统计信息
+     *
+     * @param params 前端参数: {date="2025-12", type="expense", billBookId=1}
+     * @return 统计结果 Map
+     */
+    @Override
+    public Map<String, Object> getStatisticsInfo(Map<String, Object> params) {
+        // 1. 基础参数校验
+        if (ObjectUtil.isEmpty(params) || params.get("date") == null) {
+            log.warn("统计参数缺失, params=>[{}]", params);
+            throw new BusinessException("请选择日期");
+        }
+        String ym = params.get("date").toString(); // 例如 "2025-12"
+        YearMonth yearMonth = YearMonth.parse(ym);
+        // 当月第一天
+        LocalDate startDate = yearMonth.atDay(1);
+        // 当月最后一天
+        LocalDate endDate = yearMonth.atEndOfMonth();
+        params.put("startTime",startDate);
+        params.put("endTime",endDate);
+        BillBook currentChooseBookBill = billBookService.getCurrentChooseBookBill();
+        params.put("bookId",currentChooseBookBill.getId());
+        LambdaQueryWrapper<BillRecord> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.orderByDesc(BillRecord::getAmount);
+        // 3. 获取当月所有记录
+        List<BillRecord> billRecords = listByQueryWrappy(queryWrapper, params); // 假设这是你封装的查询方法，或者直接用 baseMapper.selectList(queryWrapper)
+
+        // 4. 初始化返回结构
+        Map<String, Object> resultMap = new HashMap<>();
+        BigDecimal totalAmount = BigDecimal.ZERO;
+
+        // 如果没有记录，直接返回空结构，防止空指针
+        if (billRecords == null || billRecords.isEmpty()) {
+            resultMap.put("totalAmount", 0);
+            resultMap.put("categoryList", new ArrayList<>());
+            resultMap.put("assetList", new ArrayList<>());
+            resultMap.put("dailyData", new HashMap<>());
+            resultMap.put("rankList", new ArrayList<>());
+            return resultMap;
+        }
+
+        // 5. 计算总金额
+        for (BillRecord record : billRecords) {
+            if (record.getAmount() != null) {
+                totalAmount = totalAmount.add(record.getAmount());
+            }
+        }
+        resultMap.put("totalAmount", totalAmount);
+
+        // 防止总金额为0导致除以0异常
+        boolean isTotalZero = totalAmount.compareTo(BigDecimal.ZERO) == 0;
+
+        // ---------------------------------------------------------
+        // 6. 处理分类统计 (Category List - 饼图 & 列表)
+        // ---------------------------------------------------------
+        Map<String, List<BillRecord>> groupedByCategory = billRecords.stream()
+                .collect(Collectors.groupingBy(record ->
+                        StrUtil.isBlank(record.getLabelName()) ? "其他" : record.getLabelName()
+                ));
+
+        List<Map<String, Object>> categoryList = new ArrayList<>();
+        for (Map.Entry<String, List<BillRecord>> entry : groupedByCategory.entrySet()) {
+            String labelName = entry.getKey();
+            List<BillRecord> records = entry.getValue();
+
+            BigDecimal catTotal = records.stream()
+                    .map(BillRecord::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            Map<String, Object> item = new HashMap<>();
+            item.put("name", labelName);
+            item.put("amount", catTotal);
+            item.put("count", records.size());
+            // 取第一条记录的图标作为分类图标
+            item.put("icon", records.isEmpty() ? "goods" : records.get(0).getLabelUrl());
+            // 计算百分比 (保留2位小数)
+            item.put("percent", isTotalZero ? 0 :
+                    catTotal.divide(totalAmount, 4, RoundingMode.HALF_UP).multiply(new BigDecimal("100")).setScale(2, RoundingMode.HALF_UP));
+
+            categoryList.add(item);
+        }
+        // 按金额排序分类列表
+        categoryList.sort((o1, o2) -> ((BigDecimal) o2.get("amount")).compareTo((BigDecimal) o1.get("amount")));
+        resultMap.put("categoryList", categoryList);
+
+        // ---------------------------------------------------------
+        // 7. 处理资产账户统计 (Asset List)
+        // ---------------------------------------------------------
+        Map<String, List<BillRecord>> groupedByMethod = billRecords.stream()
+                .collect(Collectors.groupingBy(record ->
+                        StrUtil.isBlank(record.getMethodLabel()) ? "未知账户" : record.getMethodLabel()
+                ));
+
+        List<Map<String, Object>> assetList = new ArrayList<>();
+        for (Map.Entry<String, List<BillRecord>> entry : groupedByMethod.entrySet()) {
+            String methodName = entry.getKey();
+            List<BillRecord> records = entry.getValue();
+
+            BigDecimal methodTotal = records.stream()
+                    .map(BillRecord::getAmount)
+                    .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+            Map<String, Object> item = new HashMap<>();
+            item.put("name", methodName);
+            item.put("amount", methodTotal);
+            item.put("icon", records.isEmpty() ? "moneybag" : records.get(0).getMethodUrl());
+            item.put("percent", isTotalZero ? 0 :
+                    methodTotal.divide(totalAmount, 4, RoundingMode.HALF_UP).multiply(new BigDecimal("100")).setScale(2, RoundingMode.HALF_UP));
+
+            assetList.add(item);
+        }
+        // 按金额排序
+        assetList.sort((o1, o2) -> ((BigDecimal) o2.get("amount")).compareTo((BigDecimal) o1.get("amount")));
+        resultMap.put("assetList", assetList);
+
+        // ---------------------------------------------------------
+        // 8. 处理每日数据 (Daily Data - 柱状图)
+        // ---------------------------------------------------------
+        Map<String, BigDecimal> dailyDataMap = new HashMap<>();
+        // 假设 recordTime 格式为 "yyyy-MM-dd HH:mm:ss" 或 "yyyy-MM-dd"
+        // 我们只需要提取 "dd" 部分，例如 "2025-12-02" -> Key="2" (为了匹配前端循环的索引)
+        // 或者保留 "02"，取决于前端处理。之前前端代码处理 key 兼容了 "1" 和 "01"，这里我们存 int 字符串
+
+        for (BillRecord record : billRecords) {
+            String time = record.getRecordTime();
+            if (StrUtil.length(time) >= 10) {
+                // 提取日期的日部分. 假设格式固定.
+                // 最好使用 DateTimeFormatter, 但这里简单处理字符串: "2025-12-02" -> substring(8, 10) -> "02"
+                String dayStr = time.substring(8, 10);
+                // 去除前导0，变成 "2", "15" 等，因为前端循环 i 从 1 到 31
+                String dayKey = String.valueOf(Integer.parseInt(dayStr));
+
+                BigDecimal currentVal = dailyDataMap.getOrDefault(dayKey, BigDecimal.ZERO);
+                dailyDataMap.put(dayKey, currentVal.add(record.getAmount()));
+            }
+        }
+        resultMap.put("dailyData", dailyDataMap);
+
+
+        resultMap.put("rankList", billRecords);
+
+        return resultMap;
+    }
+
+    /**
+     * @param params
+     * @return
+     */
+    @Override
+    public Map<String, Object> getDurationSummary(Map<String, Object> params) {
+        // 1. 校验参数
+        if (ObjectUtil.isEmpty(params.get("startTime"))) {
+            throw new BusinessException("起始时间不能为空!");
+        }
+        if (ObjectUtil.isEmpty(params.get("endTime"))) {
+            throw new BusinessException("结束时间不能为空!");
+        }
+
+        // 2. 解析时间范围
+        // 假设前端传入的是 "2024-12" 格式
+        YearMonth yearMonthOfStart = YearMonth.parse(params.get("startTime").toString());
+        YearMonth yearMonthOfEnd = YearMonth.parse(params.get("endTime").toString());
+
+        // 转换为字符串用于数据库查询 (匹配 recordTime String类型)
+        // 开始日期: "2024-12-01"
+        String startDateStr = yearMonthOfStart.atDay(1).toString();
+        // 结束日期: "2025-12-31" (自动计算当月最后一天)
+        String endDateStr = yearMonthOfEnd.atEndOfMonth().toString();
+
+        // 3. 获取当前账本并查询数据
+        BillBook currentChooseBookBill = billBookService.getCurrentChooseBookBill();
+
+        LambdaQueryWrapper<BillRecord> queryWrapper = new LambdaQueryWrapper<>();
+        queryWrapper.eq(BillRecord::getBillBookId, currentChooseBookBill.getId());
+        // 针对 String 类型的 recordTime 进行范围查询
+        // 注意：这里假设 recordTime 格式为 yyyy-MM-dd 或 yyyy-MM-dd HH:mm:ss，字符串比较在 ISO 格式下是有效的
+        queryWrapper.between(BillRecord::getRecordTime, startDateStr, endDateStr);
+        queryWrapper.orderByDesc(BillRecord::getRecordTime);
+
+        List<BillRecord> billRecords = billRecordMapper.selectList(queryWrapper);
+
+        // 4. 初始化总统计数据
+        BigDecimal allTotalExpense = BigDecimal.ZERO;
+        BigDecimal allTotalIncome = BigDecimal.ZERO;
+
+        // 5. 按月份分组处理数据
+        // key: "2025-12", value: List<BillRecord>
+        Map<String, List<BillRecord>> groupedByMonth = billRecords.stream()
+                .filter(r -> StrUtil.isNotBlank(r.getRecordTime()) && r.getRecordTime().length() >= 7)
+                .collect(Collectors.groupingBy(r -> r.getRecordTime().substring(0, 7)));
+
+        List<Map<String, Object>> monthList = new ArrayList<>();
+
+        // 遍历分组数据
+        for (Map.Entry<String, List<BillRecord>> entry : groupedByMonth.entrySet()) {
+            String monthStr = entry.getKey();
+            List<BillRecord> records = entry.getValue();
+
+            BigDecimal monthExpense = BigDecimal.ZERO;
+            BigDecimal monthIncome = BigDecimal.ZERO;
+
+            for (BillRecord r : records) {
+                BigDecimal amount = r.getAmount() == null ? BigDecimal.ZERO : r.getAmount();
+
+                // 根据类型累加 (DB存的是 "out" 和 "in")
+                if ("out".equals(r.getType())) {
+                    monthExpense = monthExpense.add(amount);
+                    allTotalExpense = allTotalExpense.add(amount); // 累加到总支出
+                } else if ("in".equals(r.getType())) {
+                    monthIncome = monthIncome.add(amount);
+                    allTotalIncome = allTotalIncome.add(amount); // 累加到总收入
+                }
+            }
+
+            // 构建单月数据对象
+            Map<String, Object> monthItem = new HashMap<>();
+            monthItem.put("month", monthStr);
+            monthItem.put("expense", monthExpense);
+            monthItem.put("income", monthIncome);
+            monthItem.put("surplus", monthIncome.subtract(monthExpense)); // 结余 = 收入 - 支出
+
+            monthList.add(monthItem);
+        }
+
+        // 6. 对月份列表进行降序排序 (最新的月份在前)
+        monthList.sort((o1, o2) -> {
+            String m1 = (String) o1.get("month");
+            String m2 = (String) o2.get("month");
+            return m2.compareTo(m1);
+        });
+
+        // 7. 构建返回结果
+        Map<String, Object> resultMap = new HashMap<>();
+
+        // 顶部总览
+        Map<String, Object> totalStats = new HashMap<>();
+        totalStats.put("totalExpense", allTotalExpense);
+        totalStats.put("totalIncome", allTotalIncome);
+        totalStats.put("totalSurplus", allTotalIncome.subtract(allTotalExpense));
+
+        resultMap.put("totalStats", totalStats);
+        resultMap.put("monthList", monthList);
+
+        return resultMap;
+    }
+    /**
      * 处理获取当前所属月份起始时间与结束时间
      *
      * @param time
      * @return
      */
     private Map<String, String> handleGetMonthStartAndEnd(LocalDateTime time) {
-        LocalDateTime startOfMonth = time.with(TemporalAdjusters.firstDayOfMonth())
-                .with(LocalTime.MIN);
+        LocalDate date = time.toLocalDate();
 
-        // 当月最后一天 23:59:59.999999999
-        LocalDateTime endOfMonth = time.with(TemporalAdjusters.lastDayOfMonth())
-                .with(LocalTime.MAX);
+        // 当月第一天
+        LocalDate startOfMonth = date.with(TemporalAdjusters.firstDayOfMonth());
+        // 当月最后一天
+        LocalDate endOfMonth = date.with(TemporalAdjusters.lastDayOfMonth());
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+
         HashMap<String, String> result = new HashMap<>();
-        result.put("startTime", startOfMonth.toString());
-        result.put("endTime", endOfMonth.toString());
+        result.put("startTime", startOfMonth.format(formatter));
+        result.put("endTime", endOfMonth.format(formatter));
         return result;
-    }
 
-    public static void main(String[] args) {
-        LocalDateTime date = LocalDateTime.of(2025, 11, 5, 10, 30); // 示例日期
-
-        // 当月第一天 00:00:00
-        LocalDateTime startOfMonth = date.with(TemporalAdjusters.firstDayOfMonth())
-                .with(LocalTime.MIN);
-
-        // 当月最后一天 23:59:59.999999999
-        LocalDateTime endOfMonth = date.with(TemporalAdjusters.lastDayOfMonth())
-                .with(LocalTime.MAX);
-
-        System.out.println("当月起始日期: " + startOfMonth);
-        System.out.println("当月结束日期: " + endOfMonth);
     }
 
     private String translateDate(String recordTime) {
@@ -378,4 +706,154 @@ public class BillRecordServiceImpl extends ServiceImpl<BillRecordMapper, BillRec
                 return "";
         }
     }
+
+
+    private List<BillRecord> listByQueryWrappy(LambdaQueryWrapper<BillRecord> queryWrapper,Map<String,Object> map){
+        if(ObjectUtil.isNotEmpty(map.get("bookId"))){
+            queryWrapper.eq(BillRecord::getBillBookId,map.get("bookId"));
+        }
+        if(ObjectUtil.isNotEmpty(map.get("userId")) && !"-1".equals(map.get("userId").toString())){
+            User user = userService.getById((Integer) map.get("userId"));
+            queryWrapper.eq(BillRecord::getOpenid,user.getOpenid());
+        }
+        if(ObjectUtil.isNotEmpty(map.get("labelName")) && !"全部分类".equals(map.get("labelName"))){
+            queryWrapper.eq(BillRecord::getLabelName,map.get("labelName"));
+        }
+        if(ObjectUtil.isNotEmpty(map.get("type"))){
+            queryWrapper.eq(BillRecord::getType,map.get("type"));
+        }
+        DateTimeFormatter flexibleFormatter = new DateTimeFormatterBuilder()
+                .appendPattern("yyyy-")
+                .appendValue(ChronoField.MONTH_OF_YEAR)
+                .appendLiteral('-')
+                .appendValue(ChronoField.DAY_OF_MONTH)
+                .toFormatter();
+
+        if (ObjectUtil.isNotEmpty(map.get("startTime"))
+                && ObjectUtil.isNotEmpty(map.get("endTime"))) {
+
+            LocalDate startDate = LocalDate.parse(map.get("startTime").toString(), flexibleFormatter);
+            LocalDateTime startTime = startDate.atStartOfDay();
+
+            LocalDate endDate = LocalDate.parse(map.get("endTime").toString(), flexibleFormatter);
+            LocalDateTime endTime = endDate.atStartOfDay();
+
+            if (!endTime.isBefore(startTime)) {
+                queryWrapper.between(BillRecord::getRecordTime, startDate, endDate);
+            }
+        }
+
+        if(ObjectUtil.isNotEmpty(map.get("methodType")) && !"全部账户".equals(map.get("methodType"))){
+            queryWrapper.eq(BillRecord::getMethodLabel,map.get("methodType"));
+        }
+        if(ObjectUtil.isNotEmpty(map.get("remark"))){
+            queryWrapper.like(BillRecord::getRemark,map.get("remark"));
+        }
+        if(ObjectUtil.isNotEmpty(map.get("inOutType")) && !"全部".equals(map.get("inOutType"))){
+            queryWrapper.eq(BillRecord::getType,"支出".equals(map.get("inOutType"))?"out":"in");
+        }
+        queryWrapper.
+                orderByDesc(BillRecord::getRecordTime)
+                .orderByDesc(BillRecord::getUpdateTime)
+                .orderByDesc(BillRecord::getCreateTime);
+        return billRecordMapper.selectList(queryWrapper);
+    }
+
+
+    /**
+     *
+     * @param desText 描述文本 "我今天中午吃了一个螺蛳粉，花费了15块！"
+     * @return
+     *  结果JSON字符串
+     *      * {
+     *      *   "type": "out",
+     *      *   "amount": 15,
+     *      *   "methodLabel": "微信支付",
+     *      *   "remark": "中午吃螺蛳粉"
+     *      * }
+     */
+    private String deepSeekMakeTranslate(String desText){
+        // 构建请求 JSON
+        JSONObject requestJson = new JSONObject();
+        requestJson.set("model", "deepseek-chat");
+
+        JSONArray messages = new JSONArray();
+
+        JSONObject systemMessage = new JSONObject();
+        systemMessage.set("role", "system");
+        systemMessage.set("content",
+                "你是一个记账小助手，请解析用户提供的文本，严格提取关键信息，并按 JSON 返回。" +
+                        "输出格式示例:{\"type\":\"out\",\"amount\":0,\"methodLabel\":\"微信支付\",\"remark\":\"总结描述\",\"labelName\":\"餐饮\"}。" +
+                        "字段说明:" +
+                        "type: 'in' 表示收入(默认)，'out' 表示支出;" +
+                        "amount: 金额，必须为数字;" +
+                        "methodLabel: 支付方式，取值: 微信支付(默认), 支付宝, 花呗, 现金, 京东白条, 储蓄卡, 信用卡, 其他;" +
+                        "remark: 总结描述文本;" +
+                        "labelName: 当 type='out' 时，从以下标签中选一个: 餐饮(默认), 交通, 蔬菜, 服饰, 购物, 娱乐, 运动, 宠物, 快递, 烟酒, 数码, 保险, 其他, 发红包, 旅行, 住房, 家电, 水果, 学习, 医疗, 缴费, 转账, 礼物;" +
+                        "当 type='in' 时，从以下标签中选一个: 工资(默认), 理财, 退款, 奖金, 礼金, 兼职, 生活费, 生意;" +
+                        "只返回 JSON，不要添加任何额外说明，JSON 必须合法可解析。"
+        );
+
+        JSONObject userMessage = new JSONObject();
+        userMessage.set("role", "user");
+        userMessage.set("content", desText);
+
+        messages.add(systemMessage);
+        messages.add(userMessage);
+
+        requestJson.set("messages", messages);
+        requestJson.set("stream", false);
+
+        // 发送 POST 请求
+        HttpResponse response = HttpRequest.post("https://api.deepseek.com/chat/completions")
+                .header("Content-Type", "application/json;charset=utf-8")
+                .header("Authorization", "Bearer " + "sk-07de5615f2b04afaa9c2b3c1246c4757")
+                .body(requestJson.toString(), "application/json;charset=utf-8")
+                .execute();
+
+        if (response.getStatus() == 200) {
+            JSONObject jsonResponse = JSONUtil.parseObj(response.body());
+            // 获取返回的文本内容
+            return jsonResponse.getJSONArray("choices")
+                    .getJSONObject(0)
+                    .getJSONObject("message")
+                    .getStr("content");
+        } else {
+            throw new RuntimeException("DeepSeek API 调用失败，状态码：" + response.getStatus() +
+                    "，响应内容：" + response.body());
+        }
+    }
+    private BillRecord genBillRecordByJsonStr(String jsonStr){
+        BillRecord billRecord = new BillRecord();
+        if(ObjectUtil.isEmpty(jsonStr)){
+            return billRecord;
+        }
+        JSONObject entries = JSONUtil.parseObj(jsonStr);
+        if (ObjectUtil.isNotEmpty(entries.get("type"))) {
+            billRecord.setType(entries.get("type").toString());
+        } else {
+            billRecord.setType("out");
+        }
+        if(ObjectUtil.isNotEmpty(entries.get("amount"))){
+            billRecord.setAmount(BigDecimal.valueOf((Long)entries.get("amount")));
+        }else{
+            billRecord.setAmount(BigDecimal.ZERO);
+        }
+        if(ObjectUtil.isNotEmpty(entries.get("methodLabel"))){
+            billRecord.setMethodLabel(entries.get("methodLabel").toString());
+        }else{
+            billRecord.setMethodLabel("微信支付");
+        }
+        if(ObjectUtil.isNotEmpty(entries.get("remark"))){
+            billRecord.setRemark(entries.get("remark").toString());
+        }
+        if(ObjectUtil.isNotEmpty(entries.get("labelName"))){
+            billRecord.setLabelName(entries.get("labelName").toString());
+        }
+        return billRecord;
+    }
+
+
+
 }
+

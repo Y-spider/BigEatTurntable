@@ -10,6 +10,7 @@ import io.swagger.v3.oas.models.info.Info;
 import io.swagger.v3.oas.models.info.License;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.converter.HttpMessageConverter;
@@ -71,5 +72,21 @@ public class WebConfig implements WebMvcConfigurer {
                 .endpoint(minioProp.getEndpoint()).build();
     }
 
+    @Value("${LLM.deepseek.api-key}")
+    private String apiKey;
+
+    @Value("${LLM.deepseek.base-url}")
+    private String baseUrl;
+
+    /**
+     * 创建 DeepSeek OpenAiClient Bean
+     */
+//    @Bean
+//    public OpenAiClient deepSeekClient() {
+//        return OpenAiClient.builder()
+//                .apiKey(Collections.singletonList(apiKey))
+//                .apiHost(baseUrl)
+//                .build();
+//    }
 
 }

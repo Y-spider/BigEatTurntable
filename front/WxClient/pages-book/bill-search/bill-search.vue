@@ -18,7 +18,7 @@
 		<view class="cu-form-group" @click="openTypeDialog">
 			<view class="title">分类：</view>
 			<view class="category-box">
-				{{searchParams.type}} ▼
+				{{searchParams.labelName}} ▼
 			</view>
 		</view>
 
@@ -103,7 +103,7 @@
 				bookName: "账单",
 				searchParams: {
 					userId: -1,
-					type: "全部分类",
+					labelName: "全部分类",
 					startTime: "",
 					endTime: "",
 					methodType: "全部账户",
@@ -177,7 +177,7 @@
 				this.$refs.inOutTypeDialog.open();
 			},
 			typeChangeCallBack(type) {
-				this.searchParams.type = type.label;
+				this.searchParams.labelName = type.label;
 			},
 			userChangeClllBack(chooseUser) {
 				this.showUserInfo = chooseUser;

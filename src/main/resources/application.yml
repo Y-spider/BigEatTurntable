@@ -87,3 +87,9 @@ thrids:
 
 user:
   limitUpload: 1 # 用户账单上传图片附件限制数量
+
+# ================================AI大模型相关配置==============
+LLM:
+  deepseek:
+    api-key: sk-07de5615f2b04afaa9c2b3c1246c4757
+    base-url: https://api.deepseek.com/

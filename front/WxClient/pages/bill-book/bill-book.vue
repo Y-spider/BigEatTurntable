@@ -75,7 +75,7 @@
 				</view>
 			</view>
 			<view class="fun-part">
-				<view class="fun-item" v-for="(item,index) in funItemList" :key="index">
+				<view @click="toFunPage(item)" class="fun-item" v-for="(item,index) in funItemList" :key="index">
 					{{item.des}}
 				</view>
 			</view>
@@ -91,7 +91,8 @@
 					<view class="card-head">
 						<view>{{records.date }} {{records.week}} </view>
 						<view class="extra" style="color: #b9b9b9; font-size: small; font-weight: bold;">
-							{{handleExtra(records)}}</view>
+							{{handleExtra(records)}}
+						</view>
 					</view>
 					<view class="card-body">
 						<view style="display: flex; flex-direction: column;">
@@ -124,9 +125,9 @@
 												<text style="color: #ffa500;"> ({{record.name}}) </text>
 											</view>
 											<view>
-												<view v-if="record.remark" class="remark"
+												<view class="remark"
 													style=" color: #8b8b8b; font-size: small;  padding: 5rpx 10rpx;">
-													备注：{{record.remark}}</view>
+													备注：{{record.remark || '无'}}</view>
 											</view>
 										</view>
 										<view class="item-left-r flex align-center" style="gap: 10rpx;">
@@ -151,7 +152,20 @@
 					已经到底部了~~~
 				</view>
 			</view>
+			<!-- 悬浮框 -->
+			<view v-if="billRecordList.length>0">
+				<uni-fab ref="fab" :pattern="pattern" :content="content" horizontal="right" vertical="bottom"
+					direction="horizontal" @trigger="trigger" @fabClick="fabClick" />
+			</view>
+			<view v-else style="width: 100vw;" class="flex justify-center">
+				<view style="color: white; background-color: #ffa500;" class="make-button-none" @click="makeBill">记一笔
+				</view>
+			</view>
 		</view>
+		<!-- 描述录入 -->
+		<des-make-record ref="desMakeRecordRef" @onFinish="handleDesFinsh"></des-make-record>
+		<!-- 语音录入 -->
+		<voice-make-record ref="voiceMakeRecordRef" @voiceFinish="handleVoiceFinsh"></voice-make-record>
 		<!-- 信息录入底部弹框 -->
 		<make-bill-pop ref="makeBillPop" @onConfirm="handleConfirm"></make-bill-pop>
 		<!-- 切换展示 用户弹框-->
@@ -174,9 +188,11 @@
 </template>
 
 <script>
+	import voiceMakeRecord from '../../components/voice-make-record.vue';
 	import makeBillPop from '../../components/make-bill-pop.vue';
 	import zqtMonthPicker from '../../components/zqt-month-picker/zqt-month-picker.vue';
 	import changeShowUserDialog from '../../components/change_show_user_dialog.vue';
+	import desMakeRecord from '../../components/des-make-record.vue';
 	import {
 		getChoosedBillBookAPI,
 		getMonthSummaryAPI,
@@ -188,10 +204,38 @@
 		components: {
 			makeBillPop,
 			zqtMonthPicker,
-			changeShowUserDialog
+			changeShowUserDialog,
+			voiceMakeRecord,
+			desMakeRecord
 		},
 		data() {
 			return {
+				pattern: {
+					color: '#ffa500',
+					backgroundColor: '#fff',
+					selectedColor: '#ffa500',
+					buttonColor: '#ffa500',
+					iconColor: '#fff'
+				},
+				content: [{
+						iconPath: "/static/记一笔.svg",
+						selectedIconPath: '/static/记一笔.svg',
+						text: '记一笔',
+						active: false
+					},
+					{
+						iconPath: '/static/语音.svg',
+						selectedIconPath: '/static/语音.svg',
+						text: '语音记账',
+						active: false
+					},
+					{
+						iconPath: '/static/ai.svg',
+						selectedIconPath: '/static/ai.svg',
+						text: 'ai记账',
+						active: false
+					}
+				],
 				showUserInfo: {
 					id: -1,
 					name: "全部用户"
@@ -202,23 +246,23 @@
 				funItemList: [ // 功能列表
 					{
 						des: "统计分析",
-						path: "",
+						path: "/pages-book/bill-record-view/bill-record-view",
 					},
 					{
 						des: "账单日历",
-						path: "",
+						path: "/pages-book/bill-record-calendar/bill-record-calendar",
 					},
-					{
-						des: "资产管理",
-						path: "",
-					},
-					{
-						des: "分类管理",
-						path: "",
-					},
+					// {
+					// 	des: "资产管理",
+					// 	path: "",
+					// },
+					// {
+					// 	des: "分类管理",
+					// 	path: "",
+					// },
 					{
 						des: "导出账单",
-						path: "",
+						path: "/pages-book/bill-record-management/bill-record-management",
 					},
 					// {
 					// 	des:"导入账单",
@@ -280,6 +324,38 @@
 			}
 		},
 		methods: {
+			handleDesFinsh(record){
+				// 处理语音上传完成返回record记录
+				const billRecord = record;
+				this.$refs.desMakeRecordRef.close();
+				this.$refs.makeBillPop.open(null,billRecord);
+			},
+			handleVoiceFinsh(record){
+				// 处理语音上传完成返回record记录
+				const billRecord = record.data;
+				this.$refs.voiceMakeRecordRef.close();
+				this.$refs.makeBillPop.open(null,billRecord);
+			},
+			trigger(e) {
+				this.content[e.index].active = !e.item.active
+				if(e.index === 0){
+					// 记一笔
+					this.makeBill();
+				}else if(e.index === 1){
+					// 打开语音输入组件
+					this.$refs.voiceMakeRecordRef.open();
+				}else if(e.index === 2){
+					this.$refs.desMakeRecordRef.open();
+				}
+			},
+			fabClick() {
+				
+			},
+			toFunPage(item) {
+				uni.navigateTo({
+					url: item.path
+				})
+			},
 			userChangeClllBack(chooseUser) {
 				this.showUserInfo = chooseUser;
 				this.init();

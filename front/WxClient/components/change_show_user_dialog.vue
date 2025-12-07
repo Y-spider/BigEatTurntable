@@ -1,7 +1,7 @@
 <!-- 切换展示用户 -->
 <template>
 	<view>
-		<view class="cu-modal" :class="modalName=='RadioModal'?'show':''" @tap="hideModal">
+		<view class="cu-modal" :class="modalName=='RadioModal'?'show':''" @tap="hideModal" style="z-index: 999999;">
 			<view class="cu-dialog" @tap.stop="">
 				<radio-group class="block" @change="radioChange">
 					<view class="cu-list menu text-left">
