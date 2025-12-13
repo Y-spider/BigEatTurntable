@@ -119,10 +119,14 @@
 							.then(() => this.rewardAd.show())
 							.catch(err => {
 								console.error("激励广告显示失败", err);
-								uni.showToast({
-									title: "广告暂不可用",
-									icon: "none"
-								});
+								uni.showModal({
+									content: JSON.stringify(err),
+									showCancel: false
+								})
+								// uni.showToast({
+								// 	title: "广告暂不可用",
+								// 	icon: "none"
+								// });
 							})
 					})
 				}
@@ -140,6 +144,10 @@
 
 					// 广告加载失败
 					this.rewardAd.onError(err => {
+						uni.showModal({
+							content: JSON.stringify(err),
+							showCancel: false
+						})
 						console.error("激励广告加载失败:", err);
 					});
 

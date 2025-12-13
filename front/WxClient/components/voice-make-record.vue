@@ -115,7 +115,7 @@ export default {
 						if (res.confirm) {
 							// 播放广告
 							_this.$refs.rewardAd
-								.showAd("adunit-7dbb304ee73b2157")
+								.showAd("adunit-31f59c513f38f592")
 								.then(() => {
 									// 广告观看成功 → 开始录音
 									_this._startRecordReal();
@@ -191,7 +191,7 @@ _startRecordReal() {
 
 			// 使用 uni.uploadFile 上传
 			uni.uploadFile({
-				url: "http://192.168.1.104:16378/book/record/add/voice",  
+				url: "https://www.sunnygo.chat/turntable/api/book/record/add/voice",  
 				filePath: this.recordFilePath,
 				name: "file",
 				header:{

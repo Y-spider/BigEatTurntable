@@ -145,10 +145,13 @@ public class BillBookServiceImpl extends ServiceImpl<BillBookMapper, BillBook> i
                     billBook.setIsParentDelete(true);
                 }else{
                     billBook.setIsParentDelete(false);
+                    billBook.setBillCreateUserName(parentBillBook.getName());
                 }
             }else{
                 billBook.setIsParentDelete(false);
+                billBook.setBillCreateUserName(billBook.getName());
             }
+
 
         }
         return billBooks;
@@ -210,6 +213,9 @@ public class BillBookServiceImpl extends ServiceImpl<BillBookMapper, BillBook> i
         if(ObjectUtil.isNotEmpty(existBillBook)){
             return;
         }
+        LambdaQueryWrapper<User> queryWrapper1 = new LambdaQueryWrapper<>();
+        queryWrapper1.eq(User::getOpenid,SecurityUtil.getUserName());
+        User user = userMapper.selectOne(queryWrapper1);
         BillBook billBook = billBookMapper.selectById(bookId);
         BillBook newBillBook = new BillBook();
         newBillBook.setOpenid(SecurityUtil.getUserName());
@@ -221,6 +227,7 @@ public class BillBookServiceImpl extends ServiceImpl<BillBookMapper, BillBook> i
         newBillBook.setIsChoose(false);
         newBillBook.setShareCount(billBook.getShareCount()+1);
         newBillBook.setIsShare(true);
+        newBillBook.setName(user.getName());
         billBookMapper.insert(newBillBook);
         // 修改billbook的分享人数
         billBook.setShareCount(billBook.getShareCount() + 1);

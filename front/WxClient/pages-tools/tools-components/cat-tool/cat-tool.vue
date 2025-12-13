@@ -8,7 +8,7 @@
 			<!-- 加载中动画 -->
 			<view v-if="loading" class="loading">
 				<text>喵喵加载中...(图片加载较慢，请耐心等待)</text>
-				<image class="loading-gif" src="/static/cat_load.gif"></image>
+				<image class="loading-gif" src="../../static/cat_load.gif"></image>
 			</view>
 
 			<!-- 猫咪展示卡片 -->

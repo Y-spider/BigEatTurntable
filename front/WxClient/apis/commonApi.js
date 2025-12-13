@@ -1,6 +1,6 @@
 // 上传avatar
-// const baseUrl = "https://www.sunnygo.chat/turntable/api/"
-const baseUrl = "http://192.168.1.104:16378/"
+const baseUrl = "https://www.sunnygo.chat/turntable/api/"
+// const baseUrl = "http://192.168.1.104:16378/"
 export function uploadAvatar(tempFilePath) {
 	return new Promise((resolve, reject) => {
 		const token = uni.getStorageSync("token");

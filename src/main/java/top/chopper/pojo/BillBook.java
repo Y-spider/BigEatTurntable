@@ -59,6 +59,8 @@ public class BillBook extends BasePojo{
     @TableField(exist = false)
     private Boolean isEdit; // 是否可以进行编辑
 
+    @TableField(exist = false)
+    private String billCreateUserName; // 账本创建用户名称
 
 
     public static Integer getIdByCurrentBillBook(BillBook currentChooseBillBook){

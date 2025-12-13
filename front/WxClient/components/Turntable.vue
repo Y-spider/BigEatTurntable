@@ -215,7 +215,7 @@
 				});
 				this.audioPlay.src = "https://www.sunnygo.chat/images/eat-big-turntable/audioPlayForce_1.MP3"; // 本地或网络音频
 				this.audioPlay.loop = true
-				this.audioEnd.src = "/static/audio/audioEnd.mp3"
+				this.audioEnd.src = "https://www.sunnygo.chat/images/eat-big-turntable/audioEnd.mp3"
 				this.LuckyWheel = this.$refs.myLucky
 			},
 			// 点击抽奖按钮触发回调

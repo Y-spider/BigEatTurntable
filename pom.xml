@@ -13,7 +13,7 @@
     <!-- 优质的 spring/boot/data/security/cloud 框架中文文档尽在 => https://springdoc.cn -->
     <groupId>top.chopper</groupId>
     <artifactId>EatBigTurntableServer</artifactId>
-    <version>2.0.1-SNAPSHOT</version>
+    <version>3.0.1-SNAPSHOT</version>
     <name>EatBigTurntableServer</name>
     <description>EatBigTurntableServer</description>
     <url/>
@@ -39,14 +39,6 @@
         </profile>
     </profiles>
     <dependencies>
-<!--           调用ai大模型依赖-->
-        <!-- https://mvnrepository.com/artifact/com.unfbx/chatgpt-java -->
-        <dependency>
-            <groupId>com.unfbx</groupId>
-            <artifactId>chatgpt-java</artifactId>
-            <version>1.2.0</version>
-        </dependency>
-
         <!--        excel 操作依赖-->
         <dependency>
             <groupId>com.alibaba</groupId>

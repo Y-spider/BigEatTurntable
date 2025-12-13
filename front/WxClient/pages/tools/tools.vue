@@ -43,7 +43,7 @@
 		</view>
 
 		<!-- 工具分类标题 -->
-		<view v-if="dateToolList.length > 0" class="section-title">
+		<!-- <view v-if="dateToolList.length > 0" class="section-title">
 			<text class="title-text">⏳️️️ 日期工具</text>
 		</view>
 
@@ -58,7 +58,7 @@
 					<view class="tool-desc">{{ tool.shortDesc }}</view>
 				</view>
 			</view>
-		</view>
+		</view> -->
 		
 		
 		<!-- 系统分类标题 -->

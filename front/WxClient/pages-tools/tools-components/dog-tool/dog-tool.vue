@@ -8,7 +8,7 @@
 			<!-- 加载中动画 -->
 			<view v-if="loading" class="loading">
 				<text>加载中...(狗狗正在摆好姿势 🐾)</text>
-				<image class="loading-gif" src="/static/dog_load.gif"></image>
+				<image class="loading-gif" src="../../static/dog_load.gif"></image>
 			</view>
 
 			<!-- 狗狗展示卡片 -->

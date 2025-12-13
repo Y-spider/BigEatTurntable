@@ -71,8 +71,8 @@
 					<view class="remark-box">
 						<view class="cu-form-group" style="display: flex;">
 							<view class="title" style="font-weight: bold;">备注：</view>
-							<input style="display: inline;" v-model="billRecord.remark" placeholder="点击输入备注信息" name="input"
-								:maxlength="30"></input>
+							<input style="display: inline;" v-model="billRecord.remark" placeholder="点击输入备注信息"
+								name="input" :maxlength="30"></input>
 						</view>
 					</view>
 					<!-- 图片上传区域 -->
@@ -400,7 +400,7 @@
 			dateChange(e) {
 				this.billRecord.recordTime = e.detail.value;
 			},
-			async open(recordId,aiRecord) {
+			async open(recordId, aiRecord) {
 				if (recordId) {
 					const res = await getBillRecordAPI(recordId);
 					if (!res) return;
@@ -423,26 +423,28 @@
 						methodLabel: "",
 						methodUrl: ""
 					}
-					if(aiRecord){
+					if (aiRecord) {
 						this.billRecord = aiRecord;
 						// 保底选择支付方式
 						const methodItem = this.methodList.find(item => item.label === this.billRecord.methodLabel)
 						this.chooseMthodId = methodItem?.id || this.methodList[0]?.id || 1
 						this.billRecord.methodLabel = methodItem?.label || this.methodList[0]?.label || "微信支付"
-						
+
 						// 保底选择类别
 						const typeItem = this.iconUrlList.find(item => item.label === this.billRecord.labelName)
 						this.chooseType = typeItem?.id || this.iconUrlList[0]?.id || 1
-						this.billRecord.labelName = typeItem?.label || this.iconUrlList[0]?.label || (this.billRecord.type === "out" ? "餐饮" : "工资")
+						this.billRecord.labelName = typeItem?.label || this.iconUrlList[0]?.label || (this.billRecord
+							.type === "out" ? "餐饮" : "工资")
 						this.billRecord.labelUrl = typeItem?.url || this.iconUrlList[0]?.url || ""
-						
+
 						// 保底键盘显示金额
-						if(this.billRecord.amount){
+						if (this.billRecord.amount) {
 							this.$refs.keyboard?.setKeyboard(this.billRecord.amount)
-						}else{
+						} else {
 							this.billRecord.amount = 0;
+							this.$refs.keyboard?.setKeyboard(0)
 						}
-						}
+					}
 					this.billRecord.recordTime = `${y}-${m}-${d}`;
 				}
 				this.modalName = "bottomModal"
@@ -456,6 +458,9 @@
 				this.billRecord.amount = e.valueNumber;
 			},
 			async handleSubmit() {
+				if(this.billRecord.amount==0){
+					return;
+				}
 				uni.showLoading({
 					title: "上传中..."
 				})

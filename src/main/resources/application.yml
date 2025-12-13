@@ -4,9 +4,10 @@ spring:
   datasource:
     type: com.alibaba.druid.pool.DruidDataSource # 德鲁伊数据库连接池
     username: root
-    password: 123456 # Yanwenguang123_
-#    url: jdbc:mysql://www.sunnygo.chat:3307/eat_big_turntable?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
-    url: jdbc:mysql://127.0.0.1:3306/eat_big_turntable?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
+#    password: 123456 # Yanwenguang123_
+    password: Yanwenguang123_
+    url: jdbc:mysql://www.sunnygo.chat:3307/eat_big_turntable?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
+#    url: jdbc:mysql://127.0.0.1:3306/eat_big_turntable?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=UTC
     driver-class-name: com.mysql.cj.jdbc.Driver
   servlet:
     multipart:

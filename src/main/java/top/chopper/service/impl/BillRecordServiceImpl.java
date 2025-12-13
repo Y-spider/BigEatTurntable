@@ -405,7 +405,7 @@ public class BillRecordServiceImpl extends ServiceImpl<BillRecordMapper, BillRec
     }
 
     /**
-     * @param params 
+     * @param params
      * @return
      */
     /**
@@ -582,7 +582,7 @@ public class BillRecordServiceImpl extends ServiceImpl<BillRecordMapper, BillRec
         BillBook currentChooseBookBill = billBookService.getCurrentChooseBookBill();
 
         LambdaQueryWrapper<BillRecord> queryWrapper = new LambdaQueryWrapper<>();
-        queryWrapper.eq(BillRecord::getBillBookId, currentChooseBookBill.getId());
+        queryWrapper.eq(BillRecord::getBillBookId, BillBook.getIdByCurrentBillBook(currentChooseBookBill));
         // 针对 String 类型的 recordTime 进行范围查询
         // 注意：这里假设 recordTime 格式为 yyyy-MM-dd 或 yyyy-MM-dd HH:mm:ss，字符串比较在 ISO 格式下是有效的
         queryWrapper.between(BillRecord::getRecordTime, startDateStr, endDateStr);
@@ -710,7 +710,8 @@ public class BillRecordServiceImpl extends ServiceImpl<BillRecordMapper, BillRec
 
     private List<BillRecord> listByQueryWrappy(LambdaQueryWrapper<BillRecord> queryWrapper,Map<String,Object> map){
         if(ObjectUtil.isNotEmpty(map.get("bookId"))){
-            queryWrapper.eq(BillRecord::getBillBookId,map.get("bookId"));
+            BillBook billBook = billBookService.getById((Integer) map.get("bookId"));
+            queryWrapper.eq(BillRecord::getBillBookId,BillBook.getIdByCurrentBillBook(billBook));
         }
         if(ObjectUtil.isNotEmpty(map.get("userId")) && !"-1".equals(map.get("userId").toString())){
             User user = userService.getById((Integer) map.get("userId"));
@@ -824,6 +825,7 @@ public class BillRecordServiceImpl extends ServiceImpl<BillRecordMapper, BillRec
         }
     }
     private BillRecord genBillRecordByJsonStr(String jsonStr){
+        log.info("用户[{}]输入内容==>{}",SecurityUtil.getUserName(),jsonStr);
         BillRecord billRecord = new BillRecord();
         if(ObjectUtil.isEmpty(jsonStr)){
             return billRecord;
@@ -835,7 +837,22 @@ public class BillRecordServiceImpl extends ServiceImpl<BillRecordMapper, BillRec
             billRecord.setType("out");
         }
         if(ObjectUtil.isNotEmpty(entries.get("amount"))){
-            billRecord.setAmount(new BigDecimal(entries.get("amount").toString()));
+            Object amountObj = entries.get("amount");
+                BigDecimal amount;
+                if (amountObj instanceof BigDecimal) {
+                    amount = (BigDecimal) amountObj;
+                } else if (amountObj instanceof Integer) {
+                    amount = BigDecimal.valueOf(((Integer) amountObj).longValue());
+                } else if (amountObj instanceof Long) {
+                    amount = BigDecimal.valueOf((Long) amountObj);
+                } else if (amountObj instanceof Double) {
+                    amount = BigDecimal.valueOf((Double) amountObj);
+                } else if (amountObj instanceof String) {
+                    amount = new BigDecimal((String) amountObj);
+                } else {
+                    throw new IllegalArgumentException("Unsupported amount type: " + amountObj.getClass());
+                }
+                billRecord.setAmount(amount);
         }else{
             billRecord.setAmount(BigDecimal.ZERO);
         }
@@ -852,8 +869,6 @@ public class BillRecordServiceImpl extends ServiceImpl<BillRecordMapper, BillRec
         }
         return billRecord;
     }
-
-
 
 }
 

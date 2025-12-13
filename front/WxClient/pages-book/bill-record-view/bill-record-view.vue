@@ -139,7 +139,7 @@
 						<view class="card-body">
 							<view style="display: flex; flex-direction: column;">
 								<view @click="showDetaile(record.id)" class="record-item"
-									v-for="(record,index) in rankList" :key="record.id">
+									v-for="record in rankList" :key="record.id">
 									<view class="first-line">
 										<view class="item-left">
 											<!-- 消费类型ICON -->
@@ -204,6 +204,7 @@
 
 <script>
 	import changeShowUserDialog from '../../components/change_show_user_dialog.vue';
+	import qiunDataCharts from '../../pages-book/uni_modules/qiun-data-charts/components/qiun-data-charts/qiun-data-charts.vue';
 	// 引入API
 	import {
 		// 假设你把聚合接口命名为 getMonthSummaryAPI
@@ -213,7 +214,8 @@
 
 	export default {
 		components:{
-			changeShowUserDialog
+			changeShowUserDialog,
+			qiunDataCharts
 		},
 		data() {
 			return {
@@ -565,7 +567,7 @@
 		line-gap-override: 5rpx;
 		padding: 10rpx;
 		gap: 10rpx;
-		// border-bottom: 2rpx solid lightgray;
+		/* border-bottom: 2rpx solid lightgray; */
 	}
 	
 	.first-line {
